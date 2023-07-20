@@ -1,9 +1,8 @@
 {
-  "tournament": "o!RT 2",
+  "tournament": "Test",
   "BO": 5,
   "teams": [
-    {"name": "Dota scrubs", "members": ["Saltystick", "GlassesRMF"]},
-    {"name": "[yyy]", "members": ["unrealLyyy", "flowzyyy"]}
+    {"name": "M A N O L O"}
   ]
 }
 
