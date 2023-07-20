@@ -22,7 +22,6 @@ const api = new nodesu.Client(config.apiKey);
 let channel, lobby, map, started;
 let i = 0;
 let numplayers = match.teams.length
-console.log(numplayers)
 
 //whether to start right away or not
 let auto = false;
@@ -38,7 +37,6 @@ function initPool() {
 
 // Creates a new multi lobby
 async function init() {
-  console.log(chalk.bold.cyan(`id = ${pool[0].id}`));
   await initPool();
   console.log(chalk.bold.green('Loaded map pool!'));
   console.log(chalk.cyan('Attempting to connect...'));
