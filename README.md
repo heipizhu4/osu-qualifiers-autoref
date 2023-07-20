@@ -5,6 +5,8 @@ Semi-automated referee bot for osu! by [Cychloryn](https://osu.ppy.sh/users/6921
 Tested on Windows.
 Uses bancho.js by ThePoon.
 
+I might work on a better readme later...
+
 ## Features
 - Creates match automatically
 - Extra mp commands
