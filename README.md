@@ -2,7 +2,7 @@
 
 Semi-automated referee bot for osu! by [Cychloryn](https://osu.ppy.sh/users/6921736). Adapted to be an automated qualifiers bot by [M A N O L O](https://osu.ppy.sh/users/12296128).
 
-Tested on Linux and Windows.
+Tested on Windows.
 Uses bancho.js by ThePoon.
 
 ## Features
