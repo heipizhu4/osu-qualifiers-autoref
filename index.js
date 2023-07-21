@@ -121,7 +121,6 @@ function createListeners() {
     fs.appendFileSync(`${lobby.id}.txt`,`${name} (${Date()})\n`)
     if(numplayers <= 1 || auto){
       channel.sendMessage("All of the players are here. Starting now.");
-      wait = true;
       startLobby();
     }
     else{
