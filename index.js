@@ -14,16 +14,16 @@ const config = require('./config.json');
 const pool = require('./pool.json');
 const match = require('./match.json');
 const { timeStamp, time } = require('console');
-const fechacreacion = new Date();
+const lobbydate = new Date();
 
 const client = new bancho.BanchoClient(config);
 const api = new nodesu.Client(config.apiKey);
 
-let channel, lobby, map, started;
+let channel, lobby, map, wait;
 let i = 0;
 let numplayers = match.teams.length
 
-//whether to start right away or not
+// whether to start right away or not
 let auto = false;
 
 // populate mappool with map info
@@ -63,13 +63,18 @@ async function init() {
   console.log(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
   console.log(chalk.bold.cyan(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`));
   console.log(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
-  fs.writeFileSync(`${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby creada el ${fechacreacion}\n`)
+  fs.writeFileSync(`${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
 
   lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
 
   createListeners();
 }
-
+// Starts the refereeing
+function startLobby(){
+  auto, wait = true;
+  const map = setBeatmap(pool[i].code);
+  if (map) console.log(chalk.cyan(`Changing map to ${map}`));     
+}
 // Sets current beatmap by matching a user input
 function setBeatmap(input, force=false) {
   let isCode = !isNaN(input.slice(-1)); //is a numbered map code like NM2, DT1, etc.
@@ -114,16 +119,10 @@ function createListeners() {
     const name = obj.player.user.username;
     console.log(chalk.yellow(`Player ${name} has joined!`))
     fs.appendFileSync(`${lobby.id}.txt`,`${name} (${Date()})\n`)
-    if(numplayers <= 1){
-      auto = true;
-      if (started){
-        const map = setBeatmap(pool[i].code)
-        if (map) console.log(chalk.cyan(`Changing map to ${map}`))       
-      } else {
-        const map = setBeatmap(pool[0].code)
-        if (map) console.log(chalk.cyan(`Changing map to ${map}`))
-      }
-      started = true;
+    if(numplayers <= 1 || auto){
+      channel.sendMessage("All of the players are here. Starting now.");
+      wait = true;
+      startLobby();
     }
     else{
       numplayers = numplayers - 1;
@@ -132,20 +131,29 @@ function createListeners() {
 
   lobby.on("playerLeft",()=> {
     numplayers = numplayers + 1;
-    lobby.setMap(975342)
+    fs.appendFileSync(`${lobby.id}.txt`,`Someone left at (${Date()})\n`)
+    lobby.setMap(2382647)
+    wait = false
   })
   lobby.on("allPlayersReady", (obj) => {
-    lobby.startMatch(10);
+    if(auto && wait) lobby.startMatch(10);
   });
   lobby.on("matchFinished", (obj) => {
     obj.forEach(element => {
       fs.appendFileSync(`${element.player.user.username}.txt`,`${pool[i].code}: ${element.score}\n`);
-      i = i + 1;
     });
-      if (auto) {
-      const map = setBeatmap(pool[i].code);
-      if (map) console.log(chalk.cyan(`Changing map to ${map}`));
-    }
+    i = i + 1;
+      try {
+        if (auto && pool.length>i) {
+        const map = setBeatmap(pool[i].code);
+        if (map) console.log(chalk.cyan(`Changing map to ${map}`));
+        } else{
+          channel.sendMessage("The lobby has finished. It'll will close in 30 seconds.")
+          channel.sendMessage("!mp timer 30");
+          setTimeout(close,33000);
+  }} catch (error){
+      channel.sendMessage("There was an error changing the map. ID might be incorrect.");
+    };
    });
   });
   channel.on("message", async (msg) => {
@@ -164,6 +172,10 @@ function createListeners() {
             // intentionally fire these synchronously
             await lobby.invitePlayer(p.name);
           }
+          break;
+        case 'auto':
+          auto = (m[1] === 'on');
+          auto ? channel.sendMessage("Auto referee is " + (auto ? "ON" : "OFF")+ ". Starting now.") + startLobby() : channel.sendMessage("Auto referee is " + (auto ? "ON" : "OFF")) + lobby.setMap(2382647);
           break;
       }
     }
