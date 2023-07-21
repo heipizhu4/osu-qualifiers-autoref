@@ -13,13 +13,12 @@ const rl = readline.createInterface({
 const config = require('./config.json');
 const pool = require('./pool.json');
 const match = require('./match.json');
-const { timeStamp, time } = require('console');
 const lobbydate = new Date();
 
 const client = new bancho.BanchoClient(config);
 const api = new nodesu.Client(config.apiKey);
 
-let channel, lobby, map, wait;
+let channel, lobby, wait;
 let i = 0;
 let numplayers = match.teams.length
 
