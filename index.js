@@ -19,11 +19,13 @@ const client = new bancho.BanchoClient(config);
 const api = new nodesu.Client(config.apiKey);
 
 let channel, lobby, wait;
-let i = 0;
+let i = 0; //map iterator
 let numplayers = match.teams.length
 
-// whether to start right away or not
-let auto = false;
+let auto = false; // whether to start right away or not
+let mear = false;
+let ready = false;
+let first = true;
 
 // populate mappool with map info
 function initPool() {
@@ -43,9 +45,9 @@ async function init() {
   try {
     await client.connect();
     console.log(chalk.bold.green("Connected to Bancho!"));
-    lobbyname = `${match.tournament}: placeholder`
+    lobbyname = `${match.tournament} ES Tryouts: ${match.id}`
     /* lobbyname = `${match.tournament}: ${match.teams[BLUE].name} vs ${match.teams[RED].name}` */
-    channel = await client.createLobby(lobbyname); 
+    channel = await client.createLobby(lobbyname, match.private); 
   } catch (err) {
     console.log(err);
     console.log(chalk.bold.red("Failed to create lobby"));
@@ -70,9 +72,30 @@ async function init() {
 }
 // Starts the refereeing
 function startLobby(){
-  auto, wait = true;
+  auto = true;
+  wait = true;
+  channel.sendMessage("!mp timer 90");
   const map = setBeatmap(pool[i].code);
-  if (map) console.log(chalk.cyan(`Changing map to ${map}`));     
+  if (map) console.log(chalk.cyan(`Changing map to ${map}`));
+  setTimeout(() => {
+    if(mear && !ready){
+      channel.sendMessage("!mp timer 120");
+      setTimeout(() => {
+        if(!ready && numplayers<=0){
+          lobby.startMatch(15);
+          mear = false;
+        }
+        mear = false;
+      }, 123000);
+      
+    }
+    else if(!ready && numplayers<=0){
+      lobby.startMatch(15);
+    }
+    else if(numplayers>0){
+      channel.sendMessage("Falta alguien por entrar.")
+    }
+  }, 93000);     
 }
 // Sets current beatmap by matching a user input
 function setBeatmap(input, force=false) {
@@ -115,45 +138,59 @@ function setBeatmap(input, force=false) {
 }
 function createListeners() {
   lobby.on("playerJoined", (obj) => {
+    console.log("player joined")
     const name = obj.player.user.username;
     console.log(chalk.yellow(`Player ${name} has joined!`))
     fs.appendFileSync(`${lobby.id}.txt`,`${name} (${Date()})\n`)
-    if(numplayers <= 1 || auto){
+    if(numplayers <= 1 || auto){ //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
+      numplayers = numplayers - 1;
       channel.sendMessage("All of the players are here. Starting now.");
       startLobby();
     }
     else{
       numplayers = numplayers - 1;
-      channel.sendMessage(numplayers ? `Welcome. One more left to start.` : `Welcome. There are ${numplayers} players left to join in order to start.`);
+      channel.sendMessage(numplayers<2 ? `Welcome. One more left to start.` : `Welcome. There are ${numplayers} players left to join in order to start.`);
     };
-
+  });
   lobby.on("playerLeft",()=> {
+    console.log("playerLeft")
     numplayers = numplayers + 1;
     fs.appendFileSync(`${lobby.id}.txt`,`Someone left at (${Date()})\n`)
     lobby.setMap(2382647)
-    wait = false
+    wait = false;
+    ready = false;
   })
   lobby.on("allPlayersReady", (obj) => {
+    console.log("everyone ready")
+    channel.sendMessage("!mp aborttimer")
+    ready = true;
+    mear = false;
     if(auto && wait) lobby.startMatch(10);
   });
   lobby.on("matchFinished", (obj) => {
+    console.log("matchFinished")
     obj.forEach(element => {
       fs.appendFileSync(`${element.player.user.username}.txt`,`${pool[i].code}: ${element.score}\n`);
     });
     i = i + 1;
+    mear = false;
+    ready = false;
       try {
         if (auto && pool.length>i) {
-        const map = setBeatmap(pool[i].code);
-        if (map) console.log(chalk.cyan(`Changing map to ${map}`));
-        } else{
-          channel.sendMessage("The lobby has finished. It'll will close in 30 seconds.")
+        startLobby();
+        } else if(match.truns && first){
+          i = 0;
+          first = 0;
+          startLobby();
+        }
+          else {
+          channel.sendMessage("The lobby has finished. It'll close in 30 seconds.")
           channel.sendMessage("!mp timer 30");
           setTimeout(close,33000);
   }} catch (error){
       channel.sendMessage("There was an error changing the map. ID might be incorrect.");
     };
    });
-  });
   channel.on("message", async (msg) => {
     // All ">" commands must be sent by host
     console.log(chalk.dim(`${msg.user.ircUsername}: ${msg.message}`));
@@ -174,6 +211,9 @@ function createListeners() {
         case 'auto':
           auto = (m[1] === 'on');
           auto ? channel.sendMessage("Auto referee is " + (auto ? "ON" : "OFF")+ ". Starting now.") + startLobby() : channel.sendMessage("Auto referee is " + (auto ? "ON" : "OFF")) + lobby.setMap(2382647);
+          break;
+        case 'mear':
+          mear = true;
           break;
       }
     }

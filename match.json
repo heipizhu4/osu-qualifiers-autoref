@@ -1,8 +1,9 @@
 {
-  "tournament": "Test",
-  "BO": 5,
+  "id": "",
+  "private": false,
+  "truns": true,
+  "tournament": "5WC",
   "teams": [
     {"name": "M A N O L O"}
   ]
 }
-
