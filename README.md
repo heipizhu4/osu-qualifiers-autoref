@@ -11,6 +11,7 @@ I might work on a better readme later...
 - Creates match automatically
 - Extra mp commands
   - Invite all players with `>invite`
+  - Auto tactical timeout with `>mear`
 - Automatic scorekeeping
 - Auto start matches when players are ready
 - Every match starts with Elevator music
@@ -25,7 +26,7 @@ Create a file `config.json`. You can copy the template file `config.example.json
 Load the mappool into this file. The format should be self-explanatory from the example pool. It requires only the map code (NM2, HR3, DT1, etc) and the ID of the map. The bot will infer the mods based on the map code, but you can (optionally) explicitly provide the mod via the "mod" field.
 
 ### match.json
-Contains the users for your match. The first team will be blue, and the second will be red. This file also contains match metadata like the name of the tournament, and the "best-of" for the match (deprecated, not used).
+Contains the users for your match. This file also contains match metadata like the name of the tournament.
 
 ## Running
 Requires: node.js (I use node v10)
@@ -40,6 +41,16 @@ Upon running this bot, a match will be created, and the password will be logged 
 First, you can use this special command to invite all players from both teams to the match:
 ```
 >invite
+```
+If you want to give the players a break, you can easily do it by executing this next command:
+```
+>mear
+```
+If you need to takeover the bot at any point through, but you don't want to close the enitre thing just yet, you can use this next command, with any argument, except `on`, which will turn it back on.
+```
+>auto [args]
+>auto off
+>auto on
 ```
 At the end of the match, close the lobby with:
 ```
