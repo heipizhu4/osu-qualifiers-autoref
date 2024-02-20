@@ -166,6 +166,12 @@ function createListeners() {
       lobby.abortTimer();
       lobby.startMatch(match.timers.readyStart);
     }});
+    lobby.on("matchAborted", () => {
+      console.log(chalk.yellow("Match Aborted"));
+      timeout = false;
+      ready = false;
+      if (auto) startLobby();
+    });
   lobby.on("matchFinished", (obj) => {
     console.log("matchFinished")
     obj.forEach(element => {
@@ -217,6 +223,9 @@ function createListeners() {
           break;
         case 'timeout':
           timeout = true;
+          break;
+        case 'abort':
+          await abortMatch();
           break;
       }
     }
