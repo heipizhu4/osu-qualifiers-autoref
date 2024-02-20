@@ -18,7 +18,7 @@ const lobbydate = new Date();
 const client = new bancho.BanchoClient(config);
 const api = new nodesu.Client(config.apiKey);
 
-let channel, lobby, wait;
+let channel, lobby;
 let i = 0; //map iterator
 let numplayers = match.teams.length
 
@@ -73,13 +73,12 @@ async function init() {
 // Starts the refereeing
 function startLobby(){
   auto = true;
-  wait = true;
-  channel.sendMessage("!mp timer 90");
+  channel.startTimer(90); //betweenMaps
   const map = setBeatmap(pool[i].code);
   if (map) console.log(chalk.cyan(`Changing map to ${map}`));
   setTimeout(() => {
     if(timeout && !ready){
-      channel.sendMessage("!mp timer 120");
+      channel.startTimer(120); //timeout
       setTimeout(() => {
         if(!ready && numplayers<=0){
           lobby.startMatch(15);
@@ -89,11 +88,11 @@ function startLobby(){
       }, 123000);
       
     }
-    else if(!ready && numplayers<=0){
+    else if(!ready && (numplayers<=0 || auto)){
       lobby.startMatch(15);
     }
     else if(numplayers>0){
-      console.log("There (might) be someone left to join.");
+      console.log(chalk.bold.red("There (might) be someone left to join.\nTake over now or enable auto with >auto on"));
     }
   }, 93000);     
 }
@@ -157,15 +156,15 @@ function createListeners() {
     numplayers = numplayers + 1;
     fs.appendFileSync(`${lobby.id}.txt`,`Someone left at (${Date()})\n`)
     lobby.setMap(2382647)
-    wait = false;
+    auto = false;
     ready = false;
   })
   lobby.on("allPlayersReady", (obj) => {
-    console.log("everyone ready")
-    channel.sendMessage("!mp aborttimer")
+    console.log(chalk.magenta("everyone ready"));
+    channel.abortTimer();
     ready = true;
     timeout = false;
-    if(auto && wait) lobby.startMatch(10);
+    if(auto) lobby.startMatch(10);
   });
   lobby.on("matchFinished", (obj) => {
     console.log("matchFinished")
@@ -176,17 +175,18 @@ function createListeners() {
     timeout = false;
     ready = false;
       try {
-        if (auto && pool.length>i) {
-        startLobby();
-        } else if(match.truns && first){
-          i = 0; first = 0; //sets the pointer to the first map of the pool and sets first to false.
-          startLobby();
-        }
+        if (auto){
+          if (pool.length>i) {
+            startLobby();
+          } else if(match.truns && first){
+            i = 0; first = 0; //sets the pointer to the first map of the pool and sets first to false.
+            startLobby();
+            }
           else {
           channel.sendMessage("The lobby has finished. It'll close in 30 seconds.")
-          channel.sendMessage("!mp timer 30");
+          channel.startTimer(30);
           setTimeout(close,33000);
-  }} catch (error){
+  }}} catch (error){
       channel.sendMessage("There was an error changing the map. ID might be incorrect.");
     };
    });
