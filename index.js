@@ -152,18 +152,19 @@ function createListeners() {
   lobby.on("playerLeft",()=> {
     console.log("playerLeft")
     numPlayers++;
-    fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Someone left at (${Date()})\n`)
-    lobby.setMap(match.waitSong)
+    fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Someone left at (${Date()})\n`);
+    if (auto) lobby.setMap(match.waitSong);
     auto = false;
     ready = false;
   })
   lobby.on("allPlayersReady", (obj) => {
     console.log(chalk.magenta("everyone ready"));
-    channel.abortTimer();
     ready = true;
     timeout = false;
-    if(auto) lobby.startMatch(match.timers.readyStart);
-  });
+    if(auto){
+      await channel.abortTimer();
+      lobby.startMatch(match.timers.readyStart);
+    }});
   lobby.on("matchFinished", (obj) => {
     console.log("matchFinished")
     obj.forEach(element => {
