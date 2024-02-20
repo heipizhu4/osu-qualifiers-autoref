@@ -70,15 +70,16 @@ async function init() {
 
   createListeners();
 }
+
 // Starts the refereeing
 function startLobby(){
   auto = true;
-  channel.startTimer(match.timers.betweenMaps);
+  lobby.startTimer(match.timers.betweenMaps);
   const map = setBeatmap(pool[i].code);
   if (map) console.log(chalk.cyan(`Changing map to ${map}`));
   setTimeout(() => {
     if(timeout && !ready){
-      channel.startTimer(match.timers.timeout);
+      lobby.startTimer(match.timers.timeout);
       setTimeout(() => {
         if(!ready && numPlayers<=0){
           lobby.startMatch(match.timers.forceStart);
@@ -162,7 +163,7 @@ function createListeners() {
     ready = true;
     timeout = false;
     if(auto){
-      channel.abortTimer();
+      lobby.abortTimer();
       lobby.startMatch(match.timers.readyStart);
     }});
   lobby.on("matchFinished", (obj) => {
@@ -183,7 +184,7 @@ function createListeners() {
             }
           else {
           channel.sendMessage(`The lobby has finished. It'll close in ${match.timers.closeLobby} seconds.`)
-          channel.startTimer(match.timers.closeLobby);
+          lobby.startTimer(match.timers.closeLobby);
           setTimeout(close,((1000 * match.timers.closeLobby) + 3000));
   }} else if(!(pool.length>i)){
           i = 0;
