@@ -58,7 +58,7 @@ async function init() {
 
   const password = Math.random().toString(36).substring(8);
   await lobby.setPassword(password);
-  await lobby.setMap(975342); //elevator music
+  await lobby.setMap(match.waitSong); //elevator music
 
   console.log(chalk.bold.green("Lobby created!"));
   console.log(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
@@ -155,7 +155,7 @@ function createListeners() {
     console.log("playerLeft")
     numPlayers = numPlayers + 1;
     fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Someone left at (${Date()})\n`)
-    lobby.setMap(2382647)
+    lobby.setMap(match.waitSong)
     auto = false;
     ready = false;
   })
@@ -210,7 +210,7 @@ function createListeners() {
           break;
         case 'auto':
           auto = (m[1] === 'on');
-          auto ? channel.sendMessage("Auto referee is " + (auto ? "ON" : "OFF")+ ". Starting now.") + startLobby() : channel.sendMessage("Auto referee is " + (auto ? "ON" : "OFF")) + lobby.setMap(2382647);
+          auto ? channel.sendMessage("Auto referee is " + (auto ? "ON" : "OFF")+ ". Starting now.") + startLobby() : channel.sendMessage("Auto referee is " + (auto ? "ON" : "OFF")) + lobby.setMap(match.waitSong);
           break;
         case 'timeout':
           timeout = true;
