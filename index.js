@@ -97,44 +97,33 @@ function startLobby(){
     }
   }, ((1000 * match.timers.betweenMaps) + 3000));     
 }
-// Sets current beatmap by matching a user input
-function setBeatmap(input, force=false) {
-  let isCode = !isNaN(input.slice(-1)); //is a numbered map code like NM2, DT1, etc.
-  if (force || input.length > 4 || (input.length > 2 && isCode)) {
-    
-    const codeResult = pool.filter((map) => {
-      return map.code.toLowerCase() === input.toLowerCase();
-    });
+// Sets current beatmap
+function setBeatmap(mapCode) {
+  // Find the map with the given code
+  const map = pool.find((map) => map.code.toLowerCase() === mapCode.toLowerCase());
 
-    const result = pool.filter((map) => {
-      return map.name.toLowerCase().includes(input.toLowerCase());
-    });
-    // Prioritize matches to map code before checking by name
-    let map;
-    if (codeResult.length === 1) {
-      map = codeResult[0];
-    }  else if(result.length === 1) {
-      map = result[0];
-    } else {
-      return;
-    }
-  
-    // Find correct mods based on map code
-    let mapType = map.code.slice(0, 2);
-    let mod = 'Freemod';
-    if (map.mod) {
-      mod = map.mod; // if mod explicitly provided (not normal)
-    } else if (['HD', 'HR', 'DT'].includes(mapType)) {
-      mod = mapType + " NF";
-    } else if (mapType === 'NM') {
-      mod = 'NF';
-    }
-  
-    channel.sendMessage("Selecting " + map.name);
-    lobby.setMap(map.id);
-    lobby.setMods(mod, false);
-    return map.code;
+  // If no map was found, return
+  if (!map) {
+    return;
   }
+
+  // Find correct mods based on map code
+  let mapType = map.code.slice(0, 2);
+  let mod = 'Freemod';
+  if (map.mod) {
+    mod = map.mod; // if mod explicitly provided (not normal)
+  } else if (['HD', 'HR', 'DT'].includes(mapType)) {
+    mod = mapType + " NF";
+  } else if (mapType === 'NM') {
+    mod = 'NF';
+  }
+
+  // Set the map and mods in the lobby
+  channel.sendMessage("Selecting " + map.name);
+  lobby.setMap(map.id);
+  lobby.setMods(mod, false);
+
+  return map.code;
 }
 function createListeners() {
   lobby.on("playerJoined", (obj) => {
