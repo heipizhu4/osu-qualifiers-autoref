@@ -1,4 +1,9 @@
 {
+  "timers": {
+    "betweenMaps": 90,
+    "timeout": 120,
+    "closeLobby": 30
+  },
   "id": "",
   "private": false,
   "truns": true,
