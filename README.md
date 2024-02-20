@@ -29,7 +29,7 @@ Load the mappool into this file. The format should be self-explanatory from the 
 Contains the users for your match. This file also contains match metadata like the name of the tournament.
 
 ## Running
-Requires: node.js (I use node v10)
+Requires: node.js ~~(I use node v10)~~ latest node also work though I recommend using LTS
 ```
 npm install
 npm start OR node index
