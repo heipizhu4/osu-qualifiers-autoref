@@ -141,13 +141,11 @@ function createListeners() {
     const name = obj.player.user.username;
     console.log(chalk.yellow(`Player ${name} has joined!`))
     fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`${name} (${Date()})\n`)
-    if(numPlayers <= 1 || auto){ //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
-      numPlayer--;
+    if(numPlayers-- <= 1 || auto){ //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
       channel.sendMessage("All of the players are here. Starting now.");
       startLobby();
     }
     else{
-      numPlayers--;
       channel.sendMessage(numPlayers<2 ? `Welcome. One more left to start.` : `Welcome. There are ${numPlayers} players left to join in order to start.`);
     };
   });
