@@ -184,7 +184,10 @@ function createListeners() {
           channel.sendMessage(`The lobby has finished. It'll close in ${match.timers.closeLobby} seconds.`)
           channel.startTimer(match.timers.closeLobby);
           setTimeout(close,((1000 * match.timers.closeLobby) + 3000));
-  }}} catch (error){
+  }} else if(!(pool.length>i)){
+          i = 0;
+          run++;
+      }} catch (error){
       channel.sendMessage(`There was an error changing the map. ID ${pool[i].code} might be incorrect. Ping your ref.`);
       console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[i].code}.`)
     };
