@@ -6,9 +6,10 @@
     "timeout": 120,
     "closeLobby": 30
   },
+  "waitSong": 2382647,
   "id": "",
   "private": false,
-  "truns": true,
+  "numberOfRuns": true,
   "tournament": "5WC",
   "teams": [
     {"name": "M A N O L O"}
