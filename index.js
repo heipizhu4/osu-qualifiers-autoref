@@ -85,7 +85,7 @@ function startLobby(){
           timeout = false;
         }
         timeout = false;
-      }, ((1000 * match.timers.timeout) + 3000)));
+      }, ((1000 * match.timers.timeout) + 3000));
       
     }
     else if(!ready && (numPlayers<=0 || auto)){
@@ -94,7 +94,7 @@ function startLobby(){
     else if(numPlayers>0){
       console.log(chalk.bold.red("There (might) be someone left to join.\nTake over now or enable auto with >auto on"));
     }
-  }, ((1000 * match.timers.betweenMaps) + 3000)));     
+  }, ((1000 * match.timers.betweenMaps) + 3000));     
 }
 // Sets current beatmap by matching a user input
 function setBeatmap(input, force=false) {
@@ -190,8 +190,8 @@ function createListeners() {
           run++;
       }} catch (error){
       channel.sendMessage(`There was an error changing the map. ID ${pool[i].code} might be incorrect. Ping your ref.`);
-      console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[i].code}.`)
-    };
+      console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[i].code}.`));
+    }
    });
   channel.on("message", async (msg) => {
     // All ">" commands must be sent by host
