@@ -1,6 +1,8 @@
 {
   "timers": {
     "betweenMaps": 90,
+    "readyStart": 10,
+    "forceStart": 15,
     "timeout": 120,
     "closeLobby": 30
   },
