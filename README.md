@@ -25,7 +25,11 @@ Before running osu!autoref, you'll need to fill out some configuration.
 Create a file `config.json`. You can copy the template file `config.example.json`. You will need to add your username, [IRC password](https://osu.ppy.sh/p/irc), and osu! [API key](https://osu.ppy.sh/p/api).
 
 ### pool.json
-Configure the game settings, including timers, waiting song duration, ID, privacy status, number of runs, tournament name, and teams participating, ensuring adherence to the provided JSON structure. In case you need to add more players do it like this:
+Load the mappool into this file. The format should be self-explanatory from the example pool. It requires only the map code (NM2, HR3, DT1, etc) and the ID of the map. The bot will infer the mods based on the map code, but you can (optionally) explicitly provide the mod via the "mod" field.
+
+### match.json
+Configure the game settings, including timers, waiting song/map, ID, whether you want the mp to be private or not, the number of runs, the tournament acronym, and players participating, ensuring adherence to the provided JSON structure. 
+In case you need to add more players do it like this:
 ```json
   "teams": [
       {"name": "Player 1"},
@@ -33,11 +37,8 @@ Configure the game settings, including timers, waiting song duration, ID, privac
       {"name": "Player 3"}
   ]
 ```
-### match.json
-Contains the users for your match. This file also contains match metadata like the name of the tournament.
-
 ## Running
-Requires: node.js ~~(I use node v10)~~ latest node also work though I recommend using LTS
+Requires: node.js ~~(I use node v10)~~ latest node.js also works though I recommend using LTS
 ```py
 npm install
 npm start OR node index
