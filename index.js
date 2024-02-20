@@ -162,7 +162,7 @@ function createListeners() {
     ready = true;
     timeout = false;
     if(auto){
-      await channel.abortTimer();
+      channel.abortTimer();
       lobby.startMatch(match.timers.readyStart);
     }});
   lobby.on("matchFinished", (obj) => {
