@@ -20,12 +20,12 @@ const api = new nodesu.Client(config.apiKey);
 
 let channel, lobby;
 let i = 0; //map iterator
-let numplayers = match.teams.length
+let numPlayers = match.teams.length
 
 let auto = false; // whether to start right away or not
 let timeout = false;
 let ready = false;
-let first = true;
+let run = 1;
 
 // populate mappool with map info
 function initPool() {
@@ -73,28 +73,28 @@ async function init() {
 // Starts the refereeing
 function startLobby(){
   auto = true;
-  channel.startTimer(90); //betweenMaps
+  channel.startTimer(match.timers.betweenMaps);
   const map = setBeatmap(pool[i].code);
   if (map) console.log(chalk.cyan(`Changing map to ${map}`));
   setTimeout(() => {
     if(timeout && !ready){
-      channel.startTimer(120); //timeout
+      channel.startTimer(match.timers.timeout);
       setTimeout(() => {
-        if(!ready && numplayers<=0){
-          lobby.startMatch(15);
+        if(!ready && numPlayers<=0){
+          lobby.startMatch(match.timers.forceStart);
           timeout = false;
         }
         timeout = false;
-      }, 123000);
+      }, ((1000 * match.timers.timeout) + 3000)));
       
     }
-    else if(!ready && (numplayers<=0 || auto)){
-      lobby.startMatch(15);
+    else if(!ready && (numPlayers<=0 || auto)){
+      lobby.startMatch(match.timers.forceStart);
     }
-    else if(numplayers>0){
+    else if(numPlayers>0){
       console.log(chalk.bold.red("There (might) be someone left to join.\nTake over now or enable auto with >auto on"));
     }
-  }, 93000);     
+  }, ((1000 * match.timers.betweenMaps) + 3000)));     
 }
 // Sets current beatmap by matching a user input
 function setBeatmap(input, force=false) {
@@ -141,19 +141,19 @@ function createListeners() {
     const name = obj.player.user.username;
     console.log(chalk.yellow(`Player ${name} has joined!`))
     fs.appendFileSync(`${lobby.id}.txt`,`${name} (${Date()})\n`)
-    if(numplayers <= 1 || auto){ //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
-      numplayers = numplayers - 1;
+    if(numPlayers <= 1 || auto){ //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
+      numPlayer--;
       channel.sendMessage("All of the players are here. Starting now.");
       startLobby();
     }
     else{
-      numplayers = numplayers - 1;
-      channel.sendMessage(numplayers<2 ? `Welcome. One more left to start.` : `Welcome. There are ${numplayers} players left to join in order to start.`);
+      numPlayers = numPlayers - 1;
+      channel.sendMessage(numPlayers<2 ? `Welcome. One more left to start.` : `Welcome. There are ${numPlayers} players left to join in order to start.`);
     };
   });
   lobby.on("playerLeft",()=> {
     console.log("playerLeft")
-    numplayers = numplayers + 1;
+    numPlayers = numPlayers + 1;
     fs.appendFileSync(`${lobby.id}.txt`,`Someone left at (${Date()})\n`)
     lobby.setMap(2382647)
     auto = false;
@@ -164,30 +164,31 @@ function createListeners() {
     channel.abortTimer();
     ready = true;
     timeout = false;
-    if(auto) lobby.startMatch(10);
+    if(auto) lobby.startMatch(match.timers.readyStart);
   });
   lobby.on("matchFinished", (obj) => {
     console.log("matchFinished")
     obj.forEach(element => {
       fs.appendFileSync(`${element.player.user.username}.txt`,`${pool[i].code}: ${element.score}\n`);
     });
-    i = i + 1;
+    i++;
     timeout = false;
     ready = false;
       try {
         if (auto){
           if (pool.length>i) {
             startLobby();
-          } else if(match.truns && first){
-            i = 0; first = 0; //sets the pointer to the first map of the pool and sets first to false.
+          } else if(run++ < match.numberOfRuns){
+            i = 0; //sets the pointer to the first map of the pool and sets first to false.
             startLobby();
             }
           else {
-          channel.sendMessage("The lobby has finished. It'll close in 30 seconds.")
-          channel.startTimer(30);
-          setTimeout(close,33000);
+          channel.sendMessage(`The lobby has finished. It'll close in ${match.timers.closeLobby} seconds.`)
+          channel.startTimer(match.timers.closeLobby);
+          setTimeout(close,((1000 * match.timers.closeLobby) + 3000));
   }}} catch (error){
-      channel.sendMessage("There was an error changing the map. ID might be incorrect.");
+      channel.sendMessage(`There was an error changing the map. ID ${pool[i].code} might be incorrect. Ping your ref.`);
+      console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[i].code}.`)
     };
    });
   channel.on("message", async (msg) => {
