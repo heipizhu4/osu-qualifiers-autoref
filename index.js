@@ -147,13 +147,13 @@ function createListeners() {
       startLobby();
     }
     else{
-      numPlayers = numPlayers - 1;
+      numPlayers--;
       channel.sendMessage(numPlayers<2 ? `Welcome. One more left to start.` : `Welcome. There are ${numPlayers} players left to join in order to start.`);
     };
   });
   lobby.on("playerLeft",()=> {
     console.log("playerLeft")
-    numPlayers = numPlayers + 1;
+    numPlayers++;
     fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Someone left at (${Date()})\n`)
     lobby.setMap(match.waitSong)
     auto = false;
