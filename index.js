@@ -23,7 +23,7 @@ let i = 0; //map iterator
 let numplayers = match.teams.length
 
 let auto = false; // whether to start right away or not
-let mear = false;
+let timeout = false;
 let ready = false;
 let first = true;
 
@@ -78,14 +78,14 @@ function startLobby(){
   const map = setBeatmap(pool[i].code);
   if (map) console.log(chalk.cyan(`Changing map to ${map}`));
   setTimeout(() => {
-    if(mear && !ready){
+    if(timeout && !ready){
       channel.sendMessage("!mp timer 120");
       setTimeout(() => {
         if(!ready && numplayers<=0){
           lobby.startMatch(15);
-          mear = false;
+          timeout = false;
         }
-        mear = false;
+        timeout = false;
       }, 123000);
       
     }
@@ -93,7 +93,7 @@ function startLobby(){
       lobby.startMatch(15);
     }
     else if(numplayers>0){
-      channel.sendMessage("Falta alguien por entrar.")
+      console.log("There (might) be someone left to join.");
     }
   }, 93000);     
 }
@@ -164,7 +164,7 @@ function createListeners() {
     console.log("everyone ready")
     channel.sendMessage("!mp aborttimer")
     ready = true;
-    mear = false;
+    timeout = false;
     if(auto && wait) lobby.startMatch(10);
   });
   lobby.on("matchFinished", (obj) => {
@@ -173,14 +173,13 @@ function createListeners() {
       fs.appendFileSync(`${element.player.user.username}.txt`,`${pool[i].code}: ${element.score}\n`);
     });
     i = i + 1;
-    mear = false;
+    timeout = false;
     ready = false;
       try {
         if (auto && pool.length>i) {
         startLobby();
         } else if(match.truns && first){
-          i = 0;
-          first = 0;
+          i = 0; first = 0; //sets the pointer to the first map of the pool and sets first to false.
           startLobby();
         }
           else {
@@ -212,8 +211,8 @@ function createListeners() {
           auto = (m[1] === 'on');
           auto ? channel.sendMessage("Auto referee is " + (auto ? "ON" : "OFF")+ ". Starting now.") + startLobby() : channel.sendMessage("Auto referee is " + (auto ? "ON" : "OFF")) + lobby.setMap(2382647);
           break;
-        case 'mear':
-          mear = true;
+        case 'timeout':
+          timeout = true;
           break;
       }
     }
