@@ -11,10 +11,12 @@ I might work on a better readme later...
 - Creates match automatically
 - Extra mp commands
   - Invite all players with `>invite`
-  - Auto tactical timeout with `>mear`
+  - Auto tactical timeout with `>timeout`
+  - Close the lobby automatically with `>close`
 - Automatic scorekeeping
 - Auto start matches when players are ready
-- Every match starts with Elevator music
+- Every match starts with your own Elevator music
+- As many runs as you'd like!
  
 ## Configuration
 Before running osu!autoref, you'll need to fill out some configuration.
@@ -23,14 +25,20 @@ Before running osu!autoref, you'll need to fill out some configuration.
 Create a file `config.json`. You can copy the template file `config.example.json`. You will need to add your username, [IRC password](https://osu.ppy.sh/p/irc), and osu! [API key](https://osu.ppy.sh/p/api).
 
 ### pool.json
-Load the mappool into this file. The format should be self-explanatory from the example pool. It requires only the map code (NM2, HR3, DT1, etc) and the ID of the map. The bot will infer the mods based on the map code, but you can (optionally) explicitly provide the mod via the "mod" field.
-
+Configure the game settings, including timers, waiting song duration, ID, privacy status, number of runs, tournament name, and teams participating, ensuring adherence to the provided JSON structure. In case you need to add more players do it like this:
+```json
+  "teams": [
+      {"name": "Player 1"},
+      {"name": "Player 2"},
+      {"name": "Player 3"}
+  ]
+```
 ### match.json
 Contains the users for your match. This file also contains match metadata like the name of the tournament.
 
 ## Running
 Requires: node.js ~~(I use node v10)~~ latest node also work though I recommend using LTS
-```
+```py
 npm install
 npm start OR node index
 ```
@@ -39,21 +47,20 @@ npm start OR node index
 Upon running this bot, a match will be created, and the password will be logged to the terminal. You can send messages to the chatroom via the terminal window, but this is kinda janky, so I'd recommenda also having an IRC client open/being in-game.
 
 First, you can use this special command to invite all players from both teams to the match:
-```
+```py
 >invite
 ```
 If you want to give the players a break, you can easily do it by executing this next command:
-```
+```py
 >timeout
 ```
 If you need to takeover the bot at any point through, but you don't want to close the enitre thing just yet, you can use this next command, with any argument, except `on`, which will turn it back on.
-```
->auto [args]
+```py
 >auto off
 >auto on
 ```
 At the end of the match, close the lobby with:
-```
+```py
 >close
 ```
 This command is recommended over `!mp close`, because it also disconnects the bot from Bancho and cleanly exits the program.
