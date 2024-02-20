@@ -32,7 +32,7 @@ Contains the users for your match. This file also contains match metadata like t
 Requires: node.js (I use node v10)
 ```
 npm install
-npm start
+npm start OR node index
 ```
 
 ## Usage
@@ -44,7 +44,7 @@ First, you can use this special command to invite all players from both teams to
 ```
 If you want to give the players a break, you can easily do it by executing this next command:
 ```
->mear
+>timeout
 ```
 If you need to takeover the bot at any point through, but you don't want to close the enitre thing just yet, you can use this next command, with any argument, except `on`, which will turn it back on.
 ```
