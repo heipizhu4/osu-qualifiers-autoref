@@ -64,7 +64,7 @@ async function init() {
   console.log(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
   console.log(chalk.bold.cyan(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`));
   console.log(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
-  fs.writeFileSync(`${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
+  fs.writeFileSync(`./lobbies/${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
 
   lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
 
@@ -140,7 +140,7 @@ function createListeners() {
     console.log("player joined")
     const name = obj.player.user.username;
     console.log(chalk.yellow(`Player ${name} has joined!`))
-    fs.appendFileSync(`${lobby.id}.txt`,`${name} (${Date()})\n`)
+    fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`${name} (${Date()})\n`)
     if(numPlayers <= 1 || auto){ //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
       numPlayer--;
       channel.sendMessage("All of the players are here. Starting now.");
@@ -154,7 +154,7 @@ function createListeners() {
   lobby.on("playerLeft",()=> {
     console.log("playerLeft")
     numPlayers = numPlayers + 1;
-    fs.appendFileSync(`${lobby.id}.txt`,`Someone left at (${Date()})\n`)
+    fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Someone left at (${Date()})\n`)
     lobby.setMap(2382647)
     auto = false;
     ready = false;
@@ -169,7 +169,7 @@ function createListeners() {
   lobby.on("matchFinished", (obj) => {
     console.log("matchFinished")
     obj.forEach(element => {
-      fs.appendFileSync(`${element.player.user.username}.txt`,`${pool[i].code}: ${element.score}\n`);
+      fs.appendFileSync(`./players/${element.player.user.username}.txt`,`${pool[i].code}: ${element.score}\n`);
     });
     i++;
     timeout = false;
