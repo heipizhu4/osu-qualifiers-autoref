@@ -169,7 +169,7 @@ function createListeners() {
     });
     lobby.on("matchAborted", () => {
       console.log(chalk.yellow.bold("Match Aborted"));
-      fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Match aborted at (${Date()}), due to`+(ready ? "unknown reasons." : "early disconnect.")+`\n`);
+      fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Match aborted at (${Date()}), `+(ready ? "by the ref." : "due to an early disconnect.")+`\n`);
       timeout = false;
       ready = false;
       inPick = false;
@@ -230,7 +230,7 @@ function createListeners() {
           break;
         case 'abort':
           await abortMatch();
-          channel.sendMessage("Abort due to unknown reasons.")
+          channel.sendMessage("Match aborted manually.")
           break;
       }
     }
