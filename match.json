@@ -4,7 +4,8 @@
     "readyStart": 10,
     "forceStart": 15,
     "timeout": 120,
-    "closeLobby": 30
+    "closeLobby": 30,
+    "abortLeniency": 15
   },
   "waitSong": 2382647,
   "id": "",

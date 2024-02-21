@@ -25,7 +25,9 @@ let numPlayers = match.teams.length
 let auto = false; // whether to start right away or not
 let timeout = false;
 let ready = false;
+let inPick = false;
 let run = 1;
+let timeStarted;
 
 // populate mappool with map info
 function initPool() {
@@ -142,8 +144,13 @@ function createListeners() {
   lobby.on("playerLeft",()=> {
     console.log("playerLeft")
     numPlayers++;
-    fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Someone left at (${Date()})\n`);
-    if (auto) lobby.setMap(match.waitSong);
+    fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Someone left at (${Date()}).\n`);
+    if (inPick && (new Date().valueOf()-match.timers.abortLeniency*1000)<timeStarted){
+      lobby.abortMatch();
+      ready = false;
+      channel.sendMessage("Match aborted due to early disconnect.");
+    }
+    else if (auto) lobby.setMap(match.waitSong);
     auto = false;
     ready = false;
   })
@@ -155,10 +162,17 @@ function createListeners() {
       lobby.abortTimer();
       lobby.startMatch(match.timers.readyStart);
     }});
+    lobby.on("matchStarted", () => {
+      timeStarted = new Date().valueOf();//log time started
+      fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`${pool[i].code} started at (${Date()}).\n`);
+      inPick = true;
+    });
     lobby.on("matchAborted", () => {
-      console.log(chalk.yellow("Match Aborted"));
+      console.log(chalk.yellow.bold("Match Aborted"));
+      fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Match aborted at (${Date()}), due to`+(ready ? "unknown reasons." : "early disconnect.")+`\n`);
       timeout = false;
       ready = false;
+      inPick = false;
       if (auto) startLobby();
     });
   lobby.on("matchFinished", (obj) => {
@@ -169,6 +183,7 @@ function createListeners() {
     i++;
     timeout = false;
     ready = false;
+    inPick = false;
       try {
         if (auto){
           if (pool.length>i) {
@@ -215,6 +230,7 @@ function createListeners() {
           break;
         case 'abort':
           await abortMatch();
+          channel.sendMessage("Abort due to unknown reasons.")
           break;
       }
     }
