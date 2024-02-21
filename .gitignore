@@ -1,7 +1,8 @@
 node_modules
+lobbies
+players
 *.swp
 config.json
 matches
 pool.json
 match.json
-*.txt
