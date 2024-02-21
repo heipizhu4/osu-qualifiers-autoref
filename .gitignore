@@ -2,3 +2,6 @@ node_modules
 *.swp
 config.json
 matches
+pool.json
+match.json]
+*.txt
