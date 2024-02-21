@@ -229,7 +229,7 @@ function createListeners() {
           timeout = true;
           break;
         case 'abort':
-          await abortMatch();
+          await lobby.abortMatch();
           channel.sendMessage("Match aborted manually.")
           break;
       }
@@ -247,6 +247,7 @@ async function close() {
   await lobby.closeLobby();
   await client.disconnect();
   console.log(chalk.cyan("Closed."));
+  process.exit(0);
 }
 
 init()
