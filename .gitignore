@@ -3,5 +3,5 @@ node_modules
 config.json
 matches
 pool.json
-match.json]
+match.json
 *.txt
