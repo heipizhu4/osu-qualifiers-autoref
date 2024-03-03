@@ -229,6 +229,7 @@ function createListeners() {
           break;
         case 'timeout':
           timeout = true;
+          channel.sendMessage("Timeout given. An additional " + match.timers.timeout + " seconds timer will be applied.");
           break;
         case 'abort':
           await lobby.abortMatch();
