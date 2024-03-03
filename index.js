@@ -20,7 +20,7 @@ const api = new nodesu.Client(config.apiKey);
 
 let channel, lobby;
 let i = 0; //map iterator
-let numPlayers = match.teams.length
+let numPlayers = match.teams.length //players left to join
 
 let auto = false; // whether to start right away or not
 let timeout = false;
