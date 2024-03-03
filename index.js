@@ -19,15 +19,16 @@ const client = new bancho.BanchoClient(config);
 const api = new nodesu.Client(config.apiKey);
 
 let channel, lobby;
-let i = 0; //map iterator
-let numPlayers = match.teams.length //players left to join
+let playersLeftToJoin = match.teams.length 
 
+let mapIndex = 0; //map iterator
+let runIndex = 1; //what run we're on
 let auto = false; // whether to start right away or not
-let timeout = false;
-let ready = false;
-let inPick = false;
-let run = 1;
-let timeStarted;
+let timeout = false; //whether there's a timeout going to be given
+let ready = false; //whether everyone is ready or not
+let inPick = false; //whether the match is playing or not
+let timeStarted; //time the match started
+let closing = false; //whether the lobby is closing or not
 
 // populate mappool with map info
 function initPool() {
@@ -74,31 +75,13 @@ async function init() {
 }
 
 // Starts the refereeing
-function startLobby(){
+function startLobby() {
   auto = true;
   lobby.startTimer(match.timers.betweenMaps);
-  const map = setBeatmap(pool[i].code);
+  const map = setBeatmap(pool[mapIndex].code);
   if (map) console.log(chalk.cyan(`Changing map to ${map}`));
-  setTimeout(() => {
-    if(timeout && !ready){
-      lobby.startTimer(match.timers.timeout);
-      setTimeout(() => {
-        if(!ready && numPlayers<=0){
-          lobby.startMatch(match.timers.forceStart);
-          timeout = false;
-        }
-        timeout = false;
-      }, ((1000 * match.timers.timeout) + 3000));
-      
-    }
-    else if(!ready && (numPlayers<=0 || auto)){
-      lobby.startMatch(match.timers.forceStart);
-    }
-    else if(numPlayers>0){
-      console.log(chalk.bold.red("There (might) be someone left to join.\nTake over now or enable auto with >auto on"));
-    }
-  }, ((1000 * match.timers.betweenMaps) + 3000));     
 }
+
 // Sets current beatmap
 function setBeatmap(mapCode) {
   // Find the map with the given code
@@ -133,19 +116,20 @@ function createListeners() {
     const name = obj.player.user.username;
     console.log(chalk.yellow(`Player ${name} has joined!`))
     fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`${name} (${Date()})\n`)
-    if(numPlayers-- <= 1 || auto){ //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
+    if(playersLeftToJoin-- <= 1 || auto){ //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
       channel.sendMessage("All of the players are here. Starting now.");
       startLobby();
     }
     else{
-      channel.sendMessage(numPlayers<2 ? `Welcome. One more left to start.` : `Welcome. There are ${numPlayers} players left to join in order to start.`);
+      channel.sendMessage(playersLeftToJoin<2 ? `Welcome. One more left to start.` : `Welcome. There are ${playersLeftToJoin} players left to join in order to start.`);
     }
   });
   lobby.on("playerLeft",()=> {
     console.log("playerLeft")
-    numPlayers++;
+    playersLeftToJoin++;
     fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Someone left at (${Date()}).\n`);
-    if (inPick && (new Date().valueOf()-match.timers.abortLeniency*1000)<timeStarted){
+    const isWithinAbortLeniencyPeriod = (Date.now() - match.timers.abortLeniency * 1000) < timeStarted;
+    if (inPick && isWithinAbortLeniencyPeriod) {
       lobby.abortMatch();
       ready = false;
       channel.sendMessage("Match aborted due to early disconnect.");
@@ -164,7 +148,7 @@ function createListeners() {
     }});
     lobby.on("matchStarted", () => {
       timeStarted = new Date().valueOf();//log time started
-      fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`${pool[i].code} started at (${Date()}).\n`);
+      fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`${pool[mapIndex].code} started at (${Date()}).\n`);
       inPick = true;
     });
     lobby.on("matchAborted", () => {
@@ -178,32 +162,50 @@ function createListeners() {
   lobby.on("matchFinished", (obj) => {
     console.log("matchFinished")
     obj.forEach(element => {
-      fs.appendFileSync(`./players/${element.player.user.username}.txt`,`${pool[i].code}: ${element.score}\n`);
+      fs.appendFileSync(`./players/${element.player.user.username}.txt`,`${pool[mapIndex].code}: ${element.score}\n`);
     });
-    i++;
+    mapIndex++;
     timeout = false;
     ready = false;
     inPick = false;
-      try {
-        if (auto){
-          if (pool.length>i) {
-            startLobby();
-          } else if(run++ < match.numberOfRuns){
-            i = 0; //sets the pointer to the first map of the pool and sets first to false.
-            startLobby();
-            }
-          else {
-          channel.sendMessage(`The lobby has finished. It'll close in ${match.timers.closeLobby} seconds.`)
+    try {
+      const isPoolUnExhausted = (pool.length > mapIndex);
+
+      if (auto) {
+        if (isPoolUnExhausted) {
+          startLobby();
+        } else if (runIndex < match.numberOfRuns) {
+          runIndex++;
+          mapIndex = 0; //sets the pointer to the first map of the pool and sets first to false.
+          startLobby();
+        } else {
+          closing = true;
+          channel.sendMessage(`The lobby has finished. It'll close in ${match.timers.closeLobby} seconds.`);
           lobby.startTimer(match.timers.closeLobby);
-          setTimeout(close,((1000 * match.timers.closeLobby) + 3000));
-  }} else if(!(pool.length>i)){
-          i = 0;
-          run++;
-      }} catch (error){
-      channel.sendMessage(`There was an error changing the map. ID ${pool[i].code} might be incorrect. Ping your ref.`);
-      console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[i].code}.`));
+        }
+      } else if (!isPoolUnExhausted) {
+        mapIndex = 0;
+        runIndex++;
+      }
+    } catch (error) {
+      channel.sendMessage(`There was an error changing the map. ID ${pool[mapIndex].code} might be incorrect. Ping your ref.`);
+      console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
     }
    });
+  lobby.on("timerEnded", () => {
+    if (closing) {
+      close();
+    } else if (!ready && (playersLeftToJoin <= 0 || auto)) {
+      if (timeout) {
+        lobby.startTimer(match.timers.timeout);
+        timeout = false;
+      } else {
+        lobby.startMatch(match.timers.forceStart);
+      }
+    } else if (playersLeftToJoin > 0) {
+      console.log(chalk.bold.red("There (might) be someone left to join.\nTake over now or enable auto with >auto on"));
+    }
+  });
   channel.on("message", async (msg) => {
     // All ">" commands must be sent by host
     console.log(chalk.dim(`${msg.user.ircUsername}: ${msg.message}`));
