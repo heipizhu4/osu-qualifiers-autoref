@@ -139,7 +139,7 @@ function createListeners() {
     }
     else{
       channel.sendMessage(numPlayers<2 ? `Welcome. One more left to start.` : `Welcome. There are ${numPlayers} players left to join in order to start.`);
-    };
+    }
   });
   lobby.on("playerLeft",()=> {
     console.log("playerLeft")

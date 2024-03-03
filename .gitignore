@@ -6,3 +6,8 @@ config.json
 matches
 pool.json
 match.json
+.idea/vcs.xml
+.idea/osu-qualifiers-autoref.iml
+.idea/modules.xml
+.idea/misc.xml
+.idea/discord.xml
