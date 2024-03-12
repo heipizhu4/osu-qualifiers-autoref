@@ -7,5 +7,9 @@
 	"userId": 0,
 	"limiterTimespan": 6000,
 	"limiterPrivate": 4,
-	"limiterPublic": 3
+	"limiterPublic": 3,
+	"discord" : {
+		"webhookLink" : "",
+		"refereeRole": 0
+	}
 }
