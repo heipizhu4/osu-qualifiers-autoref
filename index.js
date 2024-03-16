@@ -2,7 +2,7 @@ const bancho = require('bancho.js');
 const chalk = require('chalk');
 const nodesu = require('nodesu');
 const fs = require('fs');
-const WebhookClient = require('discord.js')
+const { WebhookClient } = require('discord.js');
 
 const readline = require('readline');
 const rl = readline.createInterface({
