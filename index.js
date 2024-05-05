@@ -48,7 +48,7 @@ async function init() {
   try {
     await client.connect();
     console.log(chalk.bold.green("Connected to Bancho!"));
-    lobbyname = `${match.tournament} ES Tryouts: ${match.id}`
+    const lobbyname = `${match.tournament} Qualifiers lobby: ${match.id}`
     /* lobbyname = `${match.tournament}: ${match.teams[BLUE].name} vs ${match.teams[RED].name}` */
     channel = await client.createLobby(lobbyname, match.private); 
   } catch (err) {
@@ -138,7 +138,7 @@ function createListeners() {
     auto = false;
     ready = false;
   })
-  lobby.on("allPlayersReady", (obj) => {
+  lobby.on("allPlayersReady", () => {
     console.log(chalk.magenta("everyone ready"));
     ready = true;
     timeout = false;
@@ -225,7 +225,13 @@ function createListeners() {
           break;
         case 'auto':
           auto = (m[1] === 'on');
-          auto ? channel.sendMessage("Auto referee is " + (auto ? "ON" : "OFF")+ ". Starting now.") + startLobby() : channel.sendMessage("Auto referee is " + (auto ? "ON" : "OFF")) + lobby.setMap(match.waitSong);
+          if (auto) {
+            channel.sendMessage("Auto referee is " + "ON " + ". Starting now.");
+            startLobby();
+          } else {
+            channel.sendMessage("Auto referee is " + "OFF");
+            lobby.setMap(match.waitSong);
+          }
           break;
         case 'timeout':
           timeout = true;
