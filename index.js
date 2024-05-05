@@ -2,6 +2,7 @@ const bancho = require('bancho.js');
 const chalk = require('chalk');
 const nodesu = require('nodesu');
 const fs = require('fs');
+const { WebhookClient } = require('discord.js');
 
 const readline = require('readline');
 const rl = readline.createInterface({
@@ -13,6 +14,7 @@ const rl = readline.createInterface({
 const config = require('./config.json');
 const pool = require('./pool.json');
 const match = require('./match.json');
+const webhook = new WebhookClient({ url: config.discord.webhookLink })
 const lobbydate = new Date();
 
 const client = new bancho.BanchoClient(config);
@@ -243,6 +245,18 @@ function createListeners() {
           break;
       }
     }
+    if(auto && msg.message === "!panic"){
+      auto = false;
+      channel.sendMessage("Panic command received. A ref will be checking in shortly.")
+      console.log(chalk.red.bold("Something has gone really wrong!\n")+"Someone has executed the !panic command and "+chalk.yellow("auto mode has been disabled"));
+      await webhook.send(`<@${config.discord.refRole}>, someone has executed the !panic command on match https://osu.ppy.sh/mp/${lobby.id}.\n`+
+      "join using ` /join #mp_"+lobby.id+"` The host is " + config.username+".")
+      if(!ready && !inPick){
+        lobby.abortTimer();
+      }
+    }
+
+
   });
 }
 
