@@ -23,7 +23,7 @@ const api = new nodesu.Client(config.apiKey);
 
 let channel, lobby;
 let playersLeftToJoin = match.teams.length 
-
+let playersSkipToSkip = 0
 let mapIndex = 0; //map iterator
 let runIndex = 1; //what run we're on
 let auto = false; // whether to start right away or not
@@ -64,7 +64,7 @@ async function init() {
 
   const password = Math.random().toString(36).substring(8);
   await lobby.setPassword(password);
-  await lobby.setMap(match.waitSong); //elevator music
+  await lobby.setMap(match.waitSong,4); //elevator music
 
   console.log(chalk.bold.green("Lobby created!"));
   console.log(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
@@ -72,6 +72,7 @@ async function init() {
   console.log(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
   fs.writeFileSync(`./lobbies/${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
 
+<<<<<<< HEAD
   // Set the game mode based on match.mode (0: osu!, 1: catch, 2: taiko, 3: mania)
   const mode = typeof match.mode === 'number' ? match.mode : 0;
   lobby.setSettings(
@@ -79,18 +80,25 @@ async function init() {
     bancho.BanchoLobbyWinConditions.ScoreV2,
     mode
   );
+=======
+>>>>>>> pr/2
 
   createListeners();
 }
 
 // Starts the refereeing
 function startLobby() {
-  auto = true;
-  lobby.startTimer(match.timers.betweenMaps);
-  const map = setBeatmap(pool[mapIndex].code);
-  if (map) console.log(chalk.cyan(`Changing map to ${map}`));
+    auto = true;
+    lobby.startTimer(match.timers.betweenMaps);
+    const map = setBeatmap(pool[mapIndex].code);
+    if (map) console.log(chalk.cyan(`Changing map to ${map}`));
 }
-
+function startLobby2() {
+    auto = true;
+    lobby.startTimer(match.timers.betweenRounds)
+    const map = setBeatmap(pool[mapIndex].code);
+    if (map) console.log(chalk.cyan(`Changing map to ${map}`));
+}
 // Sets current beatmap
 function setBeatmap(mapCode) {
   // Find the map with the given code
@@ -114,7 +122,7 @@ function setBeatmap(mapCode) {
 
   // Set the map and mods in the lobby
   channel.sendMessage("Selecting " + map.name);
-  lobby.setMap(map.id);
+  lobby.setMap(map.id,4);
   lobby.setMods(mod, false);
 
   return map.code;
@@ -143,7 +151,7 @@ function createListeners() {
       ready = false;
       channel.sendMessage("Match aborted due to early disconnect.");
     }
-    else if (auto) lobby.setMap(match.waitSong);
+    else if (auto) lobby.setMap(match.waitSong,4);
     auto = false;
     ready = false;
   })
@@ -185,8 +193,9 @@ function createListeners() {
           startLobby();
         } else if (runIndex < match.numberOfRuns) {
           runIndex++;
-          mapIndex = 0; //sets the pointer to the first map of the pool and sets first to false.
-          startLobby();
+            mapIndex = 0; //sets the pointer to the first map of the pool and sets first to false.
+            
+          startLobby2();
         } else {
           closing = true;
           channel.sendMessage(`The lobby has finished. It'll close in ${match.timers.closeLobby} seconds.`);
@@ -239,7 +248,7 @@ function createListeners() {
             startLobby();
           } else {
             channel.sendMessage("Auto referee is " + "OFF");
-            lobby.setMap(match.waitSong);
+            lobby.setMap(match.waitSong,4);
           }
           break;
         case 'timeout':
@@ -252,6 +261,41 @@ function createListeners() {
           break;
       }
     }
+      if (msg.message === "skip") {
+          playersSkipToSkip+=1;
+          channel.sendMessage("Skip request:" + playersSkipToSkip + "/" + match.teams.length);
+          if (playersSkipToSkip >= match.teams.length) {
+              channel.sendMessage("All player skip the map,choose next map...");
+              playersSkipToSkip = 0
+                  mapIndex++;
+                  timeout = false;
+                  ready = false;
+                  inPick = false;
+                  try {
+                      const isPoolUnExhausted = (pool.length > mapIndex);
+
+                      if (auto) {
+                          if (isPoolUnExhausted) {
+                              startLobby();
+                          } else if (runIndex < match.numberOfRuns) {
+                              runIndex++;
+                              mapIndex = 0; //sets the pointer to the first map of the pool and sets first to false.
+                              startLobby();
+                          } else {
+                              closing = true;
+                              channel.sendMessage(`The lobby has finished. It'll close in ${match.timers.closeLobby} seconds.`);
+                              lobby.startTimer(match.timers.closeLobby);
+                          }
+                      } else if (!isPoolUnExhausted) {
+                          mapIndex = 0;
+                          runIndex++;
+                      }
+                  } catch (error) {
+                      channel.sendMessage(`There was an error changing the map. ID ${pool[mapIndex].code} might be incorrect. Ping your ref.`);
+                      console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
+                  }
+          }
+      }
     if(auto && msg.message === "!panic"){
       auto = false;
       channel.sendMessage("Panic command received. A ref will be checking in shortly.")

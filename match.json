@@ -1,6 +1,7 @@
 {
   "timers": {
     "betweenMaps": 120,
+    "betweenRounds": 300,
     "readyStart": 10,
     "forceStart": 15,
     "timeout": 300,
