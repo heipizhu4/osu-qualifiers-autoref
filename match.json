@@ -12,6 +12,7 @@
   "private": false,
   "numberOfRuns": 2,
   "tournament": "PFC S3",
+  "mode": 3,
   "teams": [
     {"name": "heipizhu"}
   ]

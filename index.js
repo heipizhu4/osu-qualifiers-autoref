@@ -1,7 +1,9 @@
+
 const bancho = require('bancho.js');
 const chalk = require('chalk');
 const nodesu = require('nodesu');
 const fs = require('fs');
+const { WebhookClient } = require('discord.js');
 
 const readline = require('readline');
 const rl = readline.createInterface({
@@ -13,7 +15,7 @@ const rl = readline.createInterface({
 const config = require('./config.json');
 const pool = require('./pool.json');
 const match = require('./match.json');
-const webhook = new WebhookClient({ url: config.discord.webhookLink })
+const webhook = new WebhookClient({ url: config.discord.webhookLink });
 const lobbydate = new Date();
 
 const client = new bancho.BanchoClient(config);
@@ -70,7 +72,13 @@ async function init() {
   console.log(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
   fs.writeFileSync(`./lobbies/${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
 
-  lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
+  // Set the game mode based on match.mode (0: osu!, 1: catch, 2: taiko, 3: mania)
+  const mode = typeof match.mode === 'number' ? match.mode : 0;
+  lobby.setSettings(
+    bancho.BanchoLobbyTeamModes.HeadToHead,
+    bancho.BanchoLobbyWinConditions.ScoreV2,
+    mode
+  );
 
   createListeners();
 }
