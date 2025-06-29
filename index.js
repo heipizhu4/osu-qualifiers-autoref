@@ -1,4 +1,3 @@
-
 const bancho = require('bancho.js');
 const chalk = require('chalk');
 const nodesu = require('nodesu');
@@ -71,6 +70,7 @@ async function init() {
   console.log(chalk.bold.cyan(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`));
   console.log(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
   fs.writeFileSync(`./lobbies/${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
+  lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
 
 
   createListeners();
@@ -318,4 +318,3 @@ init()
   .then(() => {
     console.log(chalk.bold.green("Initialization complete!"));
   })
-  
