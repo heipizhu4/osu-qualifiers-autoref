@@ -1,18 +1,18 @@
 {
   "timers": {
-    "betweenMaps": 90,
+    "betweenMaps": 120,
     "readyStart": 10,
     "forceStart": 15,
-    "timeout": 120,
+    "timeout": 300,
     "closeLobby": 30,
     "abortLeniency": 15
   },
-  "waitSong": 2382647,
+  "waitSong": 4974176,
   "id": "H5",
   "private": false,
   "numberOfRuns": 2,
-  "tournament": "5WC",
+  "tournament": "PFC S3",
   "teams": [
-    {"name": "M A N O L O"}
+    {"name": "heipizhu"}
   ]
 }
