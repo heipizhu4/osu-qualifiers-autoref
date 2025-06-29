@@ -1,6 +1,9 @@
 [
   {"code": "sv1", "id": 4974176, "mod": "freemod"},
   {"code": "rc1", "id": 5063207, "mod": "freemod"},
+  {"code": "rc2", "id": 4256287, "mod": "freemod"},
+  {"code": "rc3", "id": 3198039, "mod": "freemod"},
   {"code": "ln1", "id": 4712350, "mod": "freemod"},
+  {"code": "ln2", "id": 4698155, "mod": "freemod"},
   {"code": "hb1", "id": 4924528, "mod": "freemod"}
 ]

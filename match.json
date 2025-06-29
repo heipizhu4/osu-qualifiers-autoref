@@ -3,17 +3,16 @@
     "betweenMaps": 120,
     "readyStart": 10,
     "forceStart": 15,
-    "timeout": 120,
+    "timeout": 300,
     "closeLobby": 30,
     "abortLeniency": 15
   },
-  "gamemode": 3, 
   "waitSong": 4974176,
   "id": "H5",
   "private": false,
   "numberOfRuns": 2,
   "tournament": "PFC S3",
-  "roomNameSuffix": "6.26 17",
+  "mode": 3,
   "teams": [
     {"name": "heipizhu"}
   ]
