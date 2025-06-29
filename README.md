@@ -1,6 +1,6 @@
 # osu!autoref
 
-Semi-automated referee bot for osu! by [Cychloryn](https://osu.ppy.sh/users/6921736). Adapted to be an automated qualifiers bot by [M A N O L O](https://osu.ppy.sh/users/12296128).
+Semi-automated referee bot for osu! by [Cychloryn](https://osu.ppy.sh/users/6921736). Adapted to be an automated qualifiers bot by [M A N O L O](https://osu.ppy.sh/users/12296128). Adapted to be an automated qualifiers bot for mania mode by [heipizhu](https://osu.ppy.sh/users/29319435) and [31415906](https://osu.ppy.sh/users/33138632).
 
 Tested on Windows.
 Uses bancho.js by ThePoon.
@@ -13,6 +13,7 @@ I might work on a better readme later...
   - Invite all players with `>invite`
   - Auto tactical timeout with `>timeout`
   - Close the lobby automatically with `>close`
+  - Skip the map if all players would like to with `>skip`
 - Automatic scorekeeping
 - Auto start matches when players are ready
 - Every match starts with your own Elevator music
@@ -22,7 +23,7 @@ I might work on a better readme later...
 Before running osu!autoref, you'll need to fill out some configuration.
 
 ### config.json
-Create a file `config.json`. You can copy the template file `config.example.json`. You will need to add your username, [IRC password](https://osu.ppy.sh/p/irc), and osu! [API key](https://osu.ppy.sh/p/api).
+Create a file `config.json`. You can copy the template file `config.example.json`. You will need to add your username, [IRC password](https://osu.ppy.sh/p/irc),  osu! [API key](https://osu.ppy.sh/p/api), and [Discord webhook link](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks)
 
 ### pool.json
 Load the mappool into this file. The format should be self-explanatory from the example pool. It requires only the map code (NM2, HR3, DT1, etc) and the ID of the map. The bot will infer the mods based on the map code, but you can (optionally) explicitly provide the mod via the "mod" field.
