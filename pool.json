@@ -1,9 +1,19 @@
 [
-  {"code": "sv1", "id": 4974176, "mod": "freemod"},
-  {"code": "rc1", "id": 5063207, "mod": "freemod"},
-  {"code": "rc2", "id": 4256287, "mod": "freemod"},
-  {"code": "rc3", "id": 3198039, "mod": "freemod"},
-  {"code": "ln1", "id": 4712350, "mod": "freemod"},
-  {"code": "ln2", "id": 4698155, "mod": "freemod"},
-  {"code": "hb1", "id": 4924528, "mod": "freemod"}
+  {"code": "NM1", "id": 516452},
+  {"code": "NM2", "id": 1477261},
+  {"code": "NM3", "id": 863364},
+  {"code": "NM4", "id": 845049},
+  {"code": "HD1", "id": 144407},
+  {"code": "HD2", "id": 1256329},
+  {"code": "HR1", "id": 1249123},
+  {"code": "HR2", "id": 1421827},
+  {"code": "DT1", "id": 760534},
+  {"code": "DT2", "id": 281984},
+  {"code": "FM1", "id": 666034},
+  {"code": "FM2", "id": 276462},
+  {"code": "FM3", "id": 554519},
+  {"code": "TB", "id": 1253183},
+  {"code": "RD1", "id": 1403276},
+  {"code": "RD2", "id": 1821081},
+  {"code": "RD3", "id": 667993, "mod": "dt freemod"}
 ]

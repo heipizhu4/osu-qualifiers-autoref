@@ -2,7 +2,6 @@ const bancho = require('bancho.js');
 const chalk = require('chalk');
 const nodesu = require('nodesu');
 const fs = require('fs');
-const { WebhookClient } = require('discord.js');
 
 const readline = require('readline');
 const rl = readline.createInterface({
@@ -35,7 +34,7 @@ let closing = false; //whether the lobby is closing or not
 // populate mappool with map info
 function initPool() {
   return Promise.all(pool.map(async (b) => {
-    const info = (await api.beatmaps.getByBeatmapId(b.id))[match.gamemode];
+    const info = (await api.beatmaps.getByBeatmapId(b.id))[0];
     b.name = b.code + ': ' + info.artist + ' - ' + info.title + ' [' + info.version + ']';
     console.log(chalk.dim(`Loaded ${info.title}`));
   }));
@@ -50,9 +49,8 @@ async function init() {
   try {
     await client.connect();
     console.log(chalk.bold.green("Connected to Bancho!"));
-    // Use custom room name format
-    const roomNameSuffix = match.roomNameSuffix || match.id || "";
-    const lobbyname = `${match.tournament} Qualifier: ${roomNameSuffix}`;
+    const lobbyname = `${match.tournament} Qualifiers lobby: ${match.id}`
+    /* lobbyname = `${match.tournament}: ${match.teams[BLUE].name} vs ${match.teams[RED].name}` */
     channel = await client.createLobby(lobbyname, match.private); 
   } catch (err) {
     console.log(err);
@@ -62,18 +60,18 @@ async function init() {
 
   lobby = channel.lobby;
 
-  //const password = Math.random().toString(36).substring(8);
-  //await lobby.setPassword(password);
+  const password = Math.random().toString(36).substring(8);
+  await lobby.setPassword(password);
   await lobby.setMap(match.waitSong); //elevator music
 
   console.log(chalk.bold.green("Lobby created!"));
-  //console.log(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
-  console.log(chalk.bold.cyan(`Name: ${lobby.name}`));
+  console.log(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
   console.log(chalk.bold.cyan(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`));
   console.log(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
   fs.writeFileSync(`./lobbies/${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
 
   lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
+
   createListeners();
 }
 
@@ -141,7 +139,7 @@ function createListeners() {
     auto = false;
     ready = false;
   })
-  lobby.on("allPlayersReady", (obj) => {
+  lobby.on("allPlayersReady", () => {
     console.log(chalk.magenta("everyone ready"));
     ready = true;
     timeout = false;
@@ -228,7 +226,13 @@ function createListeners() {
           break;
         case 'auto':
           auto = (m[1] === 'on');
-          auto ? channel.sendMessage("Auto referee is " + (auto ? "ON" : "OFF")+ ". Starting now.") + startLobby() : channel.sendMessage("Auto referee is " + (auto ? "ON" : "OFF")) + lobby.setMap(match.waitSong);
+          if (auto) {
+            channel.sendMessage("Auto referee is " + "ON " + ". Starting now.");
+            startLobby();
+          } else {
+            channel.sendMessage("Auto referee is " + "OFF");
+            lobby.setMap(match.waitSong);
+          }
           break;
         case 'timeout':
           timeout = true;
