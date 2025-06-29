@@ -72,16 +72,6 @@ async function init() {
   console.log(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
   fs.writeFileSync(`./lobbies/${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
 
-<<<<<<< HEAD
-  // Set the game mode based on match.mode (0: osu!, 1: catch, 2: taiko, 3: mania)
-  const mode = typeof match.mode === 'number' ? match.mode : 0;
-  lobby.setSettings(
-    bancho.BanchoLobbyTeamModes.HeadToHead,
-    bancho.BanchoLobbyWinConditions.ScoreV2,
-    mode
-  );
-=======
->>>>>>> pr/2
 
   createListeners();
 }
