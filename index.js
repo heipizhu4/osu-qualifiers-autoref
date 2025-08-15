@@ -201,6 +201,7 @@ function createListeners() {
    });
   lobby.on("timerEnded", () => {
     if (closing) {
+      console.log(chalk.yellow(`Lobby closing...`))
       close();
     } else if (!ready && (playersLeftToJoin <= 0 || auto)) {
       if (timeout) {
