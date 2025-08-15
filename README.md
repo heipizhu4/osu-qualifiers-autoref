@@ -13,7 +13,7 @@ I might work on a better readme later...
   - Invite all players with `>invite`
   - Auto tactical timeout with `>timeout`
   - Close the lobby automatically with `>close`
-  - Skip the map if all players would like to with `>skip`
+  - Skip the map if all players would like to with `skip`
 - Automatic scorekeeping
 - Auto start matches when players are ready
 - Every match starts with your own Elevator music
@@ -58,7 +58,7 @@ If you want to give the players a break, you can easily do it by executing this 
 ```
 On the second round of the qualifier lobby, players will be allowed to skip maps by using this command:
 ```py
->skip
+skip
 ```
 If you need to takeover the bot at any point through, but you don't want to close the enitre thing just yet, you can use this next command, with any argument, except `on`, which will turn it back on.
 ```py
