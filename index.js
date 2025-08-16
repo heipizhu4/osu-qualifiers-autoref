@@ -110,7 +110,7 @@ function setBeatmap(mapCode) {
   }
 
   // Set the map and mods in the lobby
-  channel.sendMessage("Selecting " + map.name);
+  channel.sendMessage("当前图：" + map.name);
   lobby.setMap(map.id,4);
   lobby.setMods(mod, false);
 
@@ -123,11 +123,11 @@ function createListeners() {
     console.log(chalk.yellow(`Player ${name} has joined!`))
     fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`${name} (${Date()})\n`)
     if(playersLeftToJoin-- <= 1 || auto){ //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
-      channel.sendMessage("All of the players are here. Starting now.");
+      channel.sendMessage("所有玩家已来到房间！资格赛现在开始。");
       startLobby();
     }
     else{
-      channel.sendMessage(playersLeftToJoin<2 ? `Welcome. One more left to start.` : `Welcome. There are ${playersLeftToJoin} players left to join in order to start.`);
+      channel.sendMessage(playersLeftToJoin<2 ? `欢迎！还剩余1位选手未进入房间，资格赛将在所有人到齐后开始。` : `欢迎！还剩余${playersLeftToJoin}位选手未进入房间，资格赛将在所有人到齐后开始。`);
     }
   });
   lobby.on("playerLeft",()=> {
@@ -272,7 +272,7 @@ function createListeners() {
                               startLobby();
                           } else {
                               closing = true;
-                              channel.sendMessage(`The lobby has finished. It'll close in ${match.timers.closeLobby} seconds.`);
+                              channel.sendMessage(`恭喜！你已资格赛的全部图池，各位可以安全离开。房间将在${match.timers.closeLobby}秒后关闭。`);
                               lobby.startTimer(match.timers.closeLobby);
                           }
                       } else if (!isPoolUnExhausted) {
