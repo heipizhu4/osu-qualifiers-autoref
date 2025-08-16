@@ -169,6 +169,7 @@ function createListeners() {
     lobby.on("matchAborted", () => {
         console.log(chalk.yellow.bold("Match Aborted"));
         MapReset();
+        playersSkipToSkip = 0
       fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Match aborted at (${Date()}), `+(ready ? "by the ref." : "due to an early disconnect.")+`\n`);
       timeout = false;
       ready = false;
@@ -178,6 +179,7 @@ function createListeners() {
   lobby.on("matchFinished", (obj) => {
       console.log("matchFinished")
       MapReset();
+      playersSkipToSkip = 0
     obj.forEach(element => {
       fs.appendFileSync(`./players/${element.player.user.username}.txt`,`${pool[mapIndex].code}: ${element.score}\n`);
     });
@@ -269,6 +271,7 @@ function createListeners() {
                   {
                       if (!SkipMap.has(msg.user.ircUsername) || !SkipMap.get(msg.user.ircUsername))
                           break;
+                      SkipMap.set(msg.user.ircUsername, false);
                       playersSkipToSkip += 1;
                       channel.sendMessage("Skip request:" + playersSkipToSkip + "/" + match.teams.length);
                       if (playersSkipToSkip >= match.teams.length) {
