@@ -1,4 +1,3 @@
-
 const bancho = require('bancho.js');
 const chalk = require('chalk');
 const nodesu = require('nodesu');
@@ -71,7 +70,8 @@ async function init() {
   console.log(chalk.bold.cyan(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`));
   console.log(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
   fs.writeFileSync(`./lobbies/${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
-   lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
+  lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
+
 
   createListeners();
 }
@@ -111,8 +111,10 @@ function setBeatmap(mapCode) {
   }
 
   // Set the map and mods in the lobby
-  channel.sendMessage("Selecting " + map.name);
+
+  channel.sendMessage("当前图：" + map.name);
   lobby.setMap(map.id,3);
+
   lobby.setMods(mod, false);
 
   return map.code;
@@ -124,11 +126,11 @@ function createListeners() {
     console.log(chalk.yellow(`Player ${name} has joined!`))
     fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`${name} (${Date()})\n`)
     if(playersLeftToJoin-- <= 1 || auto){ //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
-      channel.sendMessage("All of the players are here. Starting now.");
+      channel.sendMessage("所有玩家已来到房间！资格赛现在开始。");
       startLobby();
     }
     else{
-      channel.sendMessage(playersLeftToJoin<2 ? `Welcome. One more left to start.` : `Welcome. There are ${playersLeftToJoin} players left to join in order to start.`);
+      channel.sendMessage(playersLeftToJoin<2 ? `欢迎！还剩余1位选手未进入房间，资格赛将在所有人到齐后开始。` : `欢迎！还剩余${playersLeftToJoin}位选手未进入房间，资格赛将在所有人到齐后开始。`);
     }
   });
   lobby.on("playerLeft",()=> {
@@ -269,6 +271,7 @@ function createListeners() {
                           try {
                               const isPoolUnExhausted = (pool.length > mapIndex);
 
+
                               if (auto) {
                                   if (isPoolUnExhausted) {
                                       startLobby();
@@ -278,7 +281,7 @@ function createListeners() {
                                       startLobby();
                                   } else {
                                       closing = true;
-                                      channel.sendMessage(`The lobby has finished. It'll close in ${match.timers.closeLobby} seconds.`);
+                                      channel.sendMessage(`恭喜！你已资格赛的全部图池，各位可以安全离开。房间将在${match.timers.closeLobby}秒后关闭。`);
                                       lobby.startTimer(match.timers.closeLobby);
                                   }
                               } else if (!isPoolUnExhausted) {
@@ -288,6 +291,7 @@ function createListeners() {
                           } catch (error) {
                               channel.sendMessage(`There was an error changing the map. ID ${pool[mapIndex].code} might be incorrect. Ping your ref.`);
                               console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
+
                           }
                       }
                   }
