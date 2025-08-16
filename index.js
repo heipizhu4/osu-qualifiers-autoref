@@ -31,7 +31,7 @@ let ready = false; //whether everyone is ready or not
 let inPick = false; //whether the match is playing or not
 let timeStarted; //time the match started
 let closing = false; //whether the lobby is closing or not
-
+const SkipMap = new Map();
 // populate mappool with map info
 function initPool() {
   return Promise.all(pool.map(async (b) => {
@@ -40,7 +40,12 @@ function initPool() {
     console.log(chalk.dim(`Loaded ${info.title}`));
   }));
 }
-
+function MapReset() {
+    SkipMap.clear();
+    for (const p of match.teams) {
+        SkipMap.set(p.name, true);
+    }
+}
 // Creates a new multi lobby
 async function init() {
   await initPool();
@@ -64,7 +69,7 @@ async function init() {
   const password = Math.random().toString(36).substring(8);
   await lobby.setPassword(password);
   await lobby.setMap(match.waitSong,3); //elevator music
-
+    MapReset();
   console.log(chalk.bold.green("Lobby created!"));
   console.log(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
   console.log(chalk.bold.cyan(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`));
@@ -119,6 +124,7 @@ function setBeatmap(mapCode) {
 
   return map.code;
 }
+
 function createListeners() {
   lobby.on("playerJoined", (obj) => {
     console.log("player joined")
@@ -161,7 +167,8 @@ function createListeners() {
       inPick = true;
     });
     lobby.on("matchAborted", () => {
-      console.log(chalk.yellow.bold("Match Aborted"));
+        console.log(chalk.yellow.bold("Match Aborted"));
+        MapReset();
       fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Match aborted at (${Date()}), `+(ready ? "by the ref." : "due to an early disconnect.")+`\n`);
       timeout = false;
       ready = false;
@@ -169,7 +176,8 @@ function createListeners() {
       if (auto) startLobby();
     });
   lobby.on("matchFinished", (obj) => {
-    console.log("matchFinished")
+      console.log("matchFinished")
+      MapReset();
     obj.forEach(element => {
       fs.appendFileSync(`./players/${element.player.user.username}.txt`,`${pool[mapIndex].code}: ${element.score}\n`);
     });
@@ -259,10 +267,13 @@ function createListeners() {
           switch (m[0]) {
               case 'skip':
                   {
+                      if (!SkipMap.has(msg.user.ircUsername) || !SkipMap.get(msg.user.ircUsername))
+                          break;
                       playersSkipToSkip += 1;
                       channel.sendMessage("Skip request:" + playersSkipToSkip + "/" + match.teams.length);
                       if (playersSkipToSkip >= match.teams.length) {
                           channel.sendMessage("All player skip the map,choose next map...");
+                          MapReset();
                           playersSkipToSkip = 0
                           mapIndex++;
                           timeout = false;
