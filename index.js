@@ -63,7 +63,7 @@ async function init() {
 
   const password = Math.random().toString(36).substring(8);
   await lobby.setPassword(password);
-  await lobby.setMap(match.waitSong,4); //elevator music
+  await lobby.setMap(match.waitSong,3); //elevator music
 
   console.log(chalk.bold.green("Lobby created!"));
   console.log(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
@@ -71,6 +71,7 @@ async function init() {
   console.log(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
   fs.writeFileSync(`./lobbies/${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
   lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
+
 
   createListeners();
 }
@@ -110,8 +111,10 @@ function setBeatmap(mapCode) {
   }
 
   // Set the map and mods in the lobby
+
   channel.sendMessage("当前图：" + map.name);
-  lobby.setMap(map.id,4);
+  lobby.setMap(map.id,3);
+
   lobby.setMods(mod, false);
 
   return map.code;
@@ -140,7 +143,7 @@ function createListeners() {
       ready = false;
       channel.sendMessage("Match aborted due to early disconnect.");
     }
-    else if (auto) lobby.setMap(match.waitSong,4);
+    else if (auto) lobby.setMap(match.waitSong,3);
     auto = false;
     ready = false;
   })
@@ -237,7 +240,7 @@ function createListeners() {
             startLobby();
           } else {
             channel.sendMessage("Auto referee is " + "OFF");
-            lobby.setMap(match.waitSong,4);
+            lobby.setMap(match.waitSong,3);
           }
           break;
         case 'timeout':
@@ -249,40 +252,51 @@ function createListeners() {
           channel.sendMessage("Match aborted manually.")
           break;
       }
-    }
-      if (msg.message === "skip") {
-          playersSkipToSkip+=1;
-          channel.sendMessage("Skip request:" + playersSkipToSkip + "/" + match.teams.length);
-          if (playersSkipToSkip >= match.teams.length) {
-              channel.sendMessage("All player skip the map,choose next map...");
-              playersSkipToSkip = 0
-                  mapIndex++;
-                  timeout = false;
-                  ready = false;
-                  inPick = false;
-                  try {
-                      const isPoolUnExhausted = (pool.length > mapIndex);
+      } else if (msg.message.startsWith("#")) {
+          const m = msg.message.substring(1).split(' ');
+          console.log(chalk.yellow(`Received command "${m[0]}"`));
 
-                      if (auto) {
-                          if (isPoolUnExhausted) {
-                              startLobby();
-                          } else if (runIndex < match.numberOfRuns) {
-                              runIndex++;
-                              mapIndex = 0; //sets the pointer to the first map of the pool and sets first to false.
-                              startLobby();
-                          } else {
-                              closing = true;
-                              channel.sendMessage(`恭喜！你已资格赛的全部图池，各位可以安全离开。房间将在${match.timers.closeLobby}秒后关闭。`);
-                              lobby.startTimer(match.timers.closeLobby);
+          switch (m[0]) {
+              case 'skip':
+                  {
+                      playersSkipToSkip += 1;
+                      channel.sendMessage("Skip request:" + playersSkipToSkip + "/" + match.teams.length);
+                      if (playersSkipToSkip >= match.teams.length) {
+                          channel.sendMessage("All player skip the map,choose next map...");
+                          playersSkipToSkip = 0
+                          mapIndex++;
+                          timeout = false;
+                          ready = false;
+                          inPick = false;
+                          try {
+                              const isPoolUnExhausted = (pool.length > mapIndex);
+
+
+                              if (auto) {
+                                  if (isPoolUnExhausted) {
+                                      startLobby();
+                                  } else if (runIndex < match.numberOfRuns) {
+                                      runIndex++;
+                                      mapIndex = 0; //sets the pointer to the first map of the pool and sets first to false.
+                                      startLobby();
+                                  } else {
+                                      closing = true;
+                                      channel.sendMessage(`恭喜！你已资格赛的全部图池，各位可以安全离开。房间将在${match.timers.closeLobby}秒后关闭。`);
+                                      lobby.startTimer(match.timers.closeLobby);
+                                  }
+                              } else if (!isPoolUnExhausted) {
+                                  mapIndex = 0;
+                                  runIndex++;
+                              }
+                          } catch (error) {
+                              channel.sendMessage(`There was an error changing the map. ID ${pool[mapIndex].code} might be incorrect. Ping your ref.`);
+                              console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
+
                           }
-                      } else if (!isPoolUnExhausted) {
-                          mapIndex = 0;
-                          runIndex++;
                       }
-                  } catch (error) {
-                      channel.sendMessage(`There was an error changing the map. ID ${pool[mapIndex].code} might be incorrect. Ping your ref.`);
-                      console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
                   }
+                  break;
+              
           }
       }
     if(auto && msg.message === "!panic"){
