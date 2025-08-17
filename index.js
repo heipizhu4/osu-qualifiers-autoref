@@ -248,6 +248,9 @@ function createListeners() {
           await lobby.abortMatch();
           channel.sendMessage("Match aborted manually.")
           break;
+        case 'mod':
+           console.log(lobby.slots[0].BanchoMod[0].shortMod);
+          break;
       }
     }
       if (msg.message === "skip") {
