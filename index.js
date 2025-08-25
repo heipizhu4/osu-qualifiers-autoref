@@ -46,6 +46,20 @@ function MapReset() {
         SkipMap.set(p.name, true);
     }
 }
+function timerEnded() {
+    if (closing) {
+        close();
+    } else if (!ready && (playersLeftToJoin <= 0 || auto)) {
+        if (timeout) {
+            lobby.startTimer(match.timers.timeout);
+            timeout = false;
+        } else {
+            lobby.startMatch(match.timers.forceStart);
+        }
+    } else if (playersLeftToJoin > 0) {
+        console.log(chalk.bold.red("There (might) be someone left to join.\nTake over now or enable auto with >auto on"));
+    }
+}
 // Creates a new multi lobby
 async function init() {
   await initPool();
@@ -165,11 +179,11 @@ function createListeners() {
           if (w.mods && w.mods.length > 0) {
               for (const p of w.mods)
                   if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
-                      channel.sendMessage(`${w.user.ircUsername} 使用了不被允许的mod: ${p.longMod}`);
+                      channel.sendMessage(`${w.user.username} 使用了不被允许的mod: ${p.longMod}`);
                       CheckPass = false;
                   }
                   else {
-                      console.log(`${w.user.ircUsername} 使用了mod: ${p.longMod}`);
+                      console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
                   }
               }
           if (CheckPass) {
@@ -232,19 +246,8 @@ function createListeners() {
       console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
     }
    });
-  lobby.on("timerEnded", () => {
-    if (closing) {
-      close();
-    } else if (!ready && (playersLeftToJoin <= 0 || auto)) {
-      if (timeout) {
-        lobby.startTimer(match.timers.timeout);
-        timeout = false;
-      } else {
-        lobby.startMatch(match.timers.forceStart);
-      }
-    } else if (playersLeftToJoin > 0) {
-      console.log(chalk.bold.red("There (might) be someone left to join.\nTake over now or enable auto with >auto on"));
-    }
+    lobby.on("timerEnded", () => {
+        timerEnded();
   });
   channel.on("message", async (msg) => {
     // All ">" commands must be sent by host
@@ -299,6 +302,7 @@ function createListeners() {
             case 'gsm':
                 {
                     channel.sendMessage(`干什么¿`);
+                    break;
                 }
               case 'skip':
                   {
@@ -356,7 +360,10 @@ function createListeners() {
         lobby.abortTimer();
       }
     }
-
+      if (msg.user.ircUsername === "BanchoBot") {
+          if (msg.message === "Countdown finished")
+              timerEnded();
+      }
 
   });
 }
