@@ -157,9 +157,25 @@ function createListeners() {
     console.log(chalk.magenta("everyone ready"));
     ready = true;
     timeout = false;
-    if(auto){
-      lobby.abortTimer();
-      lobby.startMatch(match.timers.readyStart);
+      if (auto) {
+          CheckPass = true;
+          await lobby.updateSettings();
+          for (const w of lobby.slots)
+          if (lobby.slots[w].mods && lobby.slots[w].mods.length > 0) {
+              for (const p of lobby.slots[w].mods)
+                  if (p.enumValue | 1049609 == 1049609) {//mr fl fi hd nf
+                      console.log('${w.Name} 使用了不被允许的 ${p.longMod}');
+                      CheckPass = false;
+                      break;
+                  }
+              if (!CheckPass)
+                  break;
+              }
+          if (CheckPass) {
+              console.log('所有人都已准备完毕，准备开始比赛...');
+              lobby.abortTimer();
+              lobby.startMatch(match.timers.readyStart);
+          }
     }});
     lobby.on("matchStarted", () => {
       timeStarted = new Date().valueOf();//log time started
@@ -260,13 +276,26 @@ function createListeners() {
         case 'abort':
           await lobby.abortMatch();
           channel.sendMessage("Match aborted manually.")
-          break;
+              break;
+          case 'mod':
+              await lobby.updateSettings();
+              if (lobby.slots[0].mods && lobby.slots[0].mods.length > 0) {
+                  for (const p of lobby.slots[0].mods)
+                  console.log(p.shortMod);
+              } else {
+                  console.log("No mods found for this slot");
+              }
+           break;
       }
       } else if (msg.message.startsWith("#")) {
           const m = msg.message.substring(1).split(' ');
           console.log(chalk.yellow(`Received command "${m[0]}"`));
 
-          switch (m[0]) {
+        switch (m[0]) {
+            case 'gsm':
+                {
+                    channel.sendMessage(`干什么¿`);
+                }
               case 'skip':
                   {
                       if (!SkipMap.has(msg.user.ircUsername) || !SkipMap.get(msg.user.ircUsername))
