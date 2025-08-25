@@ -161,6 +161,7 @@ function createListeners() {
           CheckPass = true;
           lobby.updateSettings();
           for (const w of lobby.slots)
+              if (lobby.slots[w] != null)
           if (lobby.slots[w].mods && lobby.slots[w].mods.length > 0) {
               for (const p of lobby.slots[w].mods)
                   if (p.enumValue | 1049609 == 1049609) {//mr fl fi hd nf
