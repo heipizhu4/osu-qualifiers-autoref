@@ -310,9 +310,9 @@ function createListeners() {
                           break;
                       SkipMap.set(msg.user.ircUsername, false);
                       playersSkipToSkip += 1;
-                      channel.sendMessage("Skip request:" + playersSkipToSkip + "/" + match.teams.length);
+                      channel.sendMessage("跳过投票：" + playersSkipToSkip + "/" + match.teams.length);
                       if (playersSkipToSkip >= match.teams.length) {
-                          channel.sendMessage("All player skip the map,choose next map...");
+                          channel.sendMessage("所有玩家选择跳过该图。正在选择下一张......");
                           MapReset();
                           playersSkipToSkip = 0
                           mapIndex++;
