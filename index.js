@@ -153,29 +153,32 @@ function createListeners() {
     auto = false;
     ready = false;
   })
-  lobby.on("allPlayersReady", () => {
+    lobby.on("allPlayersReady", async() => {
     console.log(chalk.magenta("everyone ready"));
     ready = true;
     timeout = false;
       if (auto) {
           CheckPass = true;
-          lobby.updateSettings();
+          await lobby.updateSettings();
           for (const w of lobby.slots)
-              if (lobby.slots[w] != null)
-          if (lobby.slots[w].mods && lobby.slots[w].mods.length > 0) {
-              for (const p of lobby.slots[w].mods)
-                  if (p.enumValue | 1049609 == 1049609) {//mr fl fi hd nf
-                      console.log('${w.Name} 使用了不被允许的 ${p.longMod}');
+          if (w != null)
+          if (w.mods && w.mods.length > 0) {
+              for (const p of w.mods)
+                  if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
+                      channel.sendMessage(`${w.name} 使用了不被允许的mod: ${p.longMod}`);
                       CheckPass = false;
-                      break;
                   }
-              if (!CheckPass)
-                  break;
+                  else {
+                      console.log(`${w.Name} 使用了mod: ${p.longMod}`);
+                  }
               }
           if (CheckPass) {
-              console.log('所有人都已准备完毕，准备开始比赛...');
+              channel.sendMessage('所有人都已准备完毕，准备开始比赛...');
               lobby.abortTimer();
               lobby.startMatch(match.timers.readyStart);
+          }
+          else {
+              channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
           }
     }});
     lobby.on("matchStarted", () => {
