@@ -332,7 +332,7 @@ function createListeners() {
                                       startLobby();
                                   } else {
                                       closing = true;
-                                      channel.sendMessage(`恭喜！你已资格赛的全部图池，各位可以安全离开。房间将在${match.timers.closeLobby}秒后关闭。`);
+                                      channel.sendMessage(`恭喜！你已完成资格赛的全部图池，各位可以安全离开。房间将在${match.timers.closeLobby}秒后关闭。`);
                                       lobby.startTimer(match.timers.closeLobby);
                                   }
                               } else if (!isPoolUnExhausted) {
