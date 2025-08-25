@@ -165,11 +165,11 @@ function createListeners() {
           if (w.mods && w.mods.length > 0) {
               for (const p of w.mods)
                   if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
-                      channel.sendMessage(`${w.name} 使用了不被允许的mod: ${p.longMod}`);
+                      channel.sendMessage(`${w.user.ircUsername} 使用了不被允许的mod: ${p.longMod}`);
                       CheckPass = false;
                   }
                   else {
-                      console.log(`${w.Name} 使用了mod: ${p.longMod}`);
+                      console.log(`${w.user.ircUsername} 使用了mod: ${p.longMod}`);
                   }
               }
           if (CheckPass) {
