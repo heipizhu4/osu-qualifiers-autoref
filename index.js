@@ -159,7 +159,7 @@ function createListeners() {
     timeout = false;
       if (auto) {
           CheckPass = true;
-          await lobby.updateSettings();
+          lobby.updateSettings();
           for (const w of lobby.slots)
           if (lobby.slots[w].mods && lobby.slots[w].mods.length > 0) {
               for (const p of lobby.slots[w].mods)
