@@ -76,7 +76,8 @@ For players, on the second round of the qualifier lobby, they will be allowed to
 #skip
 ```
 A vote count will appear after the command.
-If they want to ping the bot to check if the bot is working. A message `干什么¿` would be sent.
+
+If Players want to ping the bot to check if the bot is working, they may use the next command. A message `干什么¿` would be sent.
 ```
 #gsm
 ```
