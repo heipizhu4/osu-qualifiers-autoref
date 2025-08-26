@@ -14,12 +14,13 @@ const rl = readline.createInterface({
 const config = require('./config.json');
 const pool = require('./pool.json');
 const match = require('./match.json');
+const { randomInt } = require('crypto');
 const webhook = new WebhookClient({ url: config.discord.webhookLink });
 const lobbydate = new Date();
 
 const client = new bancho.BanchoClient(config);
 const api = new nodesu.Client(config.apiKey);
-
+const PokeString = new Array(`干什么¿`,`戳坏了${config.username}，你赔得起吗？`, "不要再戳了呜呜....(害怕ing)", "嗯……不可以……啦……不要乱戳", "呜哇！再戳把你绝赞吃掉喵！！", `再戳${config.username}，我要叫我主人了`, "再戳我让你变成女孩子喵！", "呃啊啊啊~戳坏了....","啊呜，太舒服刚刚竟然睡着了w 有什么事喵？");
 let channel, lobby;
 let playersLeftToJoin = match.teams.length 
 let playersSkipToSkip = 0
@@ -150,7 +151,7 @@ function createListeners() {
       startLobby();
     }
     else{
-      channel.sendMessage(playersLeftToJoin<2 ? `欢迎！还剩余1位选手未进入房间，资格赛将在所有人到齐后开始。` : `欢迎！还剩余${playersLeftToJoin}位选手未进入房间，资格赛将在所有人到齐后开始。`);
+      channel.sendMessage(`欢迎！还剩余${playersLeftToJoin}位选手未进入房间，资格赛将在所有人到齐后开始。`);
     }
   });
   lobby.on("playerLeft",()=> {
@@ -300,12 +301,15 @@ function createListeners() {
 
         switch (m[0]) {
             case 'gsm':
-                {
-                    channel.sendMessage(`干什么¿`);
-                    break;
-                }
+            case 'poke': 
+                channel.sendMessage(PokeString[Math.floor(Math.random() * PokeString.length)]);
+                break;
               case 'skip':
-                  {
+                {
+                    if (runIndex == 1) {
+                        channel.sendMessage("只有第二轮支持使用#skip跳过图。");
+                        break;
+                    }
                       if (!SkipMap.has(msg.user.ircUsername) || !SkipMap.get(msg.user.ircUsername))
                           break;
                       SkipMap.set(msg.user.ircUsername, false);
