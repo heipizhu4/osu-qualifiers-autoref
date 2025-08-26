@@ -5,7 +5,7 @@ Semi-automated referee bot for osu! by [Cychloryn](https://osu.ppy.sh/users/6921
 Tested on Windows.
 Uses bancho.js by ThePoon.
 
-I will add a Chinese ver of readme later.
+中文readme请见：https://github.com/heipizhu4/osu-qualifiers-autoref/blob/master/README_zh.md
 
 ## Features
 - Creates match automatically
