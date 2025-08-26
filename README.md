@@ -5,15 +5,19 @@ Semi-automated referee bot for osu! by [Cychloryn](https://osu.ppy.sh/users/6921
 Tested on Windows.
 Uses bancho.js by ThePoon.
 
-I might work on a better readme later...
+I will add a Chinese ver of readme later.
 
 ## Features
 - Creates match automatically
-- Extra mp commands
-  - Invite all players with `>invite`
-  - Auto tactical timeout with `>timeout`
-  - Close the lobby automatically with `>close`
-  - Skip the map if all players would like to with `skip`
+- Extra mp commands for host and players!
+  - Host only command:
+    - Invite all players with `>invite`
+    - Auto tactical timeout with `>timeout`
+    - Close the lobby automatically with `>close`
+  - Player command:
+    - Skip the map during round2 if all players would like to with `#skip`
+    - `#gsm` for ping usage.
+    - `!panic` when things went wrong and you need to ping the ref!
 - Automatic scorekeeping
 - Auto start matches when players are ready
 - Every match starts with your own Elevator music
@@ -56,10 +60,6 @@ If you want to give the players a break, you can easily do it by executing this 
 ```py
 >timeout
 ```
-On the second round of the qualifier lobby, players will be allowed to skip maps by using this command:
-```py
-skip
-```
 If you need to takeover the bot at any point through, but you don't want to close the enitre thing just yet, you can use this next command, with any argument, except `on`, which will turn it back on.
 ```py
 >auto off
@@ -70,3 +70,18 @@ At the end of the match, close the lobby with:
 >close
 ```
 This command is recommended over `!mp close`, because it also disconnects the bot from Bancho and cleanly exits the program.
+
+For players, on the second round of the qualifier lobby, they will be allowed to skip maps by using this command: A vote count will appear after the command.
+```
+#skip
+```
+A vote count will appear after the command.
+If they want to ping the bot to check if the bot is working. A message `干什么¿` would be sent.
+```
+#gsm
+```
+If things went horribly wrong, players may use this command to call the host.
+```
+!panic
+```
+
