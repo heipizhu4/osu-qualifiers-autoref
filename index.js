@@ -305,7 +305,11 @@ function createListeners() {
                     break;
                 }
               case 'skip':
-                  {
+                {
+                    if (runIndex == 1) {
+                        channel.sendMessage("只有第二轮支持使用#skip跳过图。");
+                        break;
+                    }
                       if (!SkipMap.has(msg.user.ircUsername) || !SkipMap.get(msg.user.ircUsername))
                           break;
                       SkipMap.set(msg.user.ircUsername, false);
