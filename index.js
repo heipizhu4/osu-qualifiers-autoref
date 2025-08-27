@@ -361,7 +361,12 @@ function createListeners() {
                     break;
             case 'poke': 
                 channel.sendMessage(PokeString[Math.floor(Math.random() * PokeString.length)]);
-                break;
+                    break;
+                case 'help':
+                    channel.sendMessage(`#gsm 对${config.username}进行干什么`);
+                    channel.sendMessage(`#poke 戳一戳${config.username}进行干什么`);
+                    channel.sendMessage(`#skip 申请跳过该图`);
+                    break;
               case 'skip':
                 {
                     if (closing)
