@@ -125,65 +125,38 @@ function timerEnded() {
 // Creates a new multi lobby
 async function init() {
   await initPool();
-    console.log(chalk.bold.green('Loaded map pool!'));
+  console.log(chalk.bold.green('Loaded map pool!'));
+  console.log(chalk.cyan('Attempting to connect...'));
+  
+  try {
+    await client.connect();
+    console.log(chalk.bold.green("Connected to Bancho!"));
+    const lobbyname = `${match.tournament} Qualifiers lobby: ${match.id}`
+    /* lobbyname = `${match.tournament}: ${match.teams[BLUE].name} vs ${match.teams[RED].name}` */
+    channel = await client.createLobby(lobbyname, match.private); 
+  } catch (err) {
+    console.log(err);
+    console.log(chalk.bold.red("Failed to create lobby"));
+    process.exit(1);
+  }
 
-    if (process.argv.length > 2) {
-        switch (process.argv.slice(2)) {
-            case '-r':
-            case '-R':
-                let RestartFilePath = './RestartSettings.json';
-                if (process.argv.length > 3)
-                    RestartFilePath = process.argv.slice(3);
-                const _Restart = require(RestartFilePath);
-                try {
-                    await client.connect();
-                    channel = client.getChannel(_Restart.RoomId);
-                    mapIndex = _Restart.MapIndex;
-                    runIndex = _Restart.Round;
-                }
-                catch (err) {
-                    console.log(err);
-                    console.log(chalk.bold.red("Failed to find lobby"));
-                    process.exit(1);
-                }
-                lobby = channel.lobby;
-                break;
-        }
-    }
-    else {
-        console.log(chalk.cyan('Attempting to connect...'));
+  lobby = channel.lobby;
 
-        try {
-            await client.connect();
-            console.log(chalk.bold.green("Connected to Bancho!"));
-            const lobbyname = `${match.tournament} Qualifiers lobby: ${match.id}`
-            /* lobbyname = `${match.tournament}: ${match.teams[BLUE].name} vs ${match.teams[RED].name}` */
-            channel = await client.createLobby(lobbyname, match.private);
-        } catch (err) {
-            console.log(err);
-            console.log(chalk.bold.red("Failed to create lobby"));
-            process.exit(1);
-        }
-
-        lobby = channel.lobby;
-
-        const password = Math.random().toString(36).substring(8);
-        await lobby.setPassword(password);
-        await lobby.setMap(match.waitSong, 3); //elevator music
-        
-        console.log(chalk.bold.green("Lobby created!"));
-        console.log(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
-        console.log(chalk.bold.cyan(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`));
-        console.log(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
-        fs.writeFileSync(`./lobbies/${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
-        lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
-
-    }
+  const password = Math.random().toString(36).substring(8);
+  await lobby.setPassword(password);
+  await lobby.setMap(match.waitSong,3); //elevator music
     EachMapReset();
     for (const p of match.teams) {
         SkipMap.set(p.name, true);
-        AbortMap.set(p.name, true);
     }
+  console.log(chalk.bold.green("Lobby created!"));
+  console.log(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
+  console.log(chalk.bold.cyan(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`));
+  console.log(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
+  fs.writeFileSync(`./lobbies/${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
+  lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
+
+
   createListeners();
 }
 
