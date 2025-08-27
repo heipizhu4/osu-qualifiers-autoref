@@ -378,8 +378,8 @@ function createListeners() {
                     break;
                 case 'help':
                     channel.sendMessage(`#gsm 对${config.username}进行干什么`);
-                    channel.sendMessage(`#poke 戳一戳${config.username}进行干什么`);
-                    channel.sendMessage(`#skip 申请跳过该图`);
+                    channel.sendMessage(`#poke 戳一戳${config.username}`);
+                    channel.sendMessage(`#skip 申请跳过该图，仅限第二轮可用。`);
                     break;
               case 'skip':
                 {
