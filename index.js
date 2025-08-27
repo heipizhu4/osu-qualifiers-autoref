@@ -58,6 +58,38 @@ function EachMapReset() {
     MapTimeout = false;
     UnableToStartBucauseOfIllegalMod = false;
 }
+function TryNextMap() {
+    EachMapReset();
+    mapIndex++;
+    timeout = false;
+    ready = false;
+    inPick = false;
+    try {
+        const isPoolUnExhausted = (pool.length > mapIndex);
+
+
+        if (auto) {
+            if (isPoolUnExhausted) {
+                startLobby();
+            } else if (runIndex < match.numberOfRuns) {
+                runIndex++;
+                mapIndex = 0; //sets the pointer to the first map of the pool and sets first to false.
+                startLobby();
+            } else {
+                closing = true;
+                channel.sendMessage(`恭喜！你已完成资格赛的全部图池，各位可以安全离开。房间将在${match.timers.closeLobby}秒后关闭。`);
+                lobby.startTimer(match.timers.closeLobby);
+            }
+        } else if (!isPoolUnExhausted) {
+            mapIndex = 0;
+            runIndex++;
+        }
+    } catch (error) {
+        channel.sendMessage(`There was an error changing the map. ID ${pool[mapIndex].code} might be incorrect. Ping your ref.`);
+        console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
+
+    }
+}
 function timerEnded() {
     if (closing) {
         close();
@@ -274,34 +306,7 @@ function createListeners() {
     obj.forEach(element => {
       fs.appendFileSync(`./players/${element.player.user.username}.txt`,`${pool[mapIndex].code}: ${element.score}\n`);
     });
-    mapIndex++;
-    timeout = false;
-    ready = false;
-    inPick = false;
-    try {
-      const isPoolUnExhausted = (pool.length > mapIndex);
-
-      if (auto) {
-        if (isPoolUnExhausted) {
-          startLobby();
-        } else if (runIndex < match.numberOfRuns) {
-          runIndex++;
-            mapIndex = 0; //sets the pointer to the first map of the pool and sets first to false.
-            
-          startLobby2();
-        } else {
-          closing = true;
-          channel.sendMessage(`The lobby has finished. It'll close in ${match.timers.closeLobby} seconds.`);
-          lobby.startTimer(match.timers.closeLobby);
-        }
-      } else if (!isPoolUnExhausted) {
-        mapIndex = 0;
-        runIndex++;
-      }
-    } catch (error) {
-      channel.sendMessage(`There was an error changing the map. ID ${pool[mapIndex].code} might be incorrect. Ping your ref.`);
-      console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
-    }
+      TryNextMap();
    });
     lobby.on("timerEnded", () => {
         timerEnded();
@@ -314,6 +319,15 @@ function createListeners() {
             console.log(chalk.yellow(`Received command "${m[0]}"`));
 
             switch (m[0]) {
+                case 'skip':
+                    TryNextMap();
+                    break;
+                case 'start':
+                    ready = true;
+                    timeout = false;
+                    lobby.abortTimer();
+                    lobby.startMatch(match.timers.readyStart);
+                    break;
                 case 'close':
                     await close();
                     break;
@@ -382,36 +396,7 @@ function createListeners() {
                       channel.sendMessage("跳过投票：" + playersSkipToSkip + "/" + match.teams.length);
                       if (playersSkipToSkip >= match.teams.length) {
                           channel.sendMessage("所有玩家选择跳过该图。正在选择下一张......");
-                          EachMapReset();
-                          mapIndex++;
-                          timeout = false;
-                          ready = false;
-                          inPick = false;
-                          try {
-                              const isPoolUnExhausted = (pool.length > mapIndex);
-
-
-                              if (auto) {
-                                  if (isPoolUnExhausted) {
-                                      startLobby();
-                                  } else if (runIndex < match.numberOfRuns) {
-                                      runIndex++;
-                                      mapIndex = 0; //sets the pointer to the first map of the pool and sets first to false.
-                                      startLobby();
-                                  } else {
-                                      closing = true;
-                                      channel.sendMessage(`恭喜！你已完成资格赛的全部图池，各位可以安全离开。房间将在${match.timers.closeLobby}秒后关闭。`);
-                                      lobby.startTimer(match.timers.closeLobby);
-                                  }
-                              } else if (!isPoolUnExhausted) {
-                                  mapIndex = 0;
-                                  runIndex++;
-                              }
-                          } catch (error) {
-                              channel.sendMessage(`There was an error changing the map. ID ${pool[mapIndex].code} might be incorrect. Ping your ref.`);
-                              console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
-
-                          }
+                          TryNextMap();
                       }
                   }
                   break;
