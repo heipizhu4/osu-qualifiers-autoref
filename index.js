@@ -20,7 +20,7 @@ const lobbydate = new Date();
 
 const client = new bancho.BanchoClient(config);
 const api = new nodesu.Client(config.apiKey);
-const PokeString = new Array(`干什么¿`,`戳坏了${config.username}，你赔得起吗？`, "不要再戳了呜呜....(害怕ing)", "嗯……不可以……啦……不要乱戳", "呜哇！再戳把你绝赞吃掉喵！！", `再戳${config.username}，我要叫我主人了`, "再戳我让你变成女孩子喵！", "呃啊啊啊~戳坏了....","啊呜，太舒服刚刚竟然睡着了w 有什么事喵？");
+const PokeString = new Array(`戳坏了${config.username}，你赔得起吗？`, "不要再戳了呜呜....(害怕ing)", "嗯……不可以……啦……不要乱戳", "呜哇！再戳把你绝赞吃掉喵！！", `再戳${config.username}，我要叫我主人了`, "再戳我让你变成女孩子喵！", "呃啊啊啊~戳坏了....","啊呜，太舒服刚刚竟然睡着了w 有什么事喵？");
 let channel, lobby;
 let playersLeftToJoin = match.teams.length 
 let playersSkipToSkip = 0
@@ -32,7 +32,12 @@ let ready = false; //whether everyone is ready or not
 let inPick = false; //whether the match is playing or not
 let timeStarted; //time the match started
 let closing = false; //whether the lobby is closing or not
+let MatchBegin = false;
+let MapTimeout = false;
+let UnableToStartBucauseOfIllegalMod = false;
 const SkipMap = new Map();
+const AbortMap = new Map();
+const PlayerMap = new Map();
 // populate mappool with map info
 function initPool() {
   return Promise.all(pool.map(async (b) => {
@@ -41,17 +46,73 @@ function initPool() {
     console.log(chalk.dim(`Loaded ${info.title}`));
   }));
 }
-function MapReset() {
+function SkipMapReset() {
+    playersSkipToSkip = 0;
     SkipMap.clear();
     for (const p of match.teams) {
         SkipMap.set(p.name, true);
+    }
+}
+function EachMapReset() {
+    SkipMapReset();
+    MapTimeout = false;
+    UnableToStartBucauseOfIllegalMod = false;
+}
+function TryNextMap() {
+    EachMapReset();
+    mapIndex++;
+    timeout = false;
+    ready = false;
+    inPick = false;
+    try {
+        const isPoolUnExhausted = (pool.length > mapIndex);
+
+
+        if (auto) {
+            if (isPoolUnExhausted) {
+                startLobby();
+            } else if (runIndex < match.numberOfRuns) {
+                runIndex++;
+                mapIndex = 0; //sets the pointer to the first map of the pool and sets first to false.
+                startLobby();
+            } else {
+                closing = true;
+                channel.sendMessage(`恭喜！你已完成资格赛的全部图池，各位可以安全离开。房间将在${match.timers.closeLobby}秒后关闭。`);
+                lobby.startTimer(match.timers.closeLobby);
+            }
+        } else if (!isPoolUnExhausted) {
+            mapIndex = 0;
+            runIndex++;
+        }
+    } catch (error) {
+        channel.sendMessage(`There was an error changing the map. ID ${pool[mapIndex].code} might be incorrect. Ping your ref.`);
+        console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
+
     }
 }
 function timerEnded() {
     if (closing) {
         close();
     } else if (!ready && (playersLeftToJoin <= 0 || auto)) {
-        if (timeout) {
+        if (!MapTimeout && UnableToStartBucauseOfIllegalMod) {
+            await lobby.updateSettings();
+            CheckPass = true;
+            if (w.mods && w.mods.length > 0) {
+                for (const p of w.mods)
+                    if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
+                        channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod},若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。`);
+                        CheckPass = false;
+                    }
+            }
+            if (CheckPass) {
+                lobby.startMatch(match.timers.forceStart);
+                break;
+            }
+            lobby.startTimer(30);
+            MapTimeout = true;
+            
+        }
+        else if (timeout) {
             lobby.startTimer(match.timers.timeout);
             timeout = false;
         } else {
@@ -64,35 +125,65 @@ function timerEnded() {
 // Creates a new multi lobby
 async function init() {
   await initPool();
-  console.log(chalk.bold.green('Loaded map pool!'));
-  console.log(chalk.cyan('Attempting to connect...'));
-  
-  try {
-    await client.connect();
-    console.log(chalk.bold.green("Connected to Bancho!"));
-    const lobbyname = `${match.tournament} Qualifiers lobby: ${match.id}`
-    /* lobbyname = `${match.tournament}: ${match.teams[BLUE].name} vs ${match.teams[RED].name}` */
-    channel = await client.createLobby(lobbyname, match.private); 
-  } catch (err) {
-    console.log(err);
-    console.log(chalk.bold.red("Failed to create lobby"));
-    process.exit(1);
-  }
+    console.log(chalk.bold.green('Loaded map pool!'));
 
-  lobby = channel.lobby;
+    if (process.argv.length > 2) {
+        switch (process.argv.slice(2)) {
+            case '-r':
+            case '-R':
+                let RestartFilePath = './RestartSettings.json';
+                if (process.argv.length > 3)
+                    RestartFilePath = process.argv.slice(3);
+                const _Restart = require(RestartFilePath);
+                try {
+                    await client.connect();
+                    channel = client.getChannel(_Restart.RoomId);
+                    mapIndex = _Restart.MapIndex;
+                    runIndex = _Restart.Round;
+                }
+                catch (err) {
+                    console.log(err);
+                    console.log(chalk.bold.red("Failed to find lobby"));
+                    process.exit(1);
+                }
+                lobby = channel.lobby;
+                break;
+        }
+    }
+    else {
+        console.log(chalk.cyan('Attempting to connect...'));
 
-  const password = Math.random().toString(36).substring(8);
-  await lobby.setPassword(password);
-  await lobby.setMap(match.waitSong,3); //elevator music
-    MapReset();
-  console.log(chalk.bold.green("Lobby created!"));
-  console.log(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
-  console.log(chalk.bold.cyan(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`));
-  console.log(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
-  fs.writeFileSync(`./lobbies/${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
-  lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
+        try {
+            await client.connect();
+            console.log(chalk.bold.green("Connected to Bancho!"));
+            const lobbyname = `${match.tournament} Qualifiers lobby: ${match.id}`
+            /* lobbyname = `${match.tournament}: ${match.teams[BLUE].name} vs ${match.teams[RED].name}` */
+            channel = await client.createLobby(lobbyname, match.private);
+        } catch (err) {
+            console.log(err);
+            console.log(chalk.bold.red("Failed to create lobby"));
+            process.exit(1);
+        }
 
+        lobby = channel.lobby;
 
+        const password = Math.random().toString(36).substring(8);
+        await lobby.setPassword(password);
+        await lobby.setMap(match.waitSong, 3); //elevator music
+        
+        console.log(chalk.bold.green("Lobby created!"));
+        console.log(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
+        console.log(chalk.bold.cyan(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`));
+        console.log(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
+        fs.writeFileSync(`./lobbies/${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
+        lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
+
+    }
+    EachMapReset();
+    for (const p of match.teams) {
+        SkipMap.set(p.name, true);
+        AbortMap.set(p.name, true);
+    }
   createListeners();
 }
 
@@ -145,24 +236,49 @@ function createListeners() {
     console.log("player joined")
     const name = obj.player.user.username;
     console.log(chalk.yellow(`Player ${name} has joined!`))
-    fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`${name} (${Date()})\n`)
-    if(playersLeftToJoin-- <= 1 || auto){ //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
-      channel.sendMessage("所有玩家已来到房间！资格赛现在开始。");
-      startLobby();
-    }
-    else{
-      channel.sendMessage(`欢迎！还剩余${playersLeftToJoin}位选手未进入房间，资格赛将在所有人到齐后开始。`);
-    }
+      fs.appendFileSync(`./lobbies/${lobby.id}.txt`, `${name} (${Date()})\n`)
+      if (!MatchBegin) {
+          if (playersLeftToJoin-- <= 1 || auto) { //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
+              channel.sendMessage("所有玩家已来到房间！资格赛现在开始。");
+              MatchBegin = true;
+              startLobby();
+          }
+          else {
+              channel.sendMessage(`欢迎！还剩余${playersLeftToJoin}位选手未进入房间，资格赛将在所有人到齐后开始。`);
+          }
+      }
   });
   lobby.on("playerLeft",()=> {
     console.log("playerLeft")
     playersLeftToJoin++;
     fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Someone left at (${Date()}).\n`);
-    const isWithinAbortLeniencyPeriod = (Date.now() - match.timers.abortLeniency * 1000) < timeStarted;
-    if (inPick && isWithinAbortLeniencyPeriod) {
-      lobby.abortMatch();
-      ready = false;
-      channel.sendMessage("Match aborted due to early disconnect.");
+      
+      if (inPick) {
+          let LeftName = "None";
+          if ((Date.now() - match.timers.abortLeniency * 1000) < timeStarted)
+              break;
+          for (const q of match.teams) {
+              let Found = false;
+              for (const w of lobby.slots)
+                  if (w != null) {
+                      if (q === w.user.username) {
+                          Found = true;
+                          break;
+                      }
+                  }
+              if (!Found) {
+                  LeftName = q;
+                  if (AbortMap.has(q) || AbortMap.get(q)) {
+                      AbortMap.set(q, false);
+                      lobby.abortMatch();
+                      ready = false;
+                      channel.sendMessage(`Match aborted due to early disconnect because of ${LeftName}`);
+                      channel.sendMessage(`${LeftName} used his/her abort chance`);
+                  }
+                  break;
+              }
+          }
+      
     }
     else if (auto) lobby.setMap(match.waitSong,3);
     auto = false;
@@ -182,6 +298,7 @@ function createListeners() {
                   if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
                       channel.sendMessage(`${w.user.username} 使用了不被允许的mod: ${p.longMod}`);
                       CheckPass = false;
+                      UnableToStartBucauseOfIllegalMod = true;
                   }
                   else {
                       console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
@@ -203,8 +320,7 @@ function createListeners() {
     });
     lobby.on("matchAborted", () => {
         console.log(chalk.yellow.bold("Match Aborted"));
-        MapReset();
-        playersSkipToSkip = 0
+        EachMapReset();
       fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Match aborted at (${Date()}), `+(ready ? "by the ref." : "due to an early disconnect.")+`\n`);
       timeout = false;
       ready = false;
@@ -213,99 +329,89 @@ function createListeners() {
     });
   lobby.on("matchFinished", (obj) => {
       console.log("matchFinished")
-      MapReset();
-      playersSkipToSkip = 0
+      EachMapReset();
     obj.forEach(element => {
       fs.appendFileSync(`./players/${element.player.user.username}.txt`,`${pool[mapIndex].code}: ${element.score}\n`);
     });
-    mapIndex++;
-    timeout = false;
-    ready = false;
-    inPick = false;
-    try {
-      const isPoolUnExhausted = (pool.length > mapIndex);
-
-      if (auto) {
-        if (isPoolUnExhausted) {
-          startLobby();
-        } else if (runIndex < match.numberOfRuns) {
-          runIndex++;
-            mapIndex = 0; //sets the pointer to the first map of the pool and sets first to false.
-            
-          startLobby2();
-        } else {
-          closing = true;
-          channel.sendMessage(`The lobby has finished. It'll close in ${match.timers.closeLobby} seconds.`);
-          lobby.startTimer(match.timers.closeLobby);
-        }
-      } else if (!isPoolUnExhausted) {
-        mapIndex = 0;
-        runIndex++;
-      }
-    } catch (error) {
-      channel.sendMessage(`There was an error changing the map. ID ${pool[mapIndex].code} might be incorrect. Ping your ref.`);
-      console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
-    }
+      TryNextMap();
    });
     lobby.on("timerEnded", () => {
         timerEnded();
   });
-  channel.on("message", async (msg) => {
-    // All ">" commands must be sent by host
-    console.log(chalk.dim(`${msg.user.ircUsername}: ${msg.message}`));
-    if (msg.message.startsWith(">") && msg.user.ircUsername === config.username) {
-      const m = msg.message.substring(1).split(' ');
-      console.log(chalk.yellow(`Received command "${m[0]}"`));
+    channel.on("message", async (msg) => {
+        // All ">" commands must be sent by host
+        console.log(chalk.dim(`${msg.user.ircUsername}: ${msg.message}`));
+        if (msg.message.startsWith(">") && msg.user.ircUsername === config.username) {
+            const m = msg.message.substring(1).split(' ');
+            console.log(chalk.yellow(`Received command "${m[0]}"`));
 
-      switch (m[0]) {
-        case 'close':
-          await close();
-          break;
-        case 'invite':
-          for (const p of match.teams) {
-            // intentionally fire these synchronously
-            await lobby.invitePlayer(p.name);
-          }
-          break;
-        case 'auto':
-          auto = (m[1] === 'on');
-          if (auto) {
-            channel.sendMessage("Auto referee is " + "ON " + ". Starting now.");
-            startLobby();
-          } else {
-            channel.sendMessage("Auto referee is " + "OFF");
-            lobby.setMap(match.waitSong,3);
-          }
-          break;
-        case 'timeout':
-          timeout = true;
-          channel.sendMessage("Timeout given. An additional " + match.timers.timeout + " seconds timer will be applied.");
-          break;
-        case 'abort':
-          await lobby.abortMatch();
-          channel.sendMessage("Match aborted manually.")
-              break;
-          case 'mod':
-              await lobby.updateSettings();
-              if (lobby.slots[0].mods && lobby.slots[0].mods.length > 0) {
-                  for (const p of lobby.slots[0].mods)
-                  console.log(p.shortMod);
-              } else {
-                  console.log("No mods found for this slot");
-              }
-           break;
-      }
-      } else if (msg.message.startsWith("#")) {
-          const m = msg.message.substring(1).split(' ');
-          console.log(chalk.yellow(`Received command "${m[0]}"`));
+            switch (m[0]) {
+                case 'skip':
+                    TryNextMap();
+                    break;
+                case 'start':
+                    ready = true;
+                    timeout = false;
+                    lobby.abortTimer();
+                    lobby.startMatch(match.timers.readyStart);
+                    break;
+                case 'close':
+                    await close();
+                    break;
+                case 'invite':
+                    for (const p of match.teams) {
+                        // intentionally fire these synchronously
+                        await lobby.invitePlayer(p.name);
+                    }
+                    break;
+                case 'auto':
+                    auto = (m[1] === 'on');
+                    if (auto) {
+                        channel.sendMessage("Auto referee is " + "ON " + ". Starting now.");
+                        startLobby();
+                    } else {
+                        channel.sendMessage("Auto referee is " + "OFF");
+                        lobby.setMap(match.waitSong, 3);
+                    }
+                    break;
+                case 'timeout':
+                    timeout = true;
+                    channel.sendMessage("Timeout given. An additional " + match.timers.timeout + " seconds timer will be applied.");
+                    break;
+                case 'abort':
+                    await lobby.abortMatch();
+                    channel.sendMessage("Match aborted manually.")
+                    break;
+                case 'mod':
+                    await lobby.updateSettings();
+                    if (lobby.slots[0].mods && lobby.slots[0].mods.length > 0) {
+                        for (const p of lobby.slots[0].mods)
+                            console.log(p.shortMod);
+                    } else {
+                        console.log("No mods found for this slot");
+                    }
+                    break;
+            }
+        } else if (msg.message.startsWith("#")) {
+            const m = msg.message.substring(1).split(' ');
+            console.log(chalk.yellow(`Received command "${m[0]}"`));
 
-        switch (m[0]) {
-            case 'gsm':
+            switch (m[0]) {
+                case 'gsm':
+                    channel.sendMessage(`干什么¿`,);
+                    break;
             case 'poke': 
                 channel.sendMessage(PokeString[Math.floor(Math.random() * PokeString.length)]);
-                break;
+                    break;
+                case 'help':
+                    channel.sendMessage(`#gsm 对${config.username}进行干什么`);
+                    channel.sendMessage(`#poke 戳一戳${config.username}`);
+                    channel.sendMessage(`#skip 申请跳过该图，仅限第二轮可用。`);
+                    break;
               case 'skip':
                 {
+                    if (closing)
+                        break;
                     if (runIndex == 1) {
                         channel.sendMessage("只有第二轮支持使用#skip跳过图。");
                         break;
@@ -317,37 +423,7 @@ function createListeners() {
                       channel.sendMessage("跳过投票：" + playersSkipToSkip + "/" + match.teams.length);
                       if (playersSkipToSkip >= match.teams.length) {
                           channel.sendMessage("所有玩家选择跳过该图。正在选择下一张......");
-                          MapReset();
-                          playersSkipToSkip = 0
-                          mapIndex++;
-                          timeout = false;
-                          ready = false;
-                          inPick = false;
-                          try {
-                              const isPoolUnExhausted = (pool.length > mapIndex);
-
-
-                              if (auto) {
-                                  if (isPoolUnExhausted) {
-                                      startLobby();
-                                  } else if (runIndex < match.numberOfRuns) {
-                                      runIndex++;
-                                      mapIndex = 0; //sets the pointer to the first map of the pool and sets first to false.
-                                      startLobby();
-                                  } else {
-                                      closing = true;
-                                      channel.sendMessage(`恭喜！你已完成资格赛的全部图池，各位可以安全离开。房间将在${match.timers.closeLobby}秒后关闭。`);
-                                      lobby.startTimer(match.timers.closeLobby);
-                                  }
-                              } else if (!isPoolUnExhausted) {
-                                  mapIndex = 0;
-                                  runIndex++;
-                              }
-                          } catch (error) {
-                              channel.sendMessage(`There was an error changing the map. ID ${pool[mapIndex].code} might be incorrect. Ping your ref.`);
-                              console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
-
-                          }
+                          TryNextMap();
                       }
                   }
                   break;
