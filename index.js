@@ -20,7 +20,7 @@ const lobbydate = new Date();
 
 const client = new bancho.BanchoClient(config);
 const api = new nodesu.Client(config.apiKey);
-const PokeString = new Array(`干什么¿`,`戳坏了${config.username}，你赔得起吗？`, "不要再戳了呜呜....(害怕ing)", "嗯……不可以……啦……不要乱戳", "呜哇！再戳把你绝赞吃掉喵！！", `再戳${config.username}，我要叫我主人了`, "再戳我让你变成女孩子喵！", "呃啊啊啊~戳坏了....","啊呜，太舒服刚刚竟然睡着了w 有什么事喵？");
+const PokeString = new Array(`戳坏了${config.username}，你赔得起吗？`, "不要再戳了呜呜....(害怕ing)", "嗯……不可以……啦……不要乱戳", "呜哇！再戳把你绝赞吃掉喵！！", `再戳${config.username}，我要叫我主人了`, "再戳我让你变成女孩子喵！", "呃啊啊啊~戳坏了....","啊呜，太舒服刚刚竟然睡着了w 有什么事喵？");
 let channel, lobby;
 let playersLeftToJoin = match.teams.length 
 let playersSkipToSkip = 0
@@ -306,57 +306,59 @@ function createListeners() {
     lobby.on("timerEnded", () => {
         timerEnded();
   });
-  channel.on("message", async (msg) => {
-    // All ">" commands must be sent by host
-    console.log(chalk.dim(`${msg.user.ircUsername}: ${msg.message}`));
-    if (msg.message.startsWith(">") && msg.user.ircUsername === config.username) {
-      const m = msg.message.substring(1).split(' ');
-      console.log(chalk.yellow(`Received command "${m[0]}"`));
+    channel.on("message", async (msg) => {
+        // All ">" commands must be sent by host
+        console.log(chalk.dim(`${msg.user.ircUsername}: ${msg.message}`));
+        if (msg.message.startsWith(">") && msg.user.ircUsername === config.username) {
+            const m = msg.message.substring(1).split(' ');
+            console.log(chalk.yellow(`Received command "${m[0]}"`));
 
-      switch (m[0]) {
-        case 'close':
-          await close();
-          break;
-        case 'invite':
-          for (const p of match.teams) {
-            // intentionally fire these synchronously
-            await lobby.invitePlayer(p.name);
-          }
-          break;
-        case 'auto':
-          auto = (m[1] === 'on');
-          if (auto) {
-            channel.sendMessage("Auto referee is " + "ON " + ". Starting now.");
-            startLobby();
-          } else {
-            channel.sendMessage("Auto referee is " + "OFF");
-            lobby.setMap(match.waitSong,3);
-          }
-          break;
-        case 'timeout':
-          timeout = true;
-          channel.sendMessage("Timeout given. An additional " + match.timers.timeout + " seconds timer will be applied.");
-          break;
-        case 'abort':
-          await lobby.abortMatch();
-          channel.sendMessage("Match aborted manually.")
-              break;
-          case 'mod':
-              await lobby.updateSettings();
-              if (lobby.slots[0].mods && lobby.slots[0].mods.length > 0) {
-                  for (const p of lobby.slots[0].mods)
-                  console.log(p.shortMod);
-              } else {
-                  console.log("No mods found for this slot");
-              }
-           break;
-      }
-      } else if (msg.message.startsWith("#")) {
-          const m = msg.message.substring(1).split(' ');
-          console.log(chalk.yellow(`Received command "${m[0]}"`));
+            switch (m[0]) {
+                case 'close':
+                    await close();
+                    break;
+                case 'invite':
+                    for (const p of match.teams) {
+                        // intentionally fire these synchronously
+                        await lobby.invitePlayer(p.name);
+                    }
+                    break;
+                case 'auto':
+                    auto = (m[1] === 'on');
+                    if (auto) {
+                        channel.sendMessage("Auto referee is " + "ON " + ". Starting now.");
+                        startLobby();
+                    } else {
+                        channel.sendMessage("Auto referee is " + "OFF");
+                        lobby.setMap(match.waitSong, 3);
+                    }
+                    break;
+                case 'timeout':
+                    timeout = true;
+                    channel.sendMessage("Timeout given. An additional " + match.timers.timeout + " seconds timer will be applied.");
+                    break;
+                case 'abort':
+                    await lobby.abortMatch();
+                    channel.sendMessage("Match aborted manually.")
+                    break;
+                case 'mod':
+                    await lobby.updateSettings();
+                    if (lobby.slots[0].mods && lobby.slots[0].mods.length > 0) {
+                        for (const p of lobby.slots[0].mods)
+                            console.log(p.shortMod);
+                    } else {
+                        console.log("No mods found for this slot");
+                    }
+                    break;
+            }
+        } else if (msg.message.startsWith("#")) {
+            const m = msg.message.substring(1).split(' ');
+            console.log(chalk.yellow(`Received command "${m[0]}"`));
 
-        switch (m[0]) {
-            case 'gsm':
+            switch (m[0]) {
+                case 'gsm':
+                    channel.sendMessage(`干什么¿`,);
+                    break;
             case 'poke': 
                 channel.sendMessage(PokeString[Math.floor(Math.random() * PokeString.length)]);
                 break;
