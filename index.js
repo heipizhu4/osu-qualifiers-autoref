@@ -362,6 +362,8 @@ function createListeners() {
                 break;
               case 'skip':
                 {
+                    if (closing)
+                        break;
                     if (runIndex == 1) {
                         channel.sendMessage("只有第二轮支持使用#skip跳过图。");
                         break;
