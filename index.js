@@ -93,8 +93,9 @@ function TryNextMap() {
 async function timerEnded() {
     if (closing) {
         close();
-    } else if (ready && (playersLeftToJoin <= 0 || auto)) {
-        if (!MapTimeout && UnableToStartBucauseOfIllegalMod) {
+    } else if ((playersLeftToJoin <= 0 || auto)) {
+      
+        if (ready&&!MapTimeout && UnableToStartBucauseOfIllegalMod) {
             await lobby.updateSettings();
             CheckPass = true;
             if (w.mods && w.mods.length > 0) {
@@ -112,7 +113,7 @@ async function timerEnded() {
             MapTimeout = true;
             
         }
-        else if (timeout) {
+        else if (!ready&&timeout) {
             lobby.startTimer(match.timers.timeout);
             timeout = false;
         } else {
