@@ -98,6 +98,8 @@ async function timerEnded() {
         if (ready&&!MapTimeout && UnableToStartBucauseOfIllegalMod) {
             await lobby.updateSettings();
             CheckPass = true;
+            for (const w of lobby.slots)
+            if (w != null)
             if (w.mods && w.mods.length > 0) {
                 for (const p of w.mods)
                     if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
@@ -133,11 +135,16 @@ async function init() {
             case '-r':
             case '-R':
                 let RestartFilePath = './RestartSettings.json';
+                console.log(chalk.bold.orange("Restarting..."));
                 if (process.argv.length > 3)
                     RestartFilePath = process.argv.slice(3);
                 const _Restart = require(RestartFilePath);
+                console.log(chalk.bold.orange(`Use ${RestartFilePath} as restart file`));
                 try {
                     await client.connect();
+                    console.log(chalk.bold.orange(`Room id: ${_Restart.RoomId}`));
+                    console.log(chalk.bold.orange(`Map index: ${_Restart.MapIndex}`));
+                    console.log(chalk.bold.orange(`Round: ${_Restart.Round}`));
                     channel = await client.getChannel(_Restart.RoomId);
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
