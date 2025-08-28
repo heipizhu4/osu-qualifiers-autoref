@@ -156,6 +156,9 @@ async function init() {
                 lobby = channel.lobby;
                 console.log(chalk.bold.green(`Join the lobby ${lobby.name}`));
                 break;
+            default:
+                console.log(chalk.bold.red("Unknown command!"));
+                process.exit(1);
         }
     }
     else {
