@@ -129,11 +129,11 @@ async function init() {
     console.log(chalk.bold.green('Loaded map pool!'));
 
     if (process.argv.length > 2) {
-        switch (process.argv.slice(2)) {
+        switch (process.argv[2]) {
             case '-r':
             case '-R':
                 let RestartFilePath = './RestartSettings.json';
-                console.log(chalk.bold.orange("Restarting..."));
+                console.log(chalk.bold.magenta("Restarting..."));
                 if (process.argv.length > 3)
                     RestartFilePath = process.argv.slice(3);
                 const _Restart = require(RestartFilePath);
@@ -141,9 +141,9 @@ async function init() {
                 try {
                     await client.connect();
                     console.log(chalk.bold.green("Connected to Bancho!"));
-                    console.log(chalk.bold.orange(`Room id: ${_Restart.RoomId}`));
-                    console.log(chalk.bold.orange(`Map index: ${_Restart.MapIndex}`));
-                    console.log(chalk.bold.orange(`Round: ${_Restart.Round}`));
+                    console.log(chalk.bold.magenta(`Room id: ${_Restart.RoomId}`));
+                    console.log(chalk.bold.magenta(`Map index: ${_Restart.MapIndex}`));
+                    console.log(chalk.bold.magenta(`Round: ${_Restart.Round}`));
                     channel = await client.getChannel(_Restart.RoomId);
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
@@ -157,6 +157,7 @@ async function init() {
                 console.log(chalk.bold.green(`Join the lobby ${lobby.name}`));
                 break;
             default:
+                console.log(chalk.bold.yellow(`Argument received: ${process.argv[2]}`));
                 console.log(chalk.bold.red("Unknown command!"));
                 process.exit(1);
         }
