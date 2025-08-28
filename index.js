@@ -34,7 +34,6 @@ let timeStarted; //time the match started
 let closing = false; //whether the lobby is closing or not
 let MatchBegin = false;
 let MapTimeout = false;
-let UnableToStartBucauseOfIllegalMod = false;
 const SkipMap = new Map();
 const AbortMap = new Map();
 const PlayerMap = new Map();
@@ -56,7 +55,6 @@ function SkipMapReset() {
 function EachMapReset() {
     SkipMapReset();
     MapTimeout = false;
-    UnableToStartBucauseOfIllegalMod = false;
 }
 function TryNextMap() {
     EachMapReset();
@@ -95,7 +93,7 @@ async function timerEnded() {
         close();
     } else if ((playersLeftToJoin <= 0 || auto)) {
       
-        if (ready&&!MapTimeout && UnableToStartBucauseOfIllegalMod) {
+        if (!MapTimeout) {
             await lobby.updateSettings();
             CheckPass = true;
             for (const w of lobby.slots)
@@ -306,7 +304,6 @@ function createListeners() {
                   if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
                       channel.sendMessage(`${w.user.username} 使用了不被允许的mod: ${p.longMod}`);
                       CheckPass = false;
-                      UnableToStartBucauseOfIllegalMod = true;
                   }
                   else {
                       console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
