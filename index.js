@@ -129,21 +129,21 @@ async function init() {
     console.log(chalk.bold.green('Loaded map pool!'));
 
     if (process.argv.length > 2) {
-        switch (process.argv.slice[2]) {
+        switch (process.argv[2]) {
             case '-r':
             case '-R':
                 let RestartFilePath = './RestartSettings.json';
-                console.log(chalk.bold.magentla("Restarting..."));
+                console.log(chalk.bold.magenta("Restarting..."));
                 if (process.argv.length > 3)
-                    RestartFilePath = process.argv.slice(3);
+                    RestartFilePath = process.argv[3];
                 const _Restart = require(RestartFilePath);
-                console.log(chalk.bold.magentla(`Use ${RestartFilePath} as restart file`));
+                console.log(chalk.bold.magenta(`Use ${RestartFilePath} as restart file`));
                 try {
                     await client.connect();
                     console.log(chalk.bold.green("Connected to Bancho!"));
-                    console.log(chalk.bold.magentla(`Room id: ${_Restart.RoomId}`));
-                    console.log(chalk.bold.magentla(`Map index: ${_Restart.MapIndex}`));
-                    console.log(chalk.bold.magentla(`Round: ${_Restart.Round}`));
+                    console.log(chalk.bold.magenta(`Room id: ${_Restart.RoomId}`));
+                    console.log(chalk.bold.magenta(`Map index: ${_Restart.MapIndex}`));
+                    console.log(chalk.bold.magenta(`Round: ${_Restart.Round}`));
                     channel = await client.getChannel(`#mp_${_Restart.RoomId}`);
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
@@ -158,7 +158,7 @@ async function init() {
                 startLobby();
                 break;
             default:
-                console.log(chalk.bold.red("Unknown command!"));
+                console.log(chalk.bold.red(`Unknown command ${process.argv[2]}!`));
                 process.exit(1);
         }
     }
