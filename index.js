@@ -93,7 +93,7 @@ function TryNextMap() {
 async function timerEnded() {
     if (closing) {
         close();
-    } else if (!ready && (playersLeftToJoin <= 0 || auto)) {
+    } else if (ready && (playersLeftToJoin <= 0 || auto)) {
         if (!MapTimeout && UnableToStartBucauseOfIllegalMod) {
             await lobby.updateSettings();
             CheckPass = true;
