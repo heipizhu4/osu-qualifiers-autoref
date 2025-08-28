@@ -137,7 +137,7 @@ async function init() {
                 const _Restart = require(RestartFilePath);
                 try {
                     await client.connect();
-                    channel = client.getChannel(_Restart.RoomId);
+                    channel = await client.getChannel(_Restart.RoomId);
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
                 }
