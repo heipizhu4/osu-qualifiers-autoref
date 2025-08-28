@@ -140,6 +140,7 @@ async function init() {
                 console.log(chalk.bold.orange(`Use ${RestartFilePath} as restart file`));
                 try {
                     await client.connect();
+                    console.log(chalk.bold.green("Connected to Bancho!"));
                     console.log(chalk.bold.orange(`Room id: ${_Restart.RoomId}`));
                     console.log(chalk.bold.orange(`Map index: ${_Restart.MapIndex}`));
                     console.log(chalk.bold.orange(`Round: ${_Restart.Round}`));
@@ -153,6 +154,7 @@ async function init() {
                     process.exit(1);
                 }
                 lobby = channel.lobby;
+                console.log(chalk.bold.green(`Join the lobby ${lobby.name}`));
                 break;
         }
     }
