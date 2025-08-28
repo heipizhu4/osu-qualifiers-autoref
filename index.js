@@ -318,6 +318,7 @@ function createListeners() {
             const m = msg.message.substring(1).split(' ');
             console.log(chalk.yellow(`Received command "${m[0]}"`));
 
+
             switch (m[0]) {
                 case 'skip':
                     TryNextMap();
@@ -368,6 +369,7 @@ function createListeners() {
         } else if (msg.message.startsWith("#")) {
             const m = msg.message.substring(1).split(' ');
             console.log(chalk.yellow(`Received command "${m[0]}"`));
+
 
             switch (m[0]) {
                 case 'gsm':
