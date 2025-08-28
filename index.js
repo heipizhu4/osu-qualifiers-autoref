@@ -90,7 +90,7 @@ function TryNextMap() {
 
     }
 }
-function timerEnded() {
+async function timerEnded() {
     if (closing) {
         close();
     } else if (!ready && (playersLeftToJoin <= 0 || auto)) {
@@ -106,7 +106,7 @@ function timerEnded() {
             }
             if (CheckPass) {
                 lobby.startMatch(match.timers.forceStart);
-                break;
+                return;
             }
             lobby.startTimer(30);
             MapTimeout = true;
@@ -256,7 +256,7 @@ function createListeners() {
       if (inPick) {
           let LeftName = "None";
           if ((Date.now() - match.timers.abortLeniency * 1000) < timeStarted)
-              break;
+              return;
           for (const q of match.teams) {
               let Found = false;
               for (const w of lobby.slots)
