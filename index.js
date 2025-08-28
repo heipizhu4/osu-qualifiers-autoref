@@ -117,7 +117,7 @@ async function timerEnded() {
             lobby.startTimer(match.timers.timeout);
             timeout = false;
         } else {
-            lobby.startMatch(match.timers.forceStart);
+            lobby.startMatch(match.timers.readyStart);
         }
     } else if (playersLeftToJoin > 0) {
         console.log(chalk.bold.red("There (might) be someone left to join.\nTake over now or enable auto with >auto on"));
@@ -312,7 +312,10 @@ function createListeners() {
           if (CheckPass) {
               channel.sendMessage('所有人都已准备完毕，准备开始比赛...');
               lobby.abortTimer();
-              lobby.startMatch(match.timers.readyStart);
+              if (!MapTimeout)
+                  lobby.startMatch(match.timers.readyStart);
+              else
+                  lobby.startMatch(match.timers.forceStart);
           }
           else {
               channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
