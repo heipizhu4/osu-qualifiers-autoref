@@ -98,9 +98,13 @@ For players, on the second round of the qualifier lobby, they will be allowed to
 #skip
 ```
 
-If Players want to ping the bot to check if the bot is working, they may use the next command. A message `干什么¿` would be sent.
+If players want to ping the bot to check if the bot is working, they may use the next command. A message `干什么¿` would be sent.
 ```
 #gsm
+```
+They may also ping the bot in a funny way by 'poking' using this command:
+```
+#poke
 ```
 If things went horribly wrong, players may use this command to call the host.
 ```
