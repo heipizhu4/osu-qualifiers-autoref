@@ -144,12 +144,6 @@ async function init() {
                     console.log(chalk.bold.magenta(`Room id: ${_Restart.RoomId}`));
                     console.log(chalk.bold.magenta(`Map index: ${_Restart.MapIndex}`));
                     console.log(chalk.bold.magenta(`Round: ${_Restart.Round}`));
-                    const BanchoBot = client.getUser("BanchoBot");
-                    await BanchoBot.sendMessage("/join #mp_" + _Restart.RoomId);
-                    await BanchoBot.sendMessage("!mp settings");
-                    const listener = (msg) => {
-                        console.log("BanchoBot: "+msg.message);
-                    };
                     channel = await client.getChannel(`#mp_${_Restart.RoomId}`);//#multiplayer
                     await channel.join();
                     mapIndex = _Restart.MapIndex;
