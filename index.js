@@ -156,6 +156,7 @@ async function init() {
                 }
                 lobby = channel.lobby;
                 console.log(chalk.bold.green(`Join the lobby ${lobby.name}`));
+                channel.sendMessage(`孩子们，我回来了`);
                 startLobby();
                 break;
             default:
