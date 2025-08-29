@@ -1,8 +1,9 @@
 # osu!autoref
 
 Semi-automated referee bot for osu! by [Cychloryn](https://osu.ppy.sh/users/6921736). Adapted to be an automated qualifiers bot by [M A N O L O](https://osu.ppy.sh/users/12296128). Adapted to be an automated qualifiers bot for mania mode by [heipizhu](https://osu.ppy.sh/users/29319435) and [31415906](https://osu.ppy.sh/users/33138632).
+Special thanks to [xiaobaidan](https://osu.ppy.sh/users/26795413) for testing!
 
-Tested on Windows.
+Tested on Windows and MacOS.
 Uses bancho.js by ThePoon.
 
 中文readme请见：https://github.com/heipizhu4/osu-qualifiers-autoref/blob/master/README_zh.md
@@ -21,6 +22,7 @@ Uses bancho.js by ThePoon.
 - Automatic scorekeeping
 - Auto start matches when players are ready
 - Every match starts with your own Elevator music
+- Reboot the bot and rejoin the room when neccessary
 - As many runs as you'd like!
  
 ## Configuration
@@ -52,6 +54,7 @@ npm start OR node index
 ## Usage
 Upon running this bot, a match will be created, and the password will be logged to the terminal. You can send messages to the chatroom via the terminal window, but this is kinda janky, so I'd recommenda also having an IRC client open/being in-game.
 
+### Host side command
 First, you can use this special command to invite all players from both teams to the match:
 ```py
 >invite
@@ -59,6 +62,14 @@ First, you can use this special command to invite all players from both teams to
 If you want to give the players a break, you can easily do it by executing this next command:
 ```py
 >timeout
+```
+If you want to skip a map maually, you can use this command:
+```py
+>skip
+```
+If you would like to force start a map, this can be quite useful:
+```
+>start
 ```
 If you need to takeover the bot at any point through, but you don't want to close the enitre thing just yet, you can use this next command, with any argument, except `on`, which will turn it back on.
 ```py
@@ -71,6 +82,17 @@ At the end of the match, close the lobby with:
 ```
 This command is recommended over `!mp close`, because it also disconnects the bot from Bancho and cleanly exits the program.
 
+If you happened to forget a certain command, feel free to use this:
+```py
+>help
+```
+In case things went terribly wrong that you need to restart the bot, you need to fill out `RestartSettings.json`, and type this into the **command line**:
+```py
+node index.js -r
+```
+Please note that `MapIndex` starts with 0. (That is, if you want to start out with the second map of the first round, then MapIndex=1, Round=1.)
+
+## Player side command
 For players, on the second round of the qualifier lobby, they will be allowed to skip maps by using this command: A vote count will appear after the command.
 ```
 #skip
@@ -85,3 +107,7 @@ If things went horribly wrong, players may use this command to call the host.
 !panic
 ```
 
+They may learn how to use the player side command by using:
+```
+#help
+```
