@@ -146,10 +146,12 @@ async function init() {
                     console.log(chalk.bold.magenta(`Round: ${_Restart.Round}`));
                     const BanchoBot = client.getUser("BanchoBot");
                     await BanchoBot.sendMessage("/join #mp_" + _Restart.RoomId);
+                    await BanchoBot.sendMessage("!mp settings");
                     const listener = (msg) => {
-                        console.log("BanchoBot: "+matchCreatedRegex.exec(msg.message));
+                        console.log("BanchoBot: "+msg.message);
                     };
-                    channel = await client.getChannel(`#mp_${_Restart.RoomId}`);
+                    channel = await client.getChannel(`#mp_${_Restart.RoomId}`);//#multiplayer
+                    channel.join();
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
                 }
@@ -423,9 +425,9 @@ function createListeners() {
                 channel.sendMessage(PokeString[Math.floor(Math.random() * PokeString.length)]);
                     break;
                 case 'help':
-                    channel.sendMessage(`#gsm 对${config.username}进行干什么`);
-                    channel.sendMessage(`#poke 戳一戳${config.username}`);
-                    channel.sendMessage(`#skip 申请跳过该图，仅限第二轮可用。`);
+                    channel.sendMessage(`使用#gsm 对${config.username}进行干什么`);
+                    channel.sendMessage(`使用#poke 戳一戳${config.username}`);
+                    channel.sendMessage(`使用#skip 申请跳过该图，仅限第二轮可用。`);
                     break;
               case 'skip':
                 {
