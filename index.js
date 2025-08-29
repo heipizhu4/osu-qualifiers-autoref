@@ -276,7 +276,7 @@ function createListeners() {
     console.log("player joined")
     const name = obj.player.user.username;
       console.log(chalk.yellow(`Player ${name} has joined!`))
-      if(name==='xiaobaidan')
+      if(name==="xiaobaidan")
       channel.sendMessage("叠比 龙比 藏比的传说   xiaobaidan   来了");
       fs.appendFileSync(`./lobbies/${lobby.id}.txt`, `${name} (${Date()})\n`)
       if (!MatchBegin) {
@@ -315,8 +315,8 @@ function createListeners() {
                       AbortMap.set(q, false);
                       lobby.abortMatch();
                       ready = false;
-                      channel.sendMessage(`Match aborted due to early disconnect because of ${LeftName}`);
-                      channel.sendMessage(`${LeftName} used his/her abort chance`);
+                      channel.sendMessage(`比赛因为 ${LeftName} 的离开而中断`);
+                      channel.sendMessage(`${LeftName} 使用了他/她的abort机会`);
                   }
                   break;
               }
@@ -425,7 +425,7 @@ function createListeners() {
                     break;
                 case 'abort':
                     await lobby.abortMatch();
-                    channel.sendMessage("Match aborted manually.")
+                    channel.sendMessage("比赛被裁判中断了")
                     break;
                 case 'mod':
                     await lobby.updateSettings();
@@ -503,7 +503,7 @@ function createListeners() {
       }
     if(auto && msg.message === "!panic"){
       auto = false;
-      channel.sendMessage("Panic command received. A ref will be checking in shortly.")
+        channel.sendMessage(`Bot被${msg.user.ircUsername}铜丝了...`)
       console.log(chalk.red.bold("Something has gone really wrong!\n")+"Someone has executed the !panic command and "+chalk.yellow("auto mode has been disabled"));
       /*await webhook.send(`<@${config.discord.refRole}>, someone has executed the !panic command on match https://osu.ppy.sh/mp/${lobby.id}.\n`+
       "join using ` /join #mp_"+lobby.id+"` The host is " + config.username+".")*/
