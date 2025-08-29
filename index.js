@@ -151,7 +151,7 @@ async function init() {
                         console.log("BanchoBot: "+msg.message);
                     };
                     channel = await client.getChannel(`#mp_${_Restart.RoomId}`);//#multiplayer
-                    channel.join();
+                    await channel.join();
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
                 }
