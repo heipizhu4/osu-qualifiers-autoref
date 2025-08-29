@@ -144,6 +144,12 @@ async function init() {
                     console.log(chalk.bold.magenta(`Room id: ${_Restart.RoomId}`));
                     console.log(chalk.bold.magenta(`Map index: ${_Restart.MapIndex}`));
                     console.log(chalk.bold.magenta(`Round: ${_Restart.Round}`));
+                    const BanchoBot = this.getUser("BanchoBot");
+                    await BanchoBot.sendMessage("!mp join #mp_" + _Restart.RoomId);
+                    const listener = (msg) => {
+                        console.log("BanchoBot: "+matchCreatedRegex.exec(msg.message));
+                        
+                    };
                     channel = await client.getChannel(`#mp_${_Restart.RoomId}`);
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
