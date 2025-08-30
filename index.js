@@ -173,6 +173,7 @@ async function init() {
                     await channel.join();
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
+                  MatchBegin=true;
                 }
                 catch (err) {
                     console.log(err);
@@ -344,7 +345,11 @@ function createListeners() {
                   lobby.startMatch(match.timers.readyStart);
               else
                   lobby.startMatch(match.timers.forceStart);
-            
+            if(CheckMod(false)){
+              channel.sendMessage('?有人耍我');
+              lobby.abortTimer();
+              lobby.startTimer(10);
+            }
           }
           else {
               channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
