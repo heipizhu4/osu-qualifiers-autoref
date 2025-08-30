@@ -69,6 +69,22 @@ function EachMapReset() {
     SkipMapReset();
     MapTimeout = false;
 }
+function CheckMod(IfOutput){
+  await lobby.updateSettings();
+            CheckPass = true;
+            for (const w of lobby.slots)
+            if (w != null)
+            if (w.mods && w.mods.length > 0) {
+                for (const p of w.mods){
+                    if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
+                        if(IfOutput)
+                      channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod},若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。`);
+                        CheckPass = false;
+                    }
+              console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
+            }}
+  return CheckPass;
+}
 function RestartMap() {
     EachMapReset();
     timeout = false;
@@ -114,18 +130,7 @@ async function timerEnded() {
     } else if ((playersLeftToJoin <= 0 || auto)) {
       
         if (!MapTimeout) {
-            await lobby.updateSettings();
-            CheckPass = true;
-            for (const w of lobby.slots)
-            if (w != null)
-            if (w.mods && w.mods.length > 0) {
-                for (const p of w.mods)
-                    if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
-                        channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod},若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。`);
-                        CheckPass = false;
-                    }
-            }
-            if (CheckPass) {
+            if (CheckMod(true)) {
                 lobby.startMatch(match.timers.forceStart);
                 return;
             }
@@ -332,27 +337,14 @@ function createListeners() {
     ready = true;
     timeout = false;
       if (auto) {
-          CheckPass = true;
-          await lobby.updateSettings();
-          for (const w of lobby.slots)
-          if (w != null)
-          if (w.mods && w.mods.length > 0) {
-              for (const p of w.mods)
-                  if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
-                      channel.sendMessage(`${w.user.username} 使用了不被允许的mod: ${p.longMod}`);
-                      CheckPass = false;
-                  }
-                  else {
-                      console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
-                  }
-              }
-          if (CheckPass) {
+          if (CheckMod(true)) {
               channel.sendMessage('所有人都已准备完毕，准备开始比赛...');
               lobby.abortTimer();
               if (!MapTimeout)
                   lobby.startMatch(match.timers.readyStart);
               else
                   lobby.startMatch(match.timers.forceStart);
+            
           }
           else {
               channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
@@ -428,13 +420,7 @@ function createListeners() {
                     channel.sendMessage("Match aborted manually.")
                     break;
                 case 'mod':
-                    await lobby.updateSettings();
-                    if (lobby.slots[0].mods && lobby.slots[0].mods.length > 0) {
-                        for (const p of lobby.slots[0].mods)
-                            console.log(p.shortMod);
-                    } else {
-                        console.log("No mods found for this slot");
-                    }
+                    CheckMod(false);
                     break;
                 case 'map':
                     const TMapId = MapMap.get(m[1]) || -1;
