@@ -57,6 +57,7 @@ function WriteReatartFile() {
         Round: runIndex
     };
     fs.writeFileSync('RestartSettings.json', JSON.stringify(data, null, 2));
+  console.log("重启文件已自动保存于RestartSettings.json");
 }
 function SkipMapReset() {
     playersSkipToSkip = 0;
