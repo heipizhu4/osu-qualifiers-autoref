@@ -477,7 +477,7 @@ function createListeners() {
                     channel.sendMessage(`使用#gsm 对${config.username}进行干什么`);
                     channel.sendMessage(`使用#poke 戳一戳${config.username}`);
                     channel.sendMessage(`使用#skip 申请跳过该图，仅限第二轮可用。`);
-                    channel.sendMessage(`使用!panic来铜丝我`);
+                    channel.sendMessage(`遇到过于严重的事故请使用!panic。请勿滥用。`);
                     break;
               case 'skip':
                 {
