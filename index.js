@@ -9,18 +9,23 @@ const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
-
+const playerEvent = {
+    join: 'join',
+    leave: 'leave'
+};
 // Remember to fill config.json with your credentials
+const optionalWords = require('./optionalWords.json');
 const config = require('./config.json');
 const pool = require('./pool.json');
 const match = require('./match.json');
 const { randomInt } = require('crypto');
+const { request } = require('./node_modules/undici/index');
 const webhook = new WebhookClient({ url: config.discord.webhookLink });
 const lobbydate = new Date();
 
 const client = new bancho.BanchoClient(config);
 const api = new nodesu.Client(config.apiKey);
-const PokeString = new Array(`戳坏了${config.username}，你赔得起吗？`, "不要再戳了呜呜....(害怕ing)", "嗯……不可以……啦……不要乱戳", "呜哇！再戳把你绝赞吃掉喵！！", `再戳${config.username}，我要叫我主人了`, "再戳我让你变成女孩子喵！", "呃啊啊啊~戳坏了....","啊呜，太舒服刚刚竟然睡着了w 有什么事喵？");
+const PokeString = new Array(`戳坏了${config.username}，你赔得起吗？`, "不要再戳了呜呜....(害怕ing)", "嗯……不可以……啦……不要乱戳", "呜哇！再戳把你300和max吃掉喵！！", `再戳${config.username}，我要叫我主人了`, "再戳我让你变成女孩子喵！", "呃啊啊啊~戳坏了....","啊呜，太舒服刚刚竟然睡着了w 有什么事喵？");
 let channel, lobby;
 let playersLeftToJoin = match.teams.length 
 let playersSkipToSkip = 0
@@ -34,10 +39,19 @@ let timeStarted; //time the match started
 let closing = false; //whether the lobby is closing or not
 let MatchBegin = false;
 let MapTimeout = false;
+let StatusLock = false;
 const SkipMap = new Map();
 const AbortMap = new Map();
 const MapMap = new Map();
 const IndexMap = new Map();
+function optionalOutput(Name, _playerEvent) {
+    let o = optionalWords[Name];
+    if (o != undefined) {
+        if (o[_playerEvent] != undefined) {
+            channel.sendMessage(o[_playerEvent]);
+        }
+    }
+}
 // populate mappool with map info
 function initPool() {
     let _Index = 0;
@@ -57,6 +71,7 @@ function WriteReatartFile() {
         Round: runIndex
     };
     fs.writeFileSync('RestartSettings.json', JSON.stringify(data, null, 2));
+  console.log("重启文件已自动保存于RestartSettings.json");
 }
 function SkipMapReset() {
     playersSkipToSkip = 0;
@@ -69,11 +84,28 @@ function EachMapReset() {
     SkipMapReset();
     MapTimeout = false;
 }
+async function CheckMod(IfOutput){
+  await lobby.updateSettings();
+            CheckPass = true;
+            for (const w of lobby.slots)
+            if (w != null)
+            if (w.mods && w.mods.length > 0) {
+                for (const p of w.mods){
+                    if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
+                        if(IfOutput)
+                            channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod}` + MapTimeout?`若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。`:``);
+                        CheckPass = false;
+                    }
+              console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
+            }}
+  return CheckPass;
+}
 function RestartMap() {
     EachMapReset();
     timeout = false;
     ready = false;
     inPick = false;
+    StatusLock = false;
     startLobby();
 }
 function TryNextMap() {
@@ -82,6 +114,7 @@ function TryNextMap() {
     timeout = false;
     ready = false;
     inPick = false;
+    StatusLock = false;
     try {
         const isPoolUnExhausted = (pool.length > mapIndex);
 
@@ -96,6 +129,7 @@ function TryNextMap() {
             } else {
                 closing = true;
                 channel.sendMessage(`恭喜！你已完成资格赛的全部图池，各位可以安全离开。房间将在${match.timers.closeLobby}秒后关闭。`);
+                StatusLock = true;
                 lobby.startTimer(match.timers.closeLobby);
             }
         } else if (!isPoolUnExhausted) {
@@ -108,30 +142,32 @@ function TryNextMap() {
 
     }
 }
+async function syncStatus() {
+    await lobby.updateSettings();
+    playersLeftToJoin = match.teams.length;
+    for (const q of match.teams) {
+        Found = false;
+        for (const w of lobby.slots)
+            if (w != null) {
+                if (q === w.user.username) {
+                    playersLeftToJoin--;
+                    break;
+                }
+            }
+    }
+}
 async function timerEnded() {
     if (closing) {
         close();
     } else if ((playersLeftToJoin <= 0 || auto)) {
       
         if (!MapTimeout) {
-            await lobby.updateSettings();
-            CheckPass = true;
-            for (const w of lobby.slots)
-            if (w != null)
-            if (w.mods && w.mods.length > 0) {
-                for (const p of w.mods)
-                    if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
-                        channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod},若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。`);
-                        CheckPass = false;
-                    }
-            }
-            if (CheckPass) {
+            MapTimeout = true;
+            if (CheckMod(true)) {
                 lobby.startMatch(match.timers.forceStart);
                 return;
             }
             lobby.startTimer(30);
-            MapTimeout = true;
-            
         }
         else if (!ready&&timeout) {
             lobby.startTimer(match.timers.timeout);
@@ -168,6 +204,8 @@ async function init() {
                     await channel.join();
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
+                    syncStatus();
+                    MatchBegin=true;
                 }
                 catch (err) {
                     console.log(err);
@@ -276,8 +314,7 @@ function createListeners() {
     console.log("player joined")
     const name = obj.player.user.username;
       console.log(chalk.yellow(`Player ${name} has joined!`))
-      if(name==="xiaobaidan")
-      channel.sendMessage("叠比 龙比 藏比的传说   xiaobaidan   来了");
+      optionalOutput(name, playerEvent.join);
       fs.appendFileSync(`./lobbies/${lobby.id}.txt`, `${name} (${Date()})\n`)
       if (!MatchBegin) {
           if (playersLeftToJoin-- <= 1 || auto) { //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
@@ -291,40 +328,44 @@ function createListeners() {
           }
       }
   });
-  lobby.on("playerLeft",()=> {
-    console.log("playerLeft")
+  lobby.on("playerLeft",async()=> {
+      await lobby.updateSettings();
+      let Found = false;
+      let LeftName = "???";
     playersLeftToJoin++;
     fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Someone left at (${Date()}).\n`);
-      
+      for (const q of match.teams) {
+          Found = false;
+          for (const w of lobby.slots)
+              if (w != null) {
+                  if (q === w.user.username) {
+                      Found = true;
+                      break;
+                  }
+              }
+          if (!Found) {
+              LeftName = q;
+              break;
+          }
+      }
+      console.log(`player ${LeftName} Left`)
+      optionalOutput(name, playerEvent.leave);
       if (inPick) {
-          let LeftName = "None";
           if ((Date.now() - match.timers.abortLeniency * 1000) < timeStarted)
               return;
-          for (const q of match.teams) {
-              let Found = false;
-              for (const w of lobby.slots)
-                  if (w != null) {
-                      if (q === w.user.username) {
-                          Found = true;
-                          break;
-                      }
-                  }
               if (!Found) {
-                  LeftName = q;
-                  if (AbortMap.has(q) || AbortMap.get(q)) {
-                      AbortMap.set(q, false);
+                  if (AbortMap.has(LeftName) || AbortMap.get(LeftName)) {
+                      AbortMap.set(LeftName, false);
                       lobby.abortMatch();
                       ready = false;
-                      channel.sendMessage(`比赛因为 ${LeftName} 的离开而中断`);
-                      channel.sendMessage(`${LeftName} 使用了他/她的abort机会`);
+                      channel.sendMessage(`Match aborted due to early disconnect because of ${LeftName}`);
+                      channel.sendMessage(`${LeftName} used his/her abort chance`);
                   }
-                  break;
               }
-          }
+          
       
     }
     else if (auto) lobby.setMap(match.waitSong,3);
-    auto = false;
     ready = false;
   })
     lobby.on("allPlayersReady", async() => {
@@ -332,27 +373,20 @@ function createListeners() {
     ready = true;
     timeout = false;
       if (auto) {
-          CheckPass = true;
-          await lobby.updateSettings();
-          for (const w of lobby.slots)
-          if (w != null)
-          if (w.mods && w.mods.length > 0) {
-              for (const p of w.mods)
-                  if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
-                      channel.sendMessage(`${w.user.username} 使用了不被允许的mod: ${p.longMod}`);
-                      CheckPass = false;
-                  }
-                  else {
-                      console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
-                  }
-              }
-          if (CheckPass) {
+          if (CheckMod(true)) {
               channel.sendMessage('所有人都已准备完毕，准备开始比赛...');
               lobby.abortTimer();
               if (!MapTimeout)
                   lobby.startMatch(match.timers.readyStart);
               else
                   lobby.startMatch(match.timers.forceStart);
+            if(CheckMod(false)){
+              channel.sendMessage('?有人耍我');
+              lobby.abortTimer();
+              lobby.startTimer(10);
+              }
+              else
+              StatusLock = true;
           }
           else {
               channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
@@ -369,8 +403,9 @@ function createListeners() {
       fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Match aborted at (${Date()}), `+(ready ? "by the ref." : "due to an early disconnect.")+`\n`);
       timeout = false;
       ready = false;
-      inPick = false;
-      if (auto) startLobby();
+        inPick = false;
+        RestartMap();
+      //if (auto) startLobby();
     });
   lobby.on("matchFinished", (obj) => {
       console.log("matchFinished")
@@ -392,6 +427,8 @@ function createListeners() {
 
             switch (m[0]) {
                 case 'skip':
+                    if (closing | StatusLock)
+                        break;
                     TryNextMap();
                     break;
                 case 'start':
@@ -425,20 +462,14 @@ function createListeners() {
                     break;
                 case 'abort':
                     await lobby.abortMatch();
-                    channel.sendMessage("比赛被裁判中断了")
+                    channel.sendMessage("Match aborted manually.")
                     break;
                 case 'mod':
-                    await lobby.updateSettings();
-                    if (lobby.slots[0].mods && lobby.slots[0].mods.length > 0) {
-                        for (const p of lobby.slots[0].mods)
-                            console.log(p.shortMod);
-                    } else {
-                        console.log("No mods found for this slot");
-                    }
+                    CheckMod(false);
                     break;
                 case 'map':
-                    const TMapId = MapMap.get(m[1]) || -1;
-                    const TRound = m[2];
+                    let TMapId = MapMap.get(m[1]) || -1;
+                    let TRound = m[2];
                     if (TMapId == -1) {
                         channel.sendMessage(`图池代码不存在!`);
                         break;
@@ -470,6 +501,9 @@ function createListeners() {
                 case 'gsm':
                     channel.sendMessage(`干什么¿`,);
                     break;
+                case 'hyw':
+                    channel.sendMessage(`何意味(#\`O′)¿`,);
+                    break;
             case 'poke': 
                 channel.sendMessage(PokeString[Math.floor(Math.random() * PokeString.length)]);
                     break;
@@ -481,7 +515,7 @@ function createListeners() {
                     break;
               case 'skip':
                 {
-                    if (closing)
+                        if (closing | StatusLock)
                         break;
                     if (runIndex == 1) {
                         channel.sendMessage("只有第二轮支持使用#skip跳过图。");
@@ -503,7 +537,7 @@ function createListeners() {
       }
     if(auto && msg.message === "!panic"){
       auto = false;
-        channel.sendMessage(`Bot被${msg.user.ircUsername}铜丝了...`)
+      channel.sendMessage("Panic command received. A ref will be checking in shortly.")
       console.log(chalk.red.bold("Something has gone really wrong!\n")+"Someone has executed the !panic command and "+chalk.yellow("auto mode has been disabled"));
       /*await webhook.send(`<@${config.discord.refRole}>, someone has executed the !panic command on match https://osu.ppy.sh/mp/${lobby.id}.\n`+
       "join using ` /join #mp_"+lobby.id+"` The host is " + config.username+".")*/
