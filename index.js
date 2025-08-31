@@ -482,6 +482,31 @@ function createListeners() {
                     channel.sendMessage(`使用>timeout 多给未准备的选手一点时间`);
                     channel.sendMessage(`使用>mod 查看所有人mod(log)`);
                     break;
+                case 'map':
+                    const TMapId = MapMap.get(m[1]) || -1;
+                    const TRound = m[2];
+                    if (TMapId == -1) {
+                        channel.sendMessage(`图池代码不存在!`);
+                        break;
+                    }
+                    if (TRound > match.numberOfRuns || TRound < 1) {
+                        channel.sendMessage(`轮次不合法!`);
+                        break;
+                    }
+                    mapIndex = IndexMap.get(m[1]);
+                    runIndex = TRound;
+                    RestartMap();
+                    break;
+                case 'help':
+                    channel.sendMessage(`使用>invite 邀请所有选手`);
+                    channel.sendMessage(`使用>start 强制开始`);
+                    channel.sendMessage(`使用>skip 强制跳过当前图`);
+                    channel.sendMessage(`使用>close 强制关闭房间`);
+                    channel.sendMessage(`使用>auto on/off 开启/关闭该bot`);
+                    channel.sendMessage(`使用>abort 强制中断比赛`);
+                    channel.sendMessage(`使用>timeout 多给未准备的选手一点时间`);
+                    channel.sendMessage(`使用>mod 查看所有人mod(log)`);
+                    break;
             }
         } else if (msg.message.startsWith("#")) {
             const m = msg.message.substring(1).split(' ');
@@ -501,7 +526,7 @@ function createListeners() {
                     channel.sendMessage(`使用#gsm 对${config.username}进行干什么`);
                     channel.sendMessage(`使用#poke 戳一戳${config.username}`);
                     channel.sendMessage(`使用#skip 申请跳过该图，仅限第二轮可用。`);
-                    channel.sendMessage(`使用!panic来铜丝我`);
+                    channel.sendMessage(`遇到过于严重的事故请使用!panic。请勿滥用。`);
                     break;
               case 'skip':
                 {
@@ -527,7 +552,7 @@ function createListeners() {
       }
     if(auto && msg.message === "!panic"){
       auto = false;
-      channel.sendMessage("Panic command received. A ref will be checking in shortly.")
+      channel.sendMessage("已收到panic指令。裁判正在赶来的路上。")
       console.log(chalk.red.bold("Something has gone really wrong!\n")+"Someone has executed the !panic command and "+chalk.yellow("auto mode has been disabled"));
       /*await webhook.send(`<@${config.discord.refRole}>, someone has executed the !panic command on match https://osu.ppy.sh/mp/${lobby.id}.\n`+
       "join using ` /join #mp_"+lobby.id+"` The host is " + config.username+".")*/
