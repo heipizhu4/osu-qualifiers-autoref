@@ -71,7 +71,7 @@ function EachMapReset() {
     SkipMapReset();
     MapTimeout = false;
 }
-function CheckMod(IfOutput){
+async function CheckMod(IfOutput){
   await lobby.updateSettings();
             CheckPass = true;
             for (const w of lobby.slots)
@@ -129,7 +129,7 @@ function TryNextMap() {
 
     }
 }
-function syncStatus() {
+async function syncStatus() {
     await lobby.updateSettings();
     playersLeftToJoin = match.teams.length;
     for (const q of match.teams) {
@@ -316,7 +316,7 @@ function createListeners() {
           }
       }
   });
-  lobby.on("playerLeft",()=> {
+  lobby.on("playerLeft",async()=> {
       await lobby.updateSettings();
       let Found = false;
       let LeftName = "???";
@@ -346,11 +346,10 @@ function createListeners() {
                   if (AbortMap.has(LeftName) || AbortMap.get(LeftName)) {
                       AbortMap.set(LeftName, false);
                       lobby.abortMatch();
-                      ready = false;
+                      //ready = false;
                       channel.sendMessage(`Match aborted due to early disconnect because of ${LeftName}`);
                       channel.sendMessage(`${LeftName} used his/her abort chance`);
                   }
-                  break;
               }
           
       
@@ -458,8 +457,8 @@ function createListeners() {
                     CheckMod(false);
                     break;
                 case 'map':
-                    const TMapId = MapMap.get(m[1]) || -1;
-                    const TRound = m[2];
+                    let TMapId = MapMap.get(m[1]) || -1;
+                    let TRound = m[2];
                     if (TMapId == -1) {
                         channel.sendMessage(`图池代码不存在!`);
                         break;
@@ -483,8 +482,8 @@ function createListeners() {
                     channel.sendMessage(`使用>mod 查看所有人mod(log)`);
                     break;
                 case 'map':
-                    const TMapId = MapMap.get(m[1]) || -1;
-                    const TRound = m[2];
+                    let TMapId = MapMap.get(m[1]) || -1;
+                    let TRound = m[2];
                     if (TMapId == -1) {
                         channel.sendMessage(`图池代码不存在!`);
                         break;
