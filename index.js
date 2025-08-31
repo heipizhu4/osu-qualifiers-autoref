@@ -36,14 +36,27 @@ let MatchBegin = false;
 let MapTimeout = false;
 const SkipMap = new Map();
 const AbortMap = new Map();
-const PlayerMap = new Map();
+const MapMap = new Map();
+const IndexMap = new Map();
 // populate mappool with map info
 function initPool() {
+    let _Index = 0;
   return Promise.all(pool.map(async (b) => {
     const info = (await api.beatmaps.getByBeatmapId(b.id))[0];
-    b.name = b.code + ': ' + info.artist + ' - ' + info.title + ' [' + info.version + ']';
+      b.name = b.code + ': ' + info.artist + ' - ' + info.title + ' [' + info.version + ']';
+      MapMap.set(b.code, b.id);
+      IndexMap.set(b.code, _Index);
+      _Index++;
     console.log(chalk.dim(`Loaded ${info.title}`));
   }));
+}
+function WriteReatartFile() {
+    const data = {
+        RoomId: lobby.id,
+        MapIndex: mapIndex,
+        Round: runIndex
+    };
+    fs.writeFileSync('RestartSettings.json', JSON.stringify(data, null, 2));
 }
 function SkipMapReset() {
     playersSkipToSkip = 0;
@@ -55,6 +68,13 @@ function SkipMapReset() {
 function EachMapReset() {
     SkipMapReset();
     MapTimeout = false;
+}
+function RestartMap() {
+    EachMapReset();
+    timeout = false;
+    ready = false;
+    inPick = false;
+    startLobby();
 }
 function TryNextMap() {
     EachMapReset();
@@ -206,13 +226,19 @@ function startLobby() {
     auto = true;
     lobby.startTimer(match.timers.betweenMaps);
     const map = setBeatmap(pool[mapIndex].code);
-    if (map) console.log(chalk.cyan(`Changing map to ${map}`));
+    if (map) {
+        WriteReatartFile();
+        console.log(chalk.cyan(`Changing map to ${map}`));
+    }
 }
 function startLobby2() {
     auto = true;
     lobby.startTimer(match.timers.betweenRounds)
     const map = setBeatmap(pool[mapIndex].code);
-    if (map) console.log(chalk.cyan(`Changing map to ${map}`));
+    if (map) {
+        WriteReatartFile();
+        console.log(chalk.cyan(`Changing map to ${map}`));
+    }
 }
 // Sets current beatmap
 function setBeatmap(mapCode) {
@@ -249,12 +275,15 @@ function createListeners() {
   lobby.on("playerJoined", (obj) => {
     console.log("player joined")
     const name = obj.player.user.username;
-    console.log(chalk.yellow(`Player ${name} has joined!`))
+      console.log(chalk.yellow(`Player ${name} has joined!`))
+      if(name==='xiaobaidan')
+      channel.sendMessage("叠比 龙比 藏比的传说   xiaobaidan   来了");
       fs.appendFileSync(`./lobbies/${lobby.id}.txt`, `${name} (${Date()})\n`)
       if (!MatchBegin) {
           if (playersLeftToJoin-- <= 1 || auto) { //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
               channel.sendMessage("所有玩家已来到房间！资格赛现在开始。");
               MatchBegin = true;
+              channel.sendMessage("#help");
               startLobby();
           }
           else {
@@ -407,6 +436,31 @@ function createListeners() {
                         console.log("No mods found for this slot");
                     }
                     break;
+                case 'map':
+                    const TMapId = MapMap.get(m[1]) || -1;
+                    const TRound = m[2];
+                    if (TMapId == -1) {
+                        channel.sendMessage(`图池代码不存在!`);
+                        break;
+                    }
+                    if (TRound > match.numberOfRuns || TRound < 1) {
+                        channel.sendMessage(`轮次不合法!`);
+                        break;
+                    }
+                    mapIndex = IndexMap.get(m[1]);
+                    runIndex = TRound;
+                    RestartMap();
+                    break;
+                case 'help':
+                    channel.sendMessage(`使用>invite 邀请所有选手`);
+                    channel.sendMessage(`使用>start 强制开始`);
+                    channel.sendMessage(`使用>skip 强制跳过当前图`);
+                    channel.sendMessage(`使用>close 强制关闭房间`);
+                    channel.sendMessage(`使用>auto on/off 开启/关闭该bot`);
+                    channel.sendMessage(`使用>abort 强制中断比赛`);
+                    channel.sendMessage(`使用>timeout 多给未准备的选手一点时间`);
+                    channel.sendMessage(`使用>mod 查看所有人mod(log)`);
+                    break;
             }
         } else if (msg.message.startsWith("#")) {
             const m = msg.message.substring(1).split(' ');
@@ -423,6 +477,7 @@ function createListeners() {
                     channel.sendMessage(`使用#gsm 对${config.username}进行干什么`);
                     channel.sendMessage(`使用#poke 戳一戳${config.username}`);
                     channel.sendMessage(`使用#skip 申请跳过该图，仅限第二轮可用。`);
+                    channel.sendMessage(`遇到过于严重的事故请使用!panic。请勿滥用。`);
                     break;
               case 'skip':
                 {
