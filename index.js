@@ -356,7 +356,6 @@ function createListeners() {
       
     }
     else if (auto) lobby.setMap(match.waitSong,3);
-    auto = false;
     ready = false;
   })
     lobby.on("allPlayersReady", async() => {
