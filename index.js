@@ -34,6 +34,7 @@ let timeStarted; //time the match started
 let closing = false; //whether the lobby is closing or not
 let MatchBegin = false;
 let MapTimeout = false;
+let StatusLock = false;
 const SkipMap = new Map();
 const AbortMap = new Map();
 const MapMap = new Map();
@@ -79,7 +80,7 @@ function CheckMod(IfOutput){
                 for (const p of w.mods){
                     if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
                         if(IfOutput)
-                      channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod},若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。`);
+                            channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod}` + MapTimeout?`若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。`:``);
                         CheckPass = false;
                     }
               console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
@@ -91,6 +92,7 @@ function RestartMap() {
     timeout = false;
     ready = false;
     inPick = false;
+    StatusLock = false;
     startLobby();
 }
 function TryNextMap() {
@@ -99,6 +101,7 @@ function TryNextMap() {
     timeout = false;
     ready = false;
     inPick = false;
+    StatusLock = false;
     try {
         const isPoolUnExhausted = (pool.length > mapIndex);
 
@@ -113,6 +116,7 @@ function TryNextMap() {
             } else {
                 closing = true;
                 channel.sendMessage(`恭喜！你已完成资格赛的全部图池，各位可以安全离开。房间将在${match.timers.closeLobby}秒后关闭。`);
+                StatusLock = true;
                 lobby.startTimer(match.timers.closeLobby);
             }
         } else if (!isPoolUnExhausted) {
@@ -125,19 +129,32 @@ function TryNextMap() {
 
     }
 }
+function syncStatus() {
+    await lobby.updateSettings();
+    playersLeftToJoin = match.teams.length;
+    for (const q of match.teams) {
+        Found = false;
+        for (const w of lobby.slots)
+            if (w != null) {
+                if (q === w.user.username) {
+                    playersLeftToJoin--;
+                    break;
+                }
+            }
+    }
+}
 async function timerEnded() {
     if (closing) {
         close();
     } else if ((playersLeftToJoin <= 0 || auto)) {
       
         if (!MapTimeout) {
+            MapTimeout = true;
             if (CheckMod(true)) {
                 lobby.startMatch(match.timers.forceStart);
                 return;
             }
             lobby.startTimer(30);
-            MapTimeout = true;
-            
         }
         else if (!ready&&timeout) {
             lobby.startTimer(match.timers.timeout);
@@ -174,7 +191,8 @@ async function init() {
                     await channel.join();
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
-                  MatchBegin=true;
+                    syncStatus();
+                    MatchBegin=true;
                 }
                 catch (err) {
                     console.log(err);
@@ -299,27 +317,34 @@ function createListeners() {
       }
   });
   lobby.on("playerLeft",()=> {
-    console.log("playerLeft")
+      await lobby.updateSettings();
+      let Found = false;
+      let LeftName = "???";
     playersLeftToJoin++;
     fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Someone left at (${Date()}).\n`);
-      
+      for (const q of match.teams) {
+          Found = false;
+          for (const w of lobby.slots)
+              if (w != null) {
+                  if (q === w.user.username) {
+                      Found = true;
+                      break;
+                  }
+              }
+          if (!Found) {
+              LeftName = q;
+              break;
+          }
+      }
+      console.log(`player ${LeftName} Left`)
+      if (LeftName === 'xiaobaidan')
+      channel.sendMessage(`叠比 龙比 藏比的传说   xiaobaidan   开始藏了`);
       if (inPick) {
-          let LeftName = "None";
           if ((Date.now() - match.timers.abortLeniency * 1000) < timeStarted)
               return;
-          for (const q of match.teams) {
-              let Found = false;
-              for (const w of lobby.slots)
-                  if (w != null) {
-                      if (q === w.user.username) {
-                          Found = true;
-                          break;
-                      }
-                  }
               if (!Found) {
-                  LeftName = q;
-                  if (AbortMap.has(q) || AbortMap.get(q)) {
-                      AbortMap.set(q, false);
+                  if (AbortMap.has(LeftName) || AbortMap.get(LeftName)) {
+                      AbortMap.set(LeftName, false);
                       lobby.abortMatch();
                       ready = false;
                       channel.sendMessage(`Match aborted due to early disconnect because of ${LeftName}`);
@@ -327,7 +352,7 @@ function createListeners() {
                   }
                   break;
               }
-          }
+          
       
     }
     else if (auto) lobby.setMap(match.waitSong,3);
@@ -350,7 +375,9 @@ function createListeners() {
               channel.sendMessage('?有人耍我');
               lobby.abortTimer();
               lobby.startTimer(10);
-            }
+              }
+              else
+              StatusLock = true;
           }
           else {
               channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
@@ -367,8 +394,9 @@ function createListeners() {
       fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Match aborted at (${Date()}), `+(ready ? "by the ref." : "due to an early disconnect.")+`\n`);
       timeout = false;
       ready = false;
-      inPick = false;
-      if (auto) startLobby();
+        inPick = false;
+        RestartMap();
+      //if (auto) startLobby();
     });
   lobby.on("matchFinished", (obj) => {
       console.log("matchFinished")
@@ -390,6 +418,8 @@ function createListeners() {
 
             switch (m[0]) {
                 case 'skip':
+                    if (closing | StatusLock)
+                        break;
                     TryNextMap();
                     break;
                 case 'start':
@@ -462,6 +492,9 @@ function createListeners() {
                 case 'gsm':
                     channel.sendMessage(`干什么¿`,);
                     break;
+                case 'hyw':
+                    channel.sendMessage(`何意味(#\`O′)¿`,);
+                    break;
             case 'poke': 
                 channel.sendMessage(PokeString[Math.floor(Math.random() * PokeString.length)]);
                     break;
@@ -473,7 +506,7 @@ function createListeners() {
                     break;
               case 'skip':
                 {
-                    if (closing)
+                        if (closing | StatusLock)
                         break;
                     if (runIndex == 1) {
                         channel.sendMessage("只有第二轮支持使用#skip跳过图。");
