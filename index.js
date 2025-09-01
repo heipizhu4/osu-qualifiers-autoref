@@ -597,7 +597,7 @@ function createListeners() {
       }
     if(auto && msg.message === "!panic"){
       auto = false;
-      channel.sendMessage("Panic command received. A ref will be checking in shortly.")
+      channel.sendMessage("已收到panic指令。裁判正在赶来的路上。")
       console.log(chalk.red.bold("Something has gone really wrong!\n")+"Someone has executed the !panic command and "+chalk.yellow("auto mode has been disabled"));
       /*await webhook.send(`<@${config.discord.refRole}>, someone has executed the !panic command on match https://osu.ppy.sh/mp/${lobby.id}.\n`+
       "join using ` /join #mp_"+lobby.id+"` The host is " + config.username+".")*/
