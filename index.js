@@ -94,20 +94,22 @@ function EachMapReset() {
     MapTimeout = false;
 }
 function CheckMod(IfOutput){
-  lobby.updateSettings().then();
-            CheckPass = true;
-            for (const w of lobby.slots)
+    lobby.updateSettings().then(() => {
+        CheckPass = true;
+        for (const w of lobby.slots)
             if (w != null)
-            if (w.mods && w.mods.length > 0) {
-                for (const p of w.mods){
-                    if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
-                        if(IfOutput)
-                            channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod}` + MapTimeout?`若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。`:``);
-                        CheckPass = false;
+                if (w.mods && w.mods.length > 0) {
+                    for (const p of w.mods) {
+                        if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
+                            if (IfOutput)
+                                channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod}` + MapTimeout ? `若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。` : ``);
+                            CheckPass = false;
+                        }
+                        console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
                     }
-              console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
-            }}
-  return CheckPass;
+                }
+        return CheckPass; });
+            
 }
 function RestartMap() {
     EachMapReset();
@@ -152,18 +154,19 @@ function TryNextMap() {
     }
 }
 function syncStatus() {
-    lobby.updateSettings().then();;
-    playersLeftToJoin = match.teams.length;
-    for (const q of match.teams) {
-        Found = false;
-        for (const w of lobby.slots)
-            if (w != null) {
-                if (q === w.user.username) {
-                    playersLeftToJoin--;
-                    break;
+    lobby.updateSettings().then(() => {
+        playersLeftToJoin = match.teams.length;
+        for (const q of match.teams) {
+            Found = false;
+            for (const w of lobby.slots)
+                if (w != null) {
+                    if (q === w.user.username) {
+                        playersLeftToJoin--;
+                        break;
+                    }
                 }
-            }
-    }
+        }});
+    
 }
 async function timerEnded() {
     if (closing) {
@@ -354,30 +357,30 @@ function createListeners() {
       }
   });
   lobby.on("playerLeft",()=> {
-      lobby.updateSettings().then();;
-      let Found = false;
-      let LeftName = "???";
-    playersLeftToJoin++;
-    fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Someone left at (${Date()}).\n`);
-      for (const q of match.teams) {
-          Found = false;
-          for (const w of lobby.slots)
-              if (w != null) {
-                  if (q === w.user.username) {
-                      Found = true;
-                      break;
+      lobby.updateSettings().then(() => {
+          let Found = false;
+          let LeftName = "???";
+          playersLeftToJoin++;
+          fs.appendFileSync(`./lobbies/${lobby.id}.txt`, `Someone left at (${Date()}).\n`);
+          for (const q of match.teams) {
+              Found = false;
+              for (const w of lobby.slots)
+                  if (w != null) {
+                      if (q === w.user.username) {
+                          Found = true;
+                          break;
+                      }
                   }
+              if (!Found) {
+                  LeftName = q;
+                  break;
               }
-          if (!Found) {
-              LeftName = q;
-              break;
           }
-      }
-      console.log(`player ${LeftName} Left`)
-      optionalOutput(LeftName, playerEvent.leave);
-      if (inPick) {
-          if ((Date.now() - match.timers.abortLeniency * 1000) < timeStarted)
-              return;
+          console.log(`player ${LeftName} Left`)
+          optionalOutput(LeftName, playerEvent.leave);
+          if (inPick) {
+              if ((Date.now() - match.timers.abortLeniency * 1000) < timeStarted)
+                  return;
               if (!Found) {
                   if (AbortMap.has(LeftName) || AbortMap.get(LeftName)) {
                       AbortMap.set(LeftName, false);
@@ -387,10 +390,11 @@ function createListeners() {
                       channel.sendMessage(`${LeftName} used his/her abort chance`);
                   }
               }
-          
+
+
+          }
+          else if (auto) lobby.setMap(match.waitSong, 3); });
       
-    }
-    else if (auto) lobby.setMap(match.waitSong,3);
   })
     lobby.on("allPlayersReady", async() => {
     console.log(chalk.magenta("everyone ready"));
