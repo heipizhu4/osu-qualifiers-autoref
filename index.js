@@ -48,6 +48,10 @@ const IndexMap = new Map();
 function removeAnsiCodes(str) {
     return str.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
 }
+function getFormattedTime() {
+    const now = new Date();
+    return `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]`;
+}
 function optionalOutput(Name, _playerEvent) {
     let o = optionalWords[Name];
     if (o != undefined) {
@@ -266,7 +270,7 @@ async function init() {
         // 写入到控制台
         originalWrite(chunk, encoding, callback);
         const cleanChunk = removeAnsiCodes(chunk.toString());
-        fs.appendFile(`./lobbies/mp${lobby.id}.log`, cleanChunk, (err) => {
+        fs.appendFile(`./lobbies/mp${lobby.id}.log`, getFormattedTime()+cleanChunk, (err) => {
             if (err) {
                 console.error('写入文件失败:', err);
             }
