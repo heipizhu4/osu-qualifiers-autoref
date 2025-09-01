@@ -22,7 +22,7 @@ const { randomInt } = require('crypto');
 const { request } = require('./node_modules/undici/index');
 const webhook = new WebhookClient({ url: config.discord.webhookLink });
 const lobbydate = new Date();
-
+const originalWrite = process.stdout.write.bind(process.stdout);
 const client = new bancho.BanchoClient(config);
 const api = new nodesu.Client(config.apiKey);
 const PokeString = new Array(`戳坏了${config.username}，你赔得起吗？`, "不要再戳了呜呜....(害怕ing)", "嗯……不可以……啦……不要乱戳", "呜哇！再戳把你300和max吃掉喵！！", `再戳${config.username}，我要叫我主人了`, "再戳我让你变成女孩子喵！", "呃啊啊啊~戳坏了....","啊呜，太舒服刚刚竟然睡着了w 有什么事喵？");
@@ -40,10 +40,14 @@ let closing = false; //whether the lobby is closing or not
 let MatchBegin = false;
 let MapTimeout = false;
 let StatusLock = false;
+let RefName = new Array(config.username);
 const SkipMap = new Map();
 const AbortMap = new Map();
 const MapMap = new Map();
 const IndexMap = new Map();
+function removeAnsiCodes(str) {
+    return str.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
+}
 function optionalOutput(Name, _playerEvent) {
     let o = optionalWords[Name];
     if (o != undefined) {
@@ -52,6 +56,7 @@ function optionalOutput(Name, _playerEvent) {
         }
     }
 }
+//RefName.has()
 // populate mappool with map info
 function initPool() {
     let _Index = 0;
@@ -84,8 +89,8 @@ function EachMapReset() {
     SkipMapReset();
     MapTimeout = false;
 }
-async function CheckMod(IfOutput){
-  await lobby.updateSettings();
+function CheckMod(IfOutput){
+  lobby.updateSettings().then();
             CheckPass = true;
             for (const w of lobby.slots)
             if (w != null)
@@ -142,8 +147,8 @@ function TryNextMap() {
 
     }
 }
-async function syncStatus() {
-    await lobby.updateSettings();
+function syncStatus() {
+    lobby.updateSettings().then();;
     playersLeftToJoin = match.teams.length;
     for (const q of match.teams) {
         Found = false;
@@ -204,7 +209,7 @@ async function init() {
                     await channel.join();
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
-                    syncStatus();
+                    
                     MatchBegin=true;
                 }
                 catch (err) {
@@ -213,6 +218,7 @@ async function init() {
                     process.exit(1);
                 }
                 lobby = channel.lobby;
+                syncStatus();
                 console.log(chalk.bold.green(`Join the lobby ${lobby.name}`));
                 channel.sendMessage(`孩子们，我回来了`);
                 startLobby();
@@ -256,6 +262,18 @@ async function init() {
         SkipMap.set(p.name, true);
         AbortMap.set(p.name, true);
     }
+    process.stdout.write = function (chunk, encoding, callback) {
+        // 写入到控制台
+        originalWrite(chunk, encoding, callback);
+        const cleanChunk = removeAnsiCodes(chunk.toString());
+        fs.appendFile(`./lobbies/mp${lobby.id}.log`, cleanChunk, (err) => {
+            if (err) {
+                console.error('写入文件失败:', err);
+            }
+        });
+
+        return true;
+    };
   createListeners();
 }
 
@@ -317,7 +335,10 @@ function createListeners() {
       optionalOutput(name, playerEvent.join);
       fs.appendFileSync(`./lobbies/${lobby.id}.txt`, `${name} (${Date()})\n`)
       if (!MatchBegin) {
-          if (playersLeftToJoin-- <= 1 || auto) { //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
+          if (!match.teams.some(team => team.name === name)) {
+
+          }
+          else if (playersLeftToJoin-- <= 1 || auto) { //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
               channel.sendMessage("所有玩家已来到房间！资格赛现在开始。");
               MatchBegin = true;
               channel.sendMessage("#help");
@@ -328,8 +349,8 @@ function createListeners() {
           }
       }
   });
-  lobby.on("playerLeft",async()=> {
-      await lobby.updateSettings();
+  lobby.on("playerLeft",()=> {
+      lobby.updateSettings().then();;
       let Found = false;
       let LeftName = "???";
     playersLeftToJoin++;
@@ -349,7 +370,7 @@ function createListeners() {
           }
       }
       console.log(`player ${LeftName} Left`)
-      optionalOutput(name, playerEvent.leave);
+      optionalOutput(LeftName, playerEvent.leave);
       if (inPick) {
           if ((Date.now() - match.timers.abortLeniency * 1000) < timeStarted)
               return;
@@ -366,7 +387,6 @@ function createListeners() {
       
     }
     else if (auto) lobby.setMap(match.waitSong,3);
-    ready = false;
   })
     lobby.on("allPlayersReady", async() => {
     console.log(chalk.magenta("everyone ready"));
@@ -421,11 +441,40 @@ function createListeners() {
     channel.on("message", async (msg) => {
         // All ">" commands must be sent by host
         console.log(chalk.dim(`${msg.user.ircUsername}: ${msg.message}`));
-        if (msg.message.startsWith(">") && msg.user.ircUsername === config.username) {
+        if (msg.message.startsWith(">") && RefName.includes(msg.user.ircUsername)) {
             const m = msg.message.substring(1).split(' ');
             console.log(chalk.yellow(`Received command "${m[0]}"`));
 
             switch (m[0]) {
+                case 'addref':
+                    if (RefName.includes(m[1])) {
+                        channel.sendMessage(`${m[1]} 已经是裁判了`);
+                        break;
+                    }
+                    channel.sendMessage(`!mp addref ${m[1]}`);
+                    channel.sendMessage(`添加了裁判 ${m[1]}`);
+                    RefName.push(m[1]);
+                    break;
+                case 'removeref':
+                    if (m[1] === config.username) {
+                        channel.sendMessage(`${m[1]}是房主，不可被删除！`);
+                    }
+                    let NameCheck = false;
+                    for (let i = RefName.length - 1; i >= 0; i--) {
+                        if (RefName[i] === m[1]) {
+                            RefName.splice(i, 1);
+                            NameCheck = true;
+                            break;
+                        }
+                    }
+                    if (NameCheck) {
+                        channel.sendMessage(`!mp removeref ${m[1]}`);
+                        channel.sendMessage(`删除了裁判 ${m[1]}`);
+                    }
+                    else {
+                        channel.sendMessage(`${m[1]} 不是裁判`);
+                    }
+                    break;
                 case 'skip':
                     if (closing | StatusLock)
                         break;
@@ -490,7 +539,8 @@ function createListeners() {
                     channel.sendMessage(`使用>auto on/off 开启/关闭该bot`);
                     channel.sendMessage(`使用>abort 强制中断比赛`);
                     channel.sendMessage(`使用>timeout 多给未准备的选手一点时间`);
-                    channel.sendMessage(`使用>mod 查看所有人mod(log)`);
+                    channel.sendMessage(`使用>mod 查看所有人mod(log)`);//
+                    channel.sendMessage(`使用>addref/removeref 增加/删除可以使用>命令的裁判(不可删除房主)`);
                     break;
             }
         } else if (msg.message.startsWith("#")) {
@@ -511,7 +561,13 @@ function createListeners() {
                     channel.sendMessage(`使用#gsm 对${config.username}进行干什么`);
                     channel.sendMessage(`使用#poke 戳一戳${config.username}`);
                     channel.sendMessage(`使用#skip 申请跳过该图，仅限第二轮可用。`);
-                    channel.sendMessage(`使用!panic来铜丝我`);
+                    channel.sendMessage(`使用#abortchance 查看所有选手的abort机会。`);
+                    channel.sendMessage(`遇到过于严重的事故请使用!panic。请勿滥用。`);
+                    break;
+                case 'abortchance':
+                    for (let [_name, _chance] of AbortMap) {
+                        channel.sendMessage(`${_name} 剩余 `+(_chance?1:0)+` 次abort机会`);
+                    }
                     break;
               case 'skip':
                 {
