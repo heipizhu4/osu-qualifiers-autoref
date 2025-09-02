@@ -39,7 +39,8 @@ const PokeString = new Array(`戳坏了${config.username}，你赔得起吗？`,
     "awa，好舒服呀(bushi)",
     `QwQ，再戳${config.username}脸都要肿了`,
     "正在定位您的真实地址...定位成功。轰炸机已经起飞喵！炸似你喵！",
-    "啊呜，你有什么心事吗？"
+    "啊呜，你有什么心事吗？",
+    "放手啦，不给戳QAQ"
 );
 let channel, lobby;
 let playersLeftToJoin = match.teams.length 
@@ -367,7 +368,6 @@ function createListeners() {
     const name = obj.player.user.username;
       console.log(chalk.yellow(`Player ${name} has joined!`))
       optionalOutput(name, playerEvent.join);
-      fs.appendFileSync(`./lobbies/${lobby.id}.txt`, `${name} (${Date()})\n`)
       if (!MatchBegin) {
           if (!match.teams.some(team => team.name === name)) {
 
@@ -390,7 +390,6 @@ function createListeners() {
           let Found = false;
           let LeftName = "???";
           playersLeftToJoin++;
-          fs.appendFileSync(`./lobbies/${lobby.id}.txt`, `Someone left at (${Date()}).\n`);
           for (const q of match.teams) {
               Found = false;
               for (const w of lobby.slots)
@@ -452,13 +451,11 @@ function createListeners() {
     }});
     lobby.on("matchStarted", () => {
       timeStarted = new Date().valueOf();//log time started
-      fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`${pool[mapIndex].code} started at (${Date()}).\n`);
       inPick = true;
     });
     lobby.on("matchAborted", () => {
         console.log(chalk.yellow.bold("Match Aborted"));
         EachMapReset();
-      fs.appendFileSync(`./lobbies/${lobby.id}.txt`,`Match aborted at (${Date()}), `+(ready ? "by the ref." : "due to an early disconnect.")+`\n`);
       timeout = false;
       ready = false;
         inPick = false;
