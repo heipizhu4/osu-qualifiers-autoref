@@ -25,7 +25,22 @@ const lobbydate = new Date();
 const originalWrite = process.stdout.write.bind(process.stdout);
 const client = new bancho.BanchoClient(config);
 const api = new nodesu.Client(config.apiKey);
-const PokeString = new Array(`戳坏了${config.username}，你赔得起吗？`, "不要再戳了呜呜....(害怕ing)", "嗯……不可以……啦……不要乱戳", "呜哇！再戳把你300和max吃掉喵！！", `再戳${config.username}，我要叫我主人了`, "再戳我让你变成女孩子喵！", "呃啊啊啊~戳坏了....","啊呜，太舒服刚刚竟然睡着了w 有什么事喵？");
+const PokeString = new Array(`戳坏了${config.username}，你赔得起吗？`,
+    "不要再戳了呜呜....(害怕ing)",
+    "嗯……不可以……啦……不要乱戳",
+    "呜哇！再戳把你300和max吃掉喵！！",
+    `再戳${config.username}，我要叫我主人了`,
+    "再戳我让你变成女孩子喵！",
+    "呃啊啊啊~戳坏了....",
+    "啊呜，太舒服刚刚竟然睡着了w 有什么事喵？",
+    "别戳了别戳了再戳就坏掉惹...",
+    "再戳我我就把你吃掉喵！",
+    "涩批，你再戳咬你喵！",
+    "awa，好舒服呀(bushi)",
+    `QwQ，再戳${config.username}脸都要肿了`,
+    "正在定位您的真实地址...定位成功。轰炸机已经起飞喵！炸似你喵！",
+    "啊呜，你有什么心事吗？"
+);
 let channel, lobby;
 let playersLeftToJoin = match.teams.length 
 let playersSkipToSkip = 0
@@ -163,7 +178,7 @@ function TryNextMap() {
 
     }
 }
-function syncStatus() {
+async function syncStatus() {
     lobby.updateSettings().then(() => {
         playersLeftToJoin = match.teams.length;
         for (const q of match.teams) {
@@ -175,7 +190,9 @@ function syncStatus() {
                         break;
                     }
                 }
-        }});
+        }
+    });
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
 }
 async function timerEnded() {
@@ -368,7 +385,8 @@ function createListeners() {
   });
     lobby.on("playerLeft", () => {
         let abortable = (Date.now() - match.timers.abortLeniency * 1000) >= timeStarted;
-      lobby.updateSettings().then(() => {
+        lobby.updateSettings().then(async () => {
+            await new Promise(resolve => setTimeout(resolve, 500));
           let Found = false;
           let LeftName = "???";
           playersLeftToJoin++;
