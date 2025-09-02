@@ -99,9 +99,13 @@ function EachMapReset() {
     SkipMapReset();
     MapTimeout = false;
 }
-function CheckMod(IfOutput) {
+async function CheckMod(IfOutput) {
     
-    return lobby.updateSettings().then(() => {
+    await lobby.updateSettings();
+    await new Promise(resolve => setTimeout(resolve, 1500));
+                console.log('1秒后执行的代码');
+                // 这里写你要延迟执行的代码
+            
         let CheckPass = true;
         for (const w of lobby.slots)
             if (w != null)
@@ -109,15 +113,13 @@ function CheckMod(IfOutput) {
                     for (const p of w.mods) {
                         if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
                             if (IfOutput)
-                                channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod}` + MapTimeout ? `若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。` : ``);
+                                channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod}` + (MapTimeout ? `若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。` : ``));
                             CheckPass = false;
                         }
                         console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
                     }
                 }
         return CheckPass;
-         });
-    
 }
 function RestartMap() {
     EachMapReset();
@@ -183,7 +185,7 @@ async function timerEnded() {
       
         if (!MapTimeout) {
             MapTimeout = true;
-            if (CheckMod(true)) {
+            if (await CheckMod(true)) {
                 lobby.startMatch(match.timers.forceStart);
                 return;
             }
@@ -364,7 +366,8 @@ function createListeners() {
           }
       }
   });
-  lobby.on("playerLeft",()=> {
+    lobby.on("playerLeft", () => {
+        let abortable = (Date.now() - match.timers.abortLeniency * 1000) >= timeStarted;
       lobby.updateSettings().then(() => {
           let Found = false;
           let LeftName = "???";
@@ -376,7 +379,6 @@ function createListeners() {
                   if (w != null) {
                       if (q.name === w.user.username) {
                           Found = true;
-                          break;
                       }
                   }
               if (!Found) {
@@ -387,7 +389,7 @@ function createListeners() {
           console.log(`player ${LeftName} Left`)
           optionalOutput(LeftName, playerEvent.leave);
           if (inPick) {
-              if ((Date.now() - match.timers.abortLeniency * 1000) < timeStarted)
+              if (abortable)
                   return;
               if (!Found) {
                   if (AbortMap.has(LeftName) || AbortMap.get(LeftName)) {
@@ -407,24 +409,26 @@ function createListeners() {
     lobby.on("allPlayersReady", async() => {
     console.log(chalk.magenta("everyone ready"));
     ready = true;
-    timeout = false;
-      if (auto) {
-          if (CheckMod(true)) {
+        timeout = false;
+        if (auto && !StatusLock) {
+          if (await CheckMod(true)) {
               channel.sendMessage('所有人都已准备完毕，准备开始比赛...');
               lobby.abortTimer();
               if (!MapTimeout)
                   lobby.startMatch(match.timers.readyStart);
               else
                   lobby.startMatch(match.timers.forceStart);
-            if(CheckMod(false)){
-              channel.sendMessage('?有人耍我');
-              lobby.abortTimer();
-              lobby.startTimer(10);
+              if (!(await CheckMod(true))) {
+                  channel.sendMessage('?有人耍我');
+                  channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
+                    lobby.abortTimer();
+                    lobby.startTimer(10);
               }
               else
               StatusLock = true;
           }
           else {
+              
               channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
           }
     }});
@@ -452,7 +456,7 @@ function createListeners() {
       TryNextMap();
    });
     lobby.on("timerEnded", () => {
-        timerEnded();
+        //timerEnded();
   });
     channel.on("message", async (msg) => {
         // All ">" commands must be sent by host
@@ -530,7 +534,7 @@ function createListeners() {
                     channel.sendMessage("Match aborted manually.")
                     break;
                 case 'mod':
-                    CheckMod(false);
+                    await CheckMod(false);
                     break;
                 case 'map':
                     let TMapId = MapMap.get(m[1]) || -1;
