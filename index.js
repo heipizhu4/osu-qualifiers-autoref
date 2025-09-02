@@ -119,9 +119,6 @@ async function CheckMod(IfOutput) {
     
     await lobby.updateSettings();
     await new Promise(resolve => setTimeout(resolve, 1500));
-                console.log('1秒后执行的代码');
-                // 这里写你要延迟执行的代码
-            
         let CheckPass = true;
         for (const w of lobby.slots)
             if (w != null)
@@ -402,7 +399,10 @@ function createListeners() {
                   LeftName = q.name;
                   break;
               }
-          }
+            }
+            if (LeftName==="???") {
+                channel.sendMessage(`有个选手在一瞬间溜出去又跑回来了?`);
+            }
           console.log(`player ${LeftName} Left`)
           optionalOutput(LeftName, playerEvent.leave);
           if (inPick) {
