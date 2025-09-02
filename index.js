@@ -58,6 +58,12 @@ function optionalOutput(Name, _playerEvent) {
         if (o[_playerEvent] != undefined) {
             channel.sendMessage(o[_playerEvent]);
         }
+        else {
+            console.log(`未找到名称:${Name} 所拥有的特殊事件 ${_playerEvent}`);
+        }
+    }
+    else {
+        console.log(`未找到名称:${Name}`);
     }
 }
 //RefName.has()
@@ -93,9 +99,10 @@ function EachMapReset() {
     SkipMapReset();
     MapTimeout = false;
 }
-function CheckMod(IfOutput){
-    lobby.updateSettings().then(() => {
-        CheckPass = true;
+function CheckMod(IfOutput) {
+    
+    return lobby.updateSettings().then(() => {
+        let CheckPass = true;
         for (const w of lobby.slots)
             if (w != null)
                 if (w.mods && w.mods.length > 0) {
@@ -108,8 +115,9 @@ function CheckMod(IfOutput){
                         console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
                     }
                 }
-        return CheckPass; });
-            
+        return CheckPass;
+         });
+    
 }
 function RestartMap() {
     EachMapReset();
@@ -366,13 +374,13 @@ function createListeners() {
               Found = false;
               for (const w of lobby.slots)
                   if (w != null) {
-                      if (q === w.user.username) {
+                      if (q.name === w.user.username) {
                           Found = true;
                           break;
                       }
                   }
               if (!Found) {
-                  LeftName = q;
+                  LeftName = q.name;
                   break;
               }
           }
