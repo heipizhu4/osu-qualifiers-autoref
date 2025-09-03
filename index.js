@@ -575,7 +575,8 @@ function createListeners() {
                     channel.sendMessage(`使用>abort 强制中断比赛`);
                     channel.sendMessage(`使用>timeout 多给未准备的选手一点时间`);
                     channel.sendMessage(`使用>mod 查看所有人mod(log)`);//
-                    channel.sendMessage(`使用>addref/removeref 增加/删除可以使用>命令的裁判(不可删除房主)`);
+                    channel.sendMessage(`使用>map 图池id 轮次 来修改当前图与轮次`);
+                    channel.sendMessage(`使用>addref/removeref 裁判昵称 来增加/删除可以使用>命令的裁判(不可删除房主)`);
                     break;
             }
         } else if (msg.message.startsWith("#")) {
