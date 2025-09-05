@@ -386,7 +386,7 @@ function createListeners() {
       }
   });
     lobby.on("playerLeft", () => {
-        let abortable = (Date.now() - match.timers.abortLeniency * 1000) >= timeStarted;
+        let abortable = (Date.now() - match.timers.abortLeniency * 1000) <= timeStarted;
         lobby.updateSettings().then(async () => {
             await new Promise(resolve => setTimeout(resolve, 500));
           let Found = false;
@@ -411,7 +411,7 @@ function createListeners() {
           console.log(`player ${LeftName} Left`)
           optionalOutput(LeftName, playerEvent.leave);
           if (inPick) {
-              if (abortable)
+              if (!abortable)
                   return;
               if (!Found) {
                   if (AbortMap.has(LeftName) || AbortMap.get(LeftName)) {
@@ -555,7 +555,7 @@ function createListeners() {
                     break;
                 case 'abort':
                     await lobby.abortMatch();
-                    channel.sendMessage("Match aborted manually.")
+                    channel.sendMessage("Match aborted by ref.");
                     break;
                 case 'mod':
                     await CheckMod(false,true);
@@ -606,8 +606,23 @@ function createListeners() {
                     channel.sendMessage(`使用#gsm 对${config.username}进行干什么`);
                     channel.sendMessage(`使用#poke 戳一戳${config.username}`);
                     channel.sendMessage(`使用#skip 申请跳过该图，仅限第二轮可用。`);
+                    channel.sendMessage(`在比赛后在${match.timers.abortLeniency}秒内若有abort切内可以使用#abort 中断比赛。`);
                     channel.sendMessage(`使用#abortchance 查看所有选手的abort机会。`);
                     channel.sendMessage(`遇到过于严重的事故请使用!panic。请勿滥用。`);
+                    break;
+                case 'abort':
+                    let abortable = (Date.now() - match.timers.abortLeniency * 1000) <= timeStarted;
+                    if (inPick) {
+                        if (!abortable)
+                            break;
+                            if (AbortMap.has(msg.user.ircUsername) || AbortMap.get(msg.user.ircUsername)) {
+                                AbortMap.set(msg.user.ircUsername, false);
+                                lobby.abortMatch();
+                                ready = false;
+                                channel.sendMessage(`Match aborted due to early disconnect because of ${msg.user.ircUsername}`);
+                                channel.sendMessage(`${msg.user.ircUsername} used his/her abort chance`);
+                            }
+                    }
                     break;
                 case 'abortchance':
                     for (let [_name, _chance] of AbortMap) {
