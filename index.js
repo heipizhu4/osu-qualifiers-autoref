@@ -61,6 +61,7 @@ const SkipMap = new Map();
 const AbortMap = new Map();
 const MapMap = new Map();
 const IndexMap = new Map();
+let CheckingMod = false;
 function removeAnsiCodes(str) {
     return str.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
 }
@@ -115,8 +116,11 @@ function EachMapReset() {
     SkipMapReset();
     MapTimeout = false;
 }
-async function CheckMod(IfOutput) {
-    
+async function CheckMod(IfOutput,isForce) {
+    if (CheckingMod && (!isForce)) {
+        return -1;
+    }
+    CheckingMod = true;
     await lobby.updateSettings();
     await new Promise(resolve => setTimeout(resolve, 1500));
         let CheckPass = true;
@@ -127,11 +131,12 @@ async function CheckMod(IfOutput) {
                         if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
                             if (IfOutput)
                                 channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod}` + (MapTimeout ? `若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。` : ``));
-                            CheckPass = false;
+                            CheckPass = 0;
                         }
                         console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
                     }
-                }
+            }
+    CheckingMod = false;
         return CheckPass;
 }
 function RestartMap() {
@@ -200,7 +205,7 @@ async function timerEnded() {
       
         if (!MapTimeout) {
             MapTimeout = true;
-            if (await CheckMod(true)) {
+            if (await CheckMod(true,true)) {
                 lobby.startMatch(match.timers.forceStart);
                 return;
             }
@@ -428,26 +433,29 @@ function createListeners() {
     ready = true;
         timeout = false;
         if (auto && !StatusLock) {
-          if (await CheckMod(true)) {
-              channel.sendMessage('所有人都已准备完毕，准备开始比赛...');
-              lobby.abortTimer();
-              if (!MapTimeout)
-                  lobby.startMatch(match.timers.readyStart);
-              else
-                  lobby.startMatch(match.timers.forceStart);
-              if (!(await CheckMod(true))) {
-                  channel.sendMessage('?有人耍我');
-                  channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
+            let Res = await CheckMod(true,false);
+            if (Res == 1) {
+                channel.sendMessage('所有人都已准备完毕，准备开始比赛...');
+                lobby.abortTimer();
+                if (!MapTimeout)
+                    lobby.startMatch(match.timers.readyStart);
+                else
+                    lobby.startMatch(match.timers.forceStart);
+                Res = await CheckMod(true,false);
+                if (Res == 0) {
+                    channel.sendMessage('?有人耍我');
+                    channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
                     lobby.abortTimer();
                     lobby.startTimer(10);
-              }
-              else
-              StatusLock = true;
-          }
-          else {
-              
-              channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
-          }
+                }
+                else if (Res == 1) {
+                    StatusLock = true;
+                }
+            }
+            else if (Res == 0) {
+
+                channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
+            }
     }});
     lobby.on("matchStarted", () => {
       timeStarted = new Date().valueOf();//log time started
@@ -493,6 +501,7 @@ function createListeners() {
                 case 'removeref':
                     if (m[1] === config.username) {
                         channel.sendMessage(`${m[1]}是房主，不可被删除！`);
+                        break;
                     }
                     let NameCheck = false;
                     for (let i = RefName.length - 1; i >= 0; i--) {
@@ -549,7 +558,7 @@ function createListeners() {
                     channel.sendMessage("Match aborted manually.")
                     break;
                 case 'mod':
-                    await CheckMod(false);
+                    await CheckMod(false,true);
                     break;
                 case 'map':
                     let TMapId = MapMap.get(m[1]) || -1;
