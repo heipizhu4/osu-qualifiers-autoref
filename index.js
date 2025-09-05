@@ -196,7 +196,6 @@ async function syncStatus() {
         }
     });
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
 }
 async function timerEnded() {
     if (closing) {
@@ -246,7 +245,6 @@ async function init() {
                     await channel.join();
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
-                    
                     MatchBegin=true;
                 }
                 catch (err) {
@@ -417,16 +415,13 @@ function createListeners() {
                   if (AbortMap.has(LeftName) || AbortMap.get(LeftName)) {
                       AbortMap.set(LeftName, false);
                       lobby.abortMatch();
-                      ready = false;
+                      //ready = false;
                       channel.sendMessage(`Match aborted due to early disconnect because of ${LeftName}`);
                       channel.sendMessage(`${LeftName} used his/her abort chance`);
                   }
               }
-
-
           }
           else if (auto) lobby.setMap(match.waitSong, 3); });
-      
   })
     lobby.on("allPlayersReady", async() => {
     console.log(chalk.magenta("everyone ready"));
