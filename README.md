@@ -67,6 +67,10 @@ If you want to skip a map maually, you can use this command:
 ```py
 >skip
 ```
+If you want to jump to a certain map, then use the following command:
+```
+>map [code, eg: rc1] [round, eg: 1]
+```
 If you would like to force start a map, this can be quite useful:
 ```
 >start
