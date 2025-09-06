@@ -100,7 +100,9 @@ function WriteReatartFile() {
     const data = {
         RoomId: lobby.id,
         MapIndex: mapIndex,
-        Round: runIndex
+        Round: runIndex,
+        Ref: RefName,
+        PlayerStatus: Object.fromEntries(AbortMap)
     };
     fs.writeFileSync('RestartSettings.json', JSON.stringify(data, null, 2));
   console.log("重启文件已自动保存于RestartSettings.json");
@@ -246,7 +248,11 @@ async function init() {
                     await channel.join();
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
-                    
+                    RefName = [..._Restart.Ref];
+                    for (const [key, value] of Object.entries(_Restart.PlayerStatus)) {
+                        AbortMap.set(key, value);
+                        console.log(`Abort机会:  ${key}: ${value}`);
+                    }
                     MatchBegin=true;
                 }
                 catch (err) {
