@@ -2,10 +2,12 @@
   "name": "osu-autoref",
   "version": "0.2.0",
   "description": "Semi-automted referee interface for osu!",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; npm run start-electron\"",
+    "start-electron": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; electron .\""
   },
   "repository": {
     "type": "git",
@@ -22,5 +24,9 @@
     "chalk": "^2.4.2",
     "discord.js": "^14.14.1",
     "nodesu": "^0.6.4"
+  },
+  "devDependencies": {
+    "electron": "^37.4.0",
+    "cross-env": "^7.0.3"
   }
 }
