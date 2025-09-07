@@ -117,12 +117,11 @@ async function UpdateMapToRanderer(id) {
     const beatmapInfo = {
         pictureUrl: `https://assets.ppy.sh/beatmaps/${info.beatmapset_id}/covers/cover.jpg`, // 封面图片 URL
         name: info.title, // 歌曲标题
-        od: parseFloat(info.difficultyrating), // Overall Difficulty (OD)
         hp: parseFloat(info.diff_drain), // HP Drain
         length: parseInt(info.total_length), // 铺面总时长（秒）
         mapper: info.creator, // 铺面作者
         difficultyName: info.version, // 难度名称
-        star: parseFloat(info.difficultyrating), // 星级（与 OD 相同字段，视需求可调整）
+        star: parseFloat(info.difficultyrating).toFixed(2), // 星级（与 OD 相同字段，视需求可调整）
         bpm: parseFloat(info.bpm) // BPM
     };
     win.webContents.send('Map-data-from-main', beatmapInfo);
@@ -311,7 +310,7 @@ async function init() {
     });
   await initPool();
     SendLogToRanderer(chalk.bold.green('Loaded map pool!'));
-
+    console.log('所有命令行参数:', process.argv);
     if (process.argv.length > 2) {
         switch (process.argv[2]) {
             case '-r':

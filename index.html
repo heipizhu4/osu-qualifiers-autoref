@@ -293,7 +293,7 @@
                     <p class="song-name"><span id="songName">-</span></p>
                     <p class="difficulty-info"><span id="difficultyName">-</span> by <span id="mapper">-</span></p>
                     <div id="iqxsd" class="beatmap-stats">
-                        <span>OD: <span id="od" class="cls-bbgrtp">-</span></span><span>HP: <span id="hp" class="cls-9v3b6g">-</span></span><span>★ <span id="star" class="cls-r7nfjv">-</span></span><span>BPM: <span id="bpm" class="cls-g3f3qu">-</span></span><span>Length: <span id="length" class="cls-wdfp7u">-</span>s</span>
+                        <span>HP: <span id="hp" class="cls-9v3b6g">-</span></span><span>★ <span id="star" class="cls-r7nfjv">-</span></span><span>BPM: <span id="bpm" class="cls-g3f3qu">-</span></span><span>Length: <span id="length" class="cls-wdfp7u">-</span>s</span>
                     </div>
                 </div>
             </div>
@@ -686,7 +686,6 @@
             document.getElementById('songName').textContent = data.name || '-';
             document.getElementById('difficultyName').textContent = data.difficultyName || '-';
             document.getElementById('mapper').textContent = data.mapper || '-';
-            document.getElementById('od').textContent = data.od || '-';
             document.getElementById('hp').textContent = data.hp || '-';
             document.getElementById('star').textContent = data.star || '-';
             document.getElementById('bpm').textContent = data.bpm || '-';
