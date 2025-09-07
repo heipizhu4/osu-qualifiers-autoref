@@ -78,6 +78,10 @@ function createWindow() {
     win.loadFile('index.html');
     //mainWindow.webContents.openDevTools();
 }
+async function SendLogToRanderer(text) {
+    console.log(text);
+    win.webContents.send('Log-msg-from-main', text);
+}
 async function UpdatePlayerToRanderer() {
     let a = 0;
     for (const w of lobby.slots) {
@@ -90,7 +94,7 @@ async function UpdatePlayerToRanderer() {
             state:-1
         };
         if (w) {
-            console.log("Find Player");
+            SendLogToRanderer("Find Player");
             if (w.state === BanchoLobbyPlayerStates["Not Ready"]) {
                 q = 0;
             } else if (w.state === BanchoLobbyPlayerStates["No Map"]) {
@@ -137,11 +141,11 @@ function optionalOutput(Name, _playerEvent) {
             channel.sendMessage(o[_playerEvent]);
         }
         else {
-            console.log(`未找到名称:${Name} 所拥有的特殊事件 ${_playerEvent}`);
+            SendLogToRanderer(`未找到名称:${Name} 所拥有的特殊事件 ${_playerEvent}`);
         }
     }
     else {
-        console.log(`未找到名称:${Name}`);
+        SendLogToRanderer(`未找到名称:${Name}`);
     }
 }
 //RefName.has()
@@ -154,7 +158,7 @@ function initPool() {
       MapMap.set(b.code, b.id);
       IndexMap.set(b.code, _Index);
       _Index++;
-    console.log(chalk.dim(`Loaded ${info.title}`));
+    SendLogToRanderer(chalk.dim(`Loaded ${info.title}`));
   }));
 }
 function WriteReatartFile() {
@@ -166,7 +170,7 @@ function WriteReatartFile() {
         PlayerStatus: Object.fromEntries(AbortMap)
     };
     fs.writeFileSync('RestartSettings.json', JSON.stringify(data, null, 2));
-  console.log("重启文件已自动保存于RestartSettings.json");
+  SendLogToRanderer("重启文件已自动保存于RestartSettings.json");
 }
 function SkipMapReset() {
     playersSkipToSkip = 0;
@@ -197,7 +201,7 @@ async function CheckMod(IfOutput,isForce) {
                                 channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod}` + (MapTimeout ? `若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。` : ``));
                             CheckPass = 0;
                         }
-                        console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
+                        SendLogToRanderer(`${w.user.username} 使用了mod: ${p.longMod}`);
                     }
             }
     CheckingMod = false;
@@ -242,7 +246,7 @@ function TryNextMap() {
         }
     } catch (error) {
         channel.sendMessage(`There was an error changing the map. ID ${pool[mapIndex].code} might be incorrect. Ping your ref.`);
-        console.log(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
+        SendLogToRanderer(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
 
     }
 }
@@ -282,30 +286,48 @@ async function timerEnded() {
             lobby.startMatch(match.timers.readyStart);
         }
     } else if (playersLeftToJoin > 0) {
-        console.log(chalk.bold.red("There (might) be someone left to join.\nTake over now or enable auto with >auto on"));
+        SendLogToRanderer(chalk.bold.red("There (might) be someone left to join.\nTake over now or enable auto with >auto on"));
     }
 }
 // Creates a new multi lobby
 async function init() {
+    /*did-finish-load*/
+    console.log('正在等待渲染窗口创建及加载完毕...');
+    await app.whenReady();
+    createWindow();
+    await new Promise((resolve, reject) => {
+        win.loadFile('index.html');
+
+        win.webContents.on('did-finish-load', () => {
+            console.log('页面及其所有子资源已加载完成');
+            resolve();
+        });
+
+        // 错误处理
+        win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+            console.error('页面加载失败:', errorDescription);
+            reject(new Error(errorDescription));
+        });
+    });
   await initPool();
-    console.log(chalk.bold.green('Loaded map pool!'));
+    SendLogToRanderer(chalk.bold.green('Loaded map pool!'));
 
     if (process.argv.length > 2) {
         switch (process.argv[2]) {
             case '-r':
             case '-R':
                 let RestartFilePath = './RestartSettings.json';
-                console.log(chalk.bold.magenta("Restarting..."));
+                SendLogToRanderer(chalk.bold.magenta("Restarting..."));
                 if (process.argv.length > 3)
                     RestartFilePath = process.argv[3];
                 const _Restart = require(RestartFilePath);
-                console.log(chalk.bold.magenta(`Use ${RestartFilePath} as restart file`));
+                SendLogToRanderer(chalk.bold.magenta(`Use ${RestartFilePath} as restart file`));
                 try {
                     await client.connect();
-                    console.log(chalk.bold.green("Connected to Bancho!"));
-                    console.log(chalk.bold.magenta(`Room id: ${_Restart.RoomId}`));
-                    console.log(chalk.bold.magenta(`Map index: ${_Restart.MapIndex}`));
-                    console.log(chalk.bold.magenta(`Round: ${_Restart.Round}`));
+                    SendLogToRanderer(chalk.bold.green("Connected to Bancho!"));
+                    SendLogToRanderer(chalk.bold.magenta(`Room id: ${_Restart.RoomId}`));
+                    SendLogToRanderer(chalk.bold.magenta(`Map index: ${_Restart.MapIndex}`));
+                    SendLogToRanderer(chalk.bold.magenta(`Round: ${_Restart.Round}`));
                     channel = await client.getChannel(`#mp_${_Restart.RoomId}`);//#multiplayer
                     await channel.join();
                     mapIndex = _Restart.MapIndex;
@@ -313,38 +335,38 @@ async function init() {
                     RefName = [..._Restart.Ref];
                     for (const [key, value] of Object.entries(_Restart.PlayerStatus)) {
                         AbortMap.set(key, value);
-                        console.log(`Abort机会:  ${key}: ${value}`);
+                        SendLogToRanderer(`Abort机会:  ${key}: ${value}`);
                     }
                     MatchBegin=true;
                 }
                 catch (err) {
-                    console.log(err);
-                    console.log(chalk.bold.red("Failed to find lobby"));
+                    SendLogToRanderer(err);
+                    SendLogToRanderer(chalk.bold.red("Failed to find lobby"));
                     process.exit(1);
                 }
                 lobby = channel.lobby;
                 syncStatus();
-                console.log(chalk.bold.green(`Join the lobby ${lobby.name}`));
+                SendLogToRanderer(chalk.bold.green(`Join the lobby ${lobby.name}`));
                 channel.sendMessage(`孩子们，我回来了`);
                 startLobby();
                 break;
             default:
-                console.log(chalk.bold.red(`Unknown command ${process.argv[2]}!`));
+                SendLogToRanderer(chalk.bold.red(`Unknown command ${process.argv[2]}!`));
                 process.exit(1);
         }
     }
     else {
-        console.log(chalk.cyan('Attempting to connect...'));
+        SendLogToRanderer(chalk.cyan('Attempting to connect...'));
 
         try {
             await client.connect();
-            console.log(chalk.bold.green("Connected to Bancho!"));
+            SendLogToRanderer(chalk.bold.green("Connected to Bancho!"));
             const lobbyname = `${match.tournament} Qualifiers lobby: ${match.id}`
             /* lobbyname = `${match.tournament}: ${match.teams[BLUE].name} vs ${match.teams[RED].name}` */
             channel = await client.createLobby(lobbyname, match.private);
         } catch (err) {
-            console.log(err);
-            console.log(chalk.bold.red("Failed to create lobby"));
+            SendLogToRanderer(err);
+            SendLogToRanderer(chalk.bold.red("Failed to create lobby"));
             process.exit(1);
         }
 
@@ -354,10 +376,10 @@ async function init() {
         await lobby.setPassword(password);
         await lobby.setMap(match.waitSong, 3); //elevator music
         
-        console.log(chalk.bold.green("Lobby created!"));
-        console.log(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
-        console.log(chalk.bold.cyan(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`));
-        console.log(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
+        SendLogToRanderer(chalk.bold.green("Lobby created!"));
+        SendLogToRanderer(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
+        SendLogToRanderer(chalk.bold.cyan(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`));
+        SendLogToRanderer(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
         fs.writeFileSync(`./lobbies/${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
         lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
 
@@ -379,14 +401,7 @@ async function init() {
 
         return true;
     };
-    app.whenReady().then(() => {
-        createWindow();
-        /*process.stdin.resume();
-        rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout
-        });*/
-    });
+    
   createListeners();
 }
 
@@ -397,7 +412,7 @@ function startLobby() {
     const map = setBeatmap(pool[mapIndex].code);
     if (map) {
         WriteReatartFile();
-        console.log(chalk.cyan(`Changing map to ${map}`));
+        SendLogToRanderer(chalk.cyan(`Changing map to ${map}`));
     }
 }
 function startLobby2() {
@@ -406,7 +421,7 @@ function startLobby2() {
     const map = setBeatmap(pool[mapIndex].code);
     if (map) {
         WriteReatartFile();
-        console.log(chalk.cyan(`Changing map to ${map}`));
+        SendLogToRanderer(chalk.cyan(`Changing map to ${map}`));
     }
 }
 // Sets current beatmap
@@ -442,9 +457,9 @@ function setBeatmap(mapCode) {
 
 function createListeners() {
   lobby.on("playerJoined", (obj) => {
-    console.log("player joined")
+    SendLogToRanderer("player joined")
     const name = obj.player.user.username;
-      console.log(chalk.yellow(`Player ${name} has joined!`))
+      SendLogToRanderer(chalk.yellow(`Player ${name} has joined!`))
       optionalOutput(name, playerEvent.join);
       if (!MatchBegin) {
           if (!match.teams.some(team => team.name === name)) {
@@ -485,7 +500,7 @@ function createListeners() {
             if (LeftName==="???") {
                 channel.sendMessage(`有个选手在一瞬间溜出去又跑回来了?`);
             }
-          console.log(`player ${LeftName} Left`)
+          SendLogToRanderer(`player ${LeftName} Left`)
             optionalOutput(LeftName, playerEvent.leave);
             UpdatePlayerToRanderer();
           if (inPick) {
@@ -504,7 +519,7 @@ function createListeners() {
           else if (auto) lobby.setMap(match.waitSong, 3); });
   })
     lobby.on("allPlayersReady", async() => {
-    console.log(chalk.magenta("everyone ready"));
+    SendLogToRanderer(chalk.magenta("everyone ready"));
     ready = true;
         timeout = false;
         if (auto && !StatusLock) {
@@ -538,7 +553,7 @@ function createListeners() {
       inPick = true;
     });
     lobby.on("matchAborted", () => {
-        console.log(chalk.yellow.bold("Match Aborted"));
+        SendLogToRanderer(chalk.yellow.bold("Match Aborted"));
         EachMapReset();
       timeout = false;
       ready = false;
@@ -547,7 +562,7 @@ function createListeners() {
       //if (auto) startLobby();
     });
   lobby.on("matchFinished", (obj) => {
-      console.log("matchFinished")
+      SendLogToRanderer("matchFinished")
       EachMapReset();
     obj.forEach(element => {
       fs.appendFileSync(`./players/${element.player.user.username}.txt`,`${pool[mapIndex].code}: ${element.score}\n`);
@@ -580,7 +595,7 @@ function createListeners() {
         }
         if (msg.message.startsWith(">") && RefName.includes(msg.user.ircUsername)) {
             const m = msg.message.substring(1).split(' ');
-            console.log(chalk.yellow(`Received command "${m[0]}"`));
+            SendLogToRanderer(chalk.yellow(`Received command "${m[0]}"`));
 
             switch (m[0]) {
                 case 'addref':
@@ -684,7 +699,7 @@ function createListeners() {
             }
         } else if (msg.message.startsWith("#")) {
             const m = msg.message.substring(1).split(' ');
-            console.log(chalk.yellow(`Received command "${m[0]}"`));
+            SendLogToRanderer(chalk.yellow(`Received command "${m[0]}"`));
 
             switch (m[0]) {
                 case 'gsm':
@@ -748,7 +763,7 @@ function createListeners() {
     if(auto && msg.message === "!panic"){
       auto = false;
       channel.sendMessage("已收到panic指令。裁判正在赶来的路上。")
-      console.log(chalk.red.bold("Something has gone really wrong!\n")+"Someone has executed the !panic command and "+chalk.yellow("auto mode has been disabled"));
+      SendLogToRanderer(chalk.red.bold("Something has gone really wrong!\n")+"Someone has executed the !panic command and "+chalk.yellow("auto mode has been disabled"));
       /*await webhook.send(`<@${config.discord.refRole}>, someone has executed the !panic command on match https://osu.ppy.sh/mp/${lobby.id}.\n`+
       "join using ` /join #mp_"+lobby.id+"` The host is " + config.username+".")*/
       if(!ready && !inPick){
@@ -770,19 +785,19 @@ ipcMain.on('msg-from-renderer', (event, msg) => {
     channel.sendMessage(msg);
 });
 ipcMain.on('Update-request-from-renderer', (event) => {
-    return CheckingMod == true ? "updating" : "idle";
+    return CheckingMod ? "updating" : "idle";
 });
 
 async function close() {
-  console.log(chalk.cyan("Closing..."));
+  SendLogToRanderer(chalk.cyan("Closing..."));
   rl.close();
   await lobby.closeLobby();
   await client.disconnect();
-  console.log(chalk.cyan("Closed."));
+  SendLogToRanderer(chalk.cyan("Closed."));
   process.exit(0);
 }
 
 init()
   .then(() => {
-    console.log(chalk.bold.green("Initialization complete!"));
+    SendLogToRanderer(chalk.bold.green("Initialization complete!"));
   })
