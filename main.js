@@ -5,7 +5,7 @@ const fs = require('fs');
 const { WebhookClient } = require('discord.js');
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-
+const BanchoLobbyPlayerStates = require("./node_modules/bancho.js/lib/Multiplayer/Enums/BanchoLobbyPlayerStates");
 const readline = require('readline');
 let rl = readline.createInterface({
   input: process.stdin,
@@ -81,19 +81,20 @@ function createWindow() {
 async function UpdatePlayerToRanderer() {
     let a = 0;
     for (const w of lobby.slots) {
+        let q = 1;
         let playerInfo = {
             isEnable:false,
             slot: a,
             playerName: "NULL",
             mods: Array({ enumValue: 0, shortMod: "NM", longMod: "Normal" }),
-            state:'No Map'
+            state:-1
         };
-        if (w!=null) {
-            let q = "Ready";
-            if (w.state == Symbol("Not Ready")) {
-                q = "Not Ready";
-            } else if (w.state == Symbol("No Map")) {
-                q = "No Map";
+        if (w) {
+            console.log("Find Player");
+            if (w.state === BanchoLobbyPlayerStates["Not Ready"]) {
+                q = 0;
+            } else if (w.state === BanchoLobbyPlayerStates["No Map"]) {
+                q = -1;
             }
             playerInfo = {
                 isEnable: true,
