@@ -7,7 +7,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
 const readline = require('readline');
-const rl = readline.createInterface({
+let rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
@@ -76,7 +76,51 @@ function createWindow() {
     });
 
     win.loadFile('index.html');
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
+}
+async function UpdatePlayerToRanderer() {
+    let a = 0;
+    for (const w of lobby.slots) {
+        let playerInfo = {
+            isEnable:false,
+            slot: a,
+            playerName: "NULL",
+            mods: Array({ enumValue: 0, shortMod: "NM", longMod: "Normal" }),
+            state:'No Map'
+        };
+        if (w!=null) {
+            let q = "Ready";
+            if (w.state == Symbol("Not Ready")) {
+                q = "Not Ready";
+            } else if (w.state == Symbol("No Map")) {
+                q = "No Map";
+            }
+            playerInfo = {
+                isEnable: true,
+                slot: a,
+                playerName: w.user.ircUsername,
+                mods: w.mods,
+                state: q
+            };
+        }
+        win.webContents.send('Player-data-from-main', playerInfo);
+        a++;
+    }
+}
+async function UpdateMapToRanderer(id) {
+    const info = (await api.beatmaps.getByBeatmapId(id))[0];
+    const beatmapInfo = {
+        pictureUrl: `https://assets.ppy.sh/beatmaps/${info.beatmapset_id}/covers/cover.jpg`, // 封面图片 URL
+        name: info.title, // 歌曲标题
+        od: parseFloat(info.difficultyrating), // Overall Difficulty (OD)
+        hp: parseFloat(info.diff_drain), // HP Drain
+        length: parseInt(info.total_length), // 铺面总时长（秒）
+        mapper: info.creator, // 铺面作者
+        difficultyName: info.version, // 难度名称
+        star: parseFloat(info.difficultyrating), // 星级（与 OD 相同字段，视需求可调整）
+        bpm: parseFloat(info.bpm) // BPM
+    };
+    win.webContents.send('Map-data-from-main', beatmapInfo);
 }
 function removeAnsiCodes(str) {
     return str.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
@@ -139,6 +183,7 @@ async function CheckMod(IfOutput,isForce) {
         return -1;
     }
     CheckingMod = true;
+    win.webContents.send('Updating-status-from-main', 'updating');
     await lobby.updateSettings();
     await new Promise(resolve => setTimeout(resolve, 1500));
         let CheckPass = true;
@@ -155,6 +200,7 @@ async function CheckMod(IfOutput,isForce) {
                     }
             }
     CheckingMod = false;
+    win.webContents.send('Updating-status-from-main', 'idle');
         return CheckPass;
 }
 function RestartMap() {
@@ -332,7 +378,14 @@ async function init() {
 
         return true;
     };
-    app.whenReady().then(createWindow);
+    app.whenReady().then(() => {
+        createWindow();
+        /*process.stdin.resume();
+        rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });*/
+    });
   createListeners();
 }
 
@@ -382,7 +435,7 @@ function setBeatmap(mapCode) {
   lobby.setMap(map.id,3);
 
   lobby.setMods(mod, false);
-
+    UpdateMapToRanderer(map.id);
   return map.code;
 }
 
@@ -406,6 +459,7 @@ function createListeners() {
               channel.sendMessage(`欢迎！还剩余${playersLeftToJoin}位选手未进入房间，资格赛将在所有人到齐后开始。`);
           }
       }
+      UpdatePlayerToRanderer();
   });
     lobby.on("playerLeft", () => {
         let abortable = (Date.now() - match.timers.abortLeniency * 1000) <= timeStarted;
@@ -431,7 +485,8 @@ function createListeners() {
                 channel.sendMessage(`有个选手在一瞬间溜出去又跑回来了?`);
             }
           console.log(`player ${LeftName} Left`)
-          optionalOutput(LeftName, playerEvent.leave);
+            optionalOutput(LeftName, playerEvent.leave);
+            UpdatePlayerToRanderer();
           if (inPick) {
               if (!abortable)
                   return;
@@ -475,6 +530,7 @@ function createListeners() {
 
                 channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
             }
+            UpdatePlayerToRanderer();
     }});
     lobby.on("matchStarted", () => {
       timeStarted = new Date().valueOf();//log time started
@@ -711,6 +767,9 @@ rl.on('line', (input) => {
 });
 ipcMain.on('msg-from-renderer', (event, msg) => {
     channel.sendMessage(msg);
+});
+ipcMain.on('Update-request-from-renderer', (event) => {
+    return CheckingMod == true ? "updating" : "idle";
 });
 
 async function close() {
