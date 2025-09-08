@@ -63,7 +63,7 @@ const SkipMap = new Map();
 const AbortMap = new Map();
 const MapMap = new Map();
 const IndexMap = new Map();
-let CheckingMod = false;
+let Updating = false;
 let win;
 
 function createWindow() {
@@ -181,14 +181,27 @@ function EachMapReset() {
     SkipMapReset();
     MapTimeout = false;
 }
-async function CheckMod(IfOutput,isForce) {
-    if (CheckingMod && (!isForce)) {
+async function _updateSettings(isForce) {
+    if (!(isForce) && Updating) {
+        SendLogToRanderer(`Still updating! ${isForce} ${Updating}`);
         return -1;
     }
-    CheckingMod = true;
+    Updateing = true;
     win.webContents.send('Updating-status-from-main', 'updating');
     await lobby.updateSettings();
     await new Promise(resolve => setTimeout(resolve, 1500));
+    Updateing = false;
+    win.webContents.send('Updating-status-from-main', 'idle');
+    return 0;
+}
+async function CheckMod(IfOutput,isForce) {
+    if (Updating && (!isForce)) {
+        SendLogToRanderer(`Still updating!! ${isForce} ${Updating}`);
+        return -1;
+    }
+    if ((await _updateSettings(isForce)) == -1) {
+        return -1;
+    }
         let CheckPass = true;
         for (const w of lobby.slots)
             if (w != null)
@@ -202,8 +215,6 @@ async function CheckMod(IfOutput,isForce) {
                         SendLogToRanderer(`${w.user.username} 使用了mod: ${p.longMod}`);
                     }
             }
-    CheckingMod = false;
-    win.webContents.send('Updating-status-from-main', 'idle');
         return CheckPass;
 }
 function RestartMap() {
@@ -249,7 +260,7 @@ function TryNextMap() {
     }
 }
 async function syncStatus() {
-    lobby.updateSettings().then(() => {
+    _updateSettings(true).then(() => {
         playersLeftToJoin = match.teams.length;
         for (const q of match.teams) {
             Found = false;
@@ -398,7 +409,7 @@ async function init() {
 
         return true;
     };
-    
+    WriteReatartFile();
   createListeners();
 }
 
@@ -453,6 +464,17 @@ function setBeatmap(mapCode) {
 }
 
 function createListeners() {
+    client.on("connect", () => {
+        win.webContents.send('Server-status-from-main', 'connected');
+        console.log("客户端已连接");
+        console.log("连接状态:", client.isConnected); // true
+    });
+
+    client.on("disconnect", () => {
+        win.webContents.send('Server-status-from-main', 'disconnected');
+        console.log("客户端断开连接");
+        console.log("连接状态:", client.isConnected); // false
+    });
   lobby.on("playerJoined", (obj) => {
     SendLogToRanderer("player joined")
     const name = obj.player.user.username;
@@ -476,7 +498,7 @@ function createListeners() {
   });
     lobby.on("playerLeft", () => {
         let abortable = (Date.now() - match.timers.abortLeniency * 1000) <= timeStarted;
-        lobby.updateSettings().then(async () => {
+        _updateSettings(true).then(async () => {
             await new Promise(resolve => setTimeout(resolve, 500));
           let Found = false;
           let LeftName = "???";
@@ -520,6 +542,7 @@ function createListeners() {
     ready = true;
         timeout = false;
         if (auto && !StatusLock) {
+            SendLogToRanderer(chalk.magenta("Check everyone's mods"));
             let Res = await CheckMod(true,false);
             if (Res == 1) {
                 channel.sendMessage('所有人都已准备完毕，准备开始比赛...');
@@ -782,9 +805,14 @@ ipcMain.on('msg-from-renderer', (event, msg) => {
     channel.sendMessage(msg);
 });
 ipcMain.on('Update-request-from-renderer', (event) => {
-    return CheckingMod ? "updating" : "idle";
+    return Updateing ? "updating" : "idle";
 });
-
+ipcMain.on('Update-server-request-from-renderer', (event) => {
+    return client.isConnected() ? 'connected' : 'disconnected';
+});
+ipcMain.on('Update-thread-request-from-renderer', (event) => {
+    return 'connected';
+});
 async function close() {
   SendLogToRanderer(chalk.cyan("Closing..."));
   rl.close();

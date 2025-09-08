@@ -460,12 +460,6 @@
                                 });
                             }
 
-                            if (window.electronAPI.onMainThreadStatusChange) {
-                                window.electronAPI.onMainThreadStatusChange((status) => {
-                                    updateMainThreadStatus(status);
-                                });
-                            }
-
                             if (window.electronAPI.onUpdateStatusChange) {
                                 window.electronAPI.onUpdateStatusChange((status) => {
                                     updateUpdateStatus(status);
