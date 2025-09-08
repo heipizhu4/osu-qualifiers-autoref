@@ -94,7 +94,6 @@ async function UpdatePlayerToRanderer() {
             state:-1
         };
         if (w) {
-            SendLogToRanderer("Find Player");
             if (w.state === BanchoLobbyPlayerStates["Not Ready"]) {
                 q = 0;
             } else if (w.state === BanchoLobbyPlayerStates["No Map"]) {
@@ -310,7 +309,6 @@ async function init() {
     });
   await initPool();
     SendLogToRanderer(chalk.bold.green('Loaded map pool!'));
-    console.log('所有命令行参数:', process.argv);
     if (process.argv.length > 2) {
         switch (process.argv[2]) {
             case '-r':
