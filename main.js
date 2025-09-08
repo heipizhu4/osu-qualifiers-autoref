@@ -70,6 +70,7 @@ function createWindow() {
     win = new BrowserWindow({
         width: 1920,
         height: 1080,
+        show: false,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         }
@@ -309,6 +310,8 @@ async function init() {
 
         win.webContents.on('did-finish-load', () => {
             console.log('页面及其所有子资源已加载完成');
+            win.show();
+            win.setFullScreen(true);
             resolve();
         });
 
