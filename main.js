@@ -157,7 +157,7 @@ function initPool() {
       MapMap.set(b.code, b.id);
       IndexMap.set(b.code, _Index);
       _Index++;
-    SendLogToRanderer(chalk.dim(`Loaded ${info.title}`));
+    SendLogToRanderer(`Loaded ${info.title}`);
   }));
 }
 function WriteReatartFile() {
@@ -256,7 +256,7 @@ function TryNextMap() {
         }
     } catch (error) {
         channel.sendMessage(`There was an error changing the map. ID ${pool[mapIndex].code} might be incorrect. Ping your ref.`);
-        SendLogToRanderer(chalk.bold.red(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`));
+        SendLogToRanderer(`You should take over NOW! bad ID was ${pool[mapIndex].code}.`);
 
     }
 }
@@ -296,7 +296,7 @@ async function timerEnded() {
             lobby.startMatch(match.timers.readyStart);
         }
     } else if (playersLeftToJoin > 0) {
-        SendLogToRanderer(chalk.bold.red("There (might) be someone left to join.\nTake over now or enable auto with >auto on"));
+        SendLogToRanderer("There (might) be someone left to join.\nTake over now or enable auto with >auto on");
     }
 }
 // Creates a new multi lobby
@@ -322,23 +322,23 @@ async function init() {
         });
     });
   await initPool();
-    SendLogToRanderer(chalk.bold.green('Loaded map pool!'));
+    SendLogToRanderer('Loaded map pool!');
     if (process.argv.length > 2) {
         switch (process.argv[2]) {
             case '-r':
             case '-R':
                 let RestartFilePath = './RestartSettings.json';
-                SendLogToRanderer(chalk.bold.magenta("Restarting..."));
+                SendLogToRanderer("Restarting...");
                 if (process.argv.length > 3)
                     RestartFilePath = process.argv[3];
                 const _Restart = require(RestartFilePath);
-                SendLogToRanderer(chalk.bold.magenta(`Use ${RestartFilePath} as restart file`));
+                SendLogToRanderer(`Use ${RestartFilePath} as restart file`);
                 try {
                     await client.connect();
-                    SendLogToRanderer(chalk.bold.green("Connected to Bancho!"));
-                    SendLogToRanderer(chalk.bold.magenta(`Room id: ${_Restart.RoomId}`));
-                    SendLogToRanderer(chalk.bold.magenta(`Map index: ${_Restart.MapIndex}`));
-                    SendLogToRanderer(chalk.bold.magenta(`Round: ${_Restart.Round}`));
+                    SendLogToRanderer("Connected to Bancho!");
+                    SendLogToRanderer(`Room id: ${_Restart.RoomId}`);
+                    SendLogToRanderer(`Map index: ${_Restart.MapIndex}`);
+                    SendLogToRanderer(`Round: ${_Restart.Round}`);
                     channel = await client.getChannel(`#mp_${_Restart.RoomId}`);//#multiplayer
                     await channel.join();
                     mapIndex = _Restart.MapIndex;
@@ -352,32 +352,32 @@ async function init() {
                 }
                 catch (err) {
                     SendLogToRanderer(err);
-                    SendLogToRanderer(chalk.bold.red("Failed to find lobby"));
+                    SendLogToRanderer("Failed to find lobby");
                     process.exit(1);
                 }
                 lobby = channel.lobby;
                 syncStatus();
-                SendLogToRanderer(chalk.bold.green(`Join the lobby ${lobby.name}`));
+                SendLogToRanderer(`Join the lobby ${lobby.name}`);
                 channel.sendMessage(`孩子们，我回来了`);
                 startLobby();
                 break;
             default:
-                SendLogToRanderer(chalk.bold.red(`Unknown command ${process.argv[2]}!`));
+                SendLogToRanderer(`Unknown command ${process.argv[2]}!`);
                 process.exit(1);
         }
     }
     else {
-        SendLogToRanderer(chalk.cyan('Attempting to connect...'));
+        SendLogToRanderer('Attempting to connect...');
 
         try {
             await client.connect();
-            SendLogToRanderer(chalk.bold.green("Connected to Bancho!"));
+            SendLogToRanderer("Connected to Bancho!");
             const lobbyname = `${match.tournament} Qualifiers lobby: ${match.id}`
             /* lobbyname = `${match.tournament}: ${match.teams[BLUE].name} vs ${match.teams[RED].name}` */
             channel = await client.createLobby(lobbyname, match.private);
         } catch (err) {
             SendLogToRanderer(err);
-            SendLogToRanderer(chalk.bold.red("Failed to create lobby"));
+            SendLogToRanderer("Failed to create lobby");
             process.exit(1);
         }
 
@@ -387,10 +387,10 @@ async function init() {
         await lobby.setPassword(password);
         await lobby.setMap(match.waitSong, 3); //elevator music
         
-        SendLogToRanderer(chalk.bold.green("Lobby created!"));
-        SendLogToRanderer(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
-        SendLogToRanderer(chalk.bold.cyan(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`));
-        SendLogToRanderer(chalk.cyan(`Open in your irc client with "/join #mp_${lobby.id}"`));
+        SendLogToRanderer("Lobby created!");
+        SendLogToRanderer(`Name: ${lobby.name}, password: ${password}`);
+        SendLogToRanderer(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`);
+        SendLogToRanderer(`Open in your irc client with "/join #mp_${lobby.id}"`);
         fs.writeFileSync(`./lobbies/${lobby.id}.txt`, `https://osu.ppy.sh/mp/${lobby.id} | Lobby was created in ${lobbydate}\n`)
         lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
 
@@ -423,7 +423,7 @@ function startLobby() {
     const map = setBeatmap(pool[mapIndex].code);
     if (map) {
         WriteReatartFile();
-        SendLogToRanderer(chalk.cyan(`Changing map to ${map}`));
+        SendLogToRanderer(`Changing map to ${map}`);
     }
 }
 function startLobby2() {
@@ -432,7 +432,7 @@ function startLobby2() {
     const map = setBeatmap(pool[mapIndex].code);
     if (map) {
         WriteReatartFile();
-        SendLogToRanderer(chalk.cyan(`Changing map to ${map}`));
+        SendLogToRanderer(`Changing map to ${map}`);
     }
 }
 // Sets current beatmap
@@ -481,7 +481,7 @@ function createListeners() {
   lobby.on("playerJoined", (obj) => {
     SendLogToRanderer("player joined")
     const name = obj.player.user.username;
-      SendLogToRanderer(chalk.yellow(`Player ${name} has joined!`))
+      SendLogToRanderer(`Player ${name} has joined!`)
       optionalOutput(name, playerEvent.join);
       if (!MatchBegin) {
           if (!match.teams.some(team => team.name === name)) {
@@ -541,11 +541,11 @@ function createListeners() {
           else if (auto) lobby.setMap(match.waitSong, 3); });
   })
     lobby.on("allPlayersReady", async() => {
-    SendLogToRanderer(chalk.magenta("everyone ready"));
+    SendLogToRanderer("everyone ready");
     ready = true;
         timeout = false;
         if (auto && !StatusLock) {
-            SendLogToRanderer(chalk.magenta("Check everyone's mods"));
+            SendLogToRanderer("Check everyone's mods");
             let Res = await CheckMod(true,false);
             if (Res == 1) {
                 channel.sendMessage('所有人都已准备完毕，准备开始比赛...');
@@ -576,7 +576,7 @@ function createListeners() {
       inPick = true;
     });
     lobby.on("matchAborted", () => {
-        SendLogToRanderer(chalk.yellow.bold("Match Aborted"));
+        SendLogToRanderer("Match Aborted");
         EachMapReset();
       timeout = false;
       ready = false;
@@ -597,7 +597,7 @@ function createListeners() {
   });
     channel.on("message", async (msg) => {
         // All ">" commands must be sent by host
-        console.log(chalk.dim(`${msg.user.ircUsername}: ${msg.message}`));
+        console.log(`${msg.user.ircUsername}: ${msg.message}`);
         if (win) {
             let _msgs = {
                 playerName: msg.user.ircUsername,
@@ -618,7 +618,7 @@ function createListeners() {
         }
         if (msg.message.startsWith(">") && RefName.includes(msg.user.ircUsername)) {
             const m = msg.message.substring(1).split(' ');
-            SendLogToRanderer(chalk.yellow(`Received command "${m[0]}"`));
+            SendLogToRanderer(`Received command "${m[0]}"`);
 
             switch (m[0]) {
                 case 'addref':
@@ -722,7 +722,7 @@ function createListeners() {
             }
         } else if (msg.message.startsWith("#")) {
             const m = msg.message.substring(1).split(' ');
-            SendLogToRanderer(chalk.yellow(`Received command "${m[0]}"`));
+            SendLogToRanderer(`Received command "${m[0]}"`);
 
             switch (m[0]) {
                 case 'gsm':
@@ -786,7 +786,7 @@ function createListeners() {
     if(auto && msg.message === "!panic"){
       auto = false;
       channel.sendMessage("已收到panic指令。裁判正在赶来的路上。")
-      SendLogToRanderer(chalk.red.bold("Something has gone really wrong!\n")+"Someone has executed the !panic command and "+chalk.yellow("auto mode has been disabled"));
+      SendLogToRanderer("Something has gone really wrong!\n"+"Someone has executed the !panic command and "+"auto mode has been disabled");
       /*await webhook.send(`<@${config.discord.refRole}>, someone has executed the !panic command on match https://osu.ppy.sh/mp/${lobby.id}.\n`+
       "join using ` /join #mp_"+lobby.id+"` The host is " + config.username+".")*/
       if(!ready && !inPick){
@@ -817,15 +817,16 @@ ipcMain.on('Update-thread-request-from-renderer', (event) => {
     return 'connected';
 });
 async function close() {
-  SendLogToRanderer(chalk.cyan("Closing..."));
+  SendLogToRanderer("Closing...");
   rl.close();
   await lobby.closeLobby();
   await client.disconnect();
-  SendLogToRanderer(chalk.cyan("Closed."));
-  process.exit(0);
+    SendLogToRanderer("Closed.");
+    SendLogToRanderer("The lobby has been closed,but uou can still view the chat log here.");
+  //process.exit(0);
 }
 
 init()
   .then(() => {
-    SendLogToRanderer(chalk.bold.green("Initialization complete!"));
+    SendLogToRanderer("Initialization complete!");
   })
