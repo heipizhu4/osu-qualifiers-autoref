@@ -104,7 +104,10 @@ async function UpdatePlayerToRanderer() {
                 isEnable: true,
                 slot: a,
                 playerName: w.user.ircUsername,
-                mods: w.mods,
+                mods: w.mods.map(obj => ({
+                    ...obj,
+                    shortMod: obj.shortMod.toUpperCase()
+                })),
                 state: q
             };
         }
