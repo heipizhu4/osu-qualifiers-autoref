@@ -622,7 +622,7 @@ function createListeners() {
                                 lobby.abortMatch();
                                 ready = false;
                                 channel.sendMessage(`由于${msg.user.ircUsername}在该图较前的位置断开了连接，比赛abort。`);
-                                channel.sendMessage(`${msg.user.ircUsername} used his/her abort chance`);
+                                channel.sendMessage(`${msg.user.ircUsername} 用掉了Ta的abort机会。`);
                             }
                     }
                     break;
