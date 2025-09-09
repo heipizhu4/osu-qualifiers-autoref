@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "WinStart": "powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; electron .\"",
-    "WinSestart": "powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; electron . -r\"",
+    "WinRestart": "powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; electron . -r\"",
     "start": "electron .\"",
     "restart": "electron . -r\""
   },
