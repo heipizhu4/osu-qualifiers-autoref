@@ -621,7 +621,7 @@ function createListeners() {
                                 AbortMap.set(msg.user.ircUsername, false);
                                 lobby.abortMatch();
                                 ready = false;
-                                channel.sendMessage(`Match aborted due to early disconnect because of ${msg.user.ircUsername}`);
+                                channel.sendMessage(`由于${msg.user.ircUsername}在该图较前的位置断开了连接，比赛abort。`);
                                 channel.sendMessage(`${msg.user.ircUsername} used his/her abort chance`);
                             }
                     }
