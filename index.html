@@ -224,15 +224,14 @@
                                 slot.style.setProperty('z-index', '10000', 'important');
                                 slot.style.setProperty('opacity', '0.5', 'important');
                                 slot.style.setProperty('visibility', 'visible', 'important');
+                                // Initialize mod containers
+                                const modContainer = slot.querySelector('.player-mods');
+                                if (modContainer) {
+                                    modContainer.style.setProperty('display', 'flex', 'important');
+                                    modContainer.style.setProperty('visibility', 'visible', 'important');
+                                }
                             });
                         }
-                        // Initialize mod containers
-                        const modContainer = slot.querySelector('.player-mods');
-                        if (modContainer) {
-                            modContainer.style.setProperty('display', 'flex', 'important');
-                            modContainer.style.setProperty('visibility', 'visible', 'important');
-                        }
-                    });
                     window.updatePlayerData = function (slotIndex, playerData) {
                         const slot = document.querySelector(`[data-slot="${slotIndex}"]`);
                         if (!slot) return;
@@ -315,6 +314,14 @@
                             subtree: true,
                             attributes: true,
                             attributeFilter: ['style', 'class']
+                        });
+                    }
+                    // Listen for external player data updates
+                    if (window.electronAPI && window.electronAPI.onPlayerData) {
+                        window.electronAPI.onPlayerData((data) => {
+                            if (typeof data.slot === 'number') {
+                                window.updatePlayerData(data.slot, data);
+                            }
                         });
                     }
                                                     }) ();
@@ -417,10 +424,13 @@
                     </div>
                 </div>
             </div>
-            <h1 style="color: greenyellow; font-size: 26px;">Made by <a target="_blank" href="https://osu.ppy.sh/users/33138632">31415906</a>&<a target="_blank" href="https://osu.ppy.sh/users/29319435">heipizhu</a></h1>
-            <a target="_blank" href="https://osu.ppy.sh/users/26795413" style="color: lightgray; font-size: 7px;">Special thanks:xiaobaidan</a>
-            <h1 style="color: orangered; font-size: 16px;"><a target="_blank" href="https://github.com/31415906/osu-qualifiers-autoref">仓库链接</a></h1>
-        </aside><!-- Right Main Area -->
+            <h1 style="color: greenyellow; font-size: 26px;">Made by </h1>
+            <a style="color: lightpink; font-size: 26px;" target="_blank" href="https://osu.ppy.sh/users/33138632">31415906</a>
+            <h1 style="color: greenyellow; font-size: 26px;">&</h1>
+                <a style="color: springgreen; font-size: 26px;" target="_blank" href="https://osu.ppy.sh/users/29319435">heipizhu</a>
+                <a target="_blank" href="https://osu.ppy.sh/users/26795413" style="color: lightgray; font-size: 7px;">Special thanks:xiaobaidan</a>
+                <h1 style="color: orangered; font-size: 16px;"><a target="_blank" href="https://github.com/31415906/osu-qualifiers-autoref">仓库链接</a></h1>
+</aside><!-- Right Main Area -->
         <main class="right-main-area">
             <!-- Connection Status -->
             <header id="ijha4" class="connection-status-bar">

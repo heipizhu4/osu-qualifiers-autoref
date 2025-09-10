@@ -65,7 +65,8 @@ const MapMap = new Map();
 const IndexMap = new Map();
 let Updating = false;
 let win;
-
+let RepeatString = "";
+let RepeatCounting = 0;
 function createWindow() {
     win = new BrowserWindow({
         width: 1920,
@@ -196,6 +197,7 @@ async function _updateSettings(isForce) {
     await new Promise(resolve => setTimeout(resolve, 1500));
     Updateing = false;
     win.webContents.send('Updating-status-from-main', 'idle');
+    UpdatePlayerToRanderer();
     return 0;
 }
 async function CheckMod(IfOutput,isForce) {
@@ -572,7 +574,7 @@ function createListeners() {
 
                 channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
             }
-            UpdatePlayerToRanderer();
+            
     }});
     lobby.on("matchStarted", () => {
       timeStarted = new Date().valueOf();//log time started
@@ -693,7 +695,7 @@ function createListeners() {
                     channel.sendMessage("Match aborted by ref.");
                     break;
                 case 'mod':
-                    await CheckMod(false,true);
+                    await CheckMod(false, true);
                     break;
                 case 'map':
                     let TMapId = MapMap.get(m[1]) || -1;
@@ -734,8 +736,8 @@ function createListeners() {
                 case 'hyw':
                     channel.sendMessage(`何意味(#\`O′)¿`,);
                     break;
-            case 'poke': 
-                channel.sendMessage(PokeString[Math.floor(Math.random() * PokeString.length)]);
+                case 'poke':
+                    channel.sendMessage(PokeString[Math.floor(Math.random() * PokeString.length)]);
                     break;
                 case 'help':
                     channel.sendMessage(`使用#gsm 对${config.username}进行干什么`);
@@ -750,42 +752,57 @@ function createListeners() {
                     if (inPick) {
                         if (abortable)
                             break;
-                            if (AbortMap.has(msg.user.ircUsername) && AbortMap.get(msg.user.ircUsername)) {
-                                AbortMap.set(msg.user.ircUsername, false);
-                                lobby.abortMatch();
-                                ready = false;
-                                channel.sendMessage(`Match aborted due to early disconnect because of ${msg.user.ircUsername}`);
-                                channel.sendMessage(`${msg.user.ircUsername} used his/her abort chance`);
-                            }
+                        if (AbortMap.has(msg.user.ircUsername) && AbortMap.get(msg.user.ircUsername)) {
+                            AbortMap.set(msg.user.ircUsername, false);
+                            lobby.abortMatch();
+                            ready = false;
+                            channel.sendMessage(`Match aborted due to early disconnect because of ${msg.user.ircUsername}`);
+                            channel.sendMessage(`${msg.user.ircUsername} used his/her abort chance`);
+                        }
                     }
                     break;
                 case 'abortchance':
                     for (let [_name, _chance] of AbortMap) {
-                        channel.sendMessage(`${_name} 剩余 `+(_chance?1:0)+` 次abort机会`);
+                        channel.sendMessage(`${_name} 剩余 ` + (_chance ? 1 : 0) + ` 次abort机会`);
                     }
                     break;
-              case 'skip':
-                {
+                case 'skip':
+                    {
                         if (closing | StatusLock)
-                        break;
-                    if (runIndex == 1) {
-                        channel.sendMessage("只有第二轮支持使用#skip跳过图。");
-                        break;
+                            break;
+                        if (runIndex == 1) {
+                            channel.sendMessage("只有第二轮支持使用#skip跳过图。");
+                            break;
+                        }
+                        if (!SkipMap.has(msg.user.ircUsername) && !SkipMap.get(msg.user.ircUsername))
+                            break;
+                        SkipMap.set(msg.user.ircUsername, false);
+                        playersSkipToSkip += 1;
+                        channel.sendMessage("跳过投票：" + playersSkipToSkip + "/" + match.teams.length);
+                        if (playersSkipToSkip >= match.teams.length) {
+                            channel.sendMessage("所有玩家选择跳过该图。正在选择下一张......");
+                            TryNextMap();
+                        }
                     }
-                      if (!SkipMap.has(msg.user.ircUsername) && !SkipMap.get(msg.user.ircUsername))
-                          break;
-                      SkipMap.set(msg.user.ircUsername, false);
-                      playersSkipToSkip += 1;
-                      channel.sendMessage("跳过投票：" + playersSkipToSkip + "/" + match.teams.length);
-                      if (playersSkipToSkip >= match.teams.length) {
-                          channel.sendMessage("所有玩家选择跳过该图。正在选择下一张......");
-                          TryNextMap();
-                      }
-                  }
-                  break;
-              
-          }
-      }
+                    break;
+
+            }
+        } else {
+            if (!msg.message.startsWith("!"))
+            if (msg.user.ircUsername != "BanchoBot") {
+                if (msg.message === RepeatString) {
+                    if (RepeatCounting < 2) {
+                        RepeatCounting++;
+                    } else {
+                        RepeatCounting = 0;
+                        channel.sendMessage(msg.message);
+                    }
+                } else {
+                    RepeatString = msg.message;
+                    RepeatCounting = 1;
+                }
+            }
+        }
     if(auto && msg.message === "!panic"){
       auto = false;
       channel.sendMessage("已收到panic指令。裁判正在赶来的路上。")
