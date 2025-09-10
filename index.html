@@ -168,7 +168,7 @@
                         // Function to create mod block element
                         function createModBlock(modCode, colorClass) {
                             const modBlock = document.createElement('div');
-                            modBlock.className = `mod-block ${colorClass || ''}`;
+                            modBlock.className = `mod-block ${colorClass || 'mod-hr'}`;
                             modBlock.textContent = modCode.toUpperCase();
                             modBlock.style.setProperty('display', 'flex', 'important');
                             modBlock.style.setProperty('visibility', 'visible', 'important');
