@@ -1,5 +1,11 @@
 {
-  "RoomId": 12345678,
+  "RoomId": 119201858,
   "MapIndex": 0,
-  "Round": 1
+  "Round": 1,
+  "Ref": [
+    "31415906"
+  ],
+  "PlayerStatus": {
+    "31415906": true
+  }
 }
