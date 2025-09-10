@@ -615,7 +615,7 @@ function createListeners() {
                 case 'abort':
                     let abortable = (Date.now() - match.timers.abortLeniency * 1000) <= timeStarted;
                     if (inPick) {
-                        if (!abortable)
+                        if (abortable)
                             break;
                             if (AbortMap.has(msg.user.ircUsername) || AbortMap.get(msg.user.ircUsername)) {
                                 AbortMap.set(msg.user.ircUsername, false);
