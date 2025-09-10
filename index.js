@@ -617,7 +617,7 @@ function createListeners() {
                     if (inPick) {
                         if (abortable)
                             break;
-                            if (AbortMap.has(msg.user.ircUsername) || AbortMap.get(msg.user.ircUsername)) {
+                            if (AbortMap.has(msg.user.ircUsername) && AbortMap.get(msg.user.ircUsername)) {
                                 AbortMap.set(msg.user.ircUsername, false);
                                 lobby.abortMatch();
                                 ready = false;
