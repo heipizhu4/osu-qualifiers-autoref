@@ -557,7 +557,7 @@ function createListeners() {
                     break;
                 case 'abort':
                     await lobby.abortMatch();
-                    channel.sendMessage(“裁判abort了比赛。”）
+                   channel.sendMessage("裁判abort了比赛。");
                     break;
                 case 'mod':
                     await CheckMod(false,true);
