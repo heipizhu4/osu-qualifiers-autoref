@@ -534,12 +534,12 @@ function createListeners() {
               if (!abortable)
                   return;
               if (!Found) {
-                  if (AbortMap.has(LeftName) || AbortMap.get(LeftName)) {
+                  if (AbortMap.has(LeftName) && AbortMap.get(LeftName)) {
                       AbortMap.set(LeftName, false);
                       lobby.abortMatch();
-                      //ready = false;
-                      channel.sendMessage(`Match aborted due to early disconnect because of ${LeftName}`);
-                      channel.sendMessage(`${LeftName} used his/her abort chance`);
+                      ready = false;
+                      channel.sendMessage(`由于${LeftName}在该图较前的位置断开了连接，比赛abort。`);
+                      channel.sendMessage(`${LeftName} 用掉了Ta的abort机会。`);
                   }
               }
           }
@@ -756,8 +756,8 @@ function createListeners() {
                             AbortMap.set(msg.user.ircUsername, false);
                             lobby.abortMatch();
                             ready = false;
-                            channel.sendMessage(`Match aborted due to early disconnect because of ${msg.user.ircUsername}`);
-                            channel.sendMessage(`${msg.user.ircUsername} used his/her abort chance`);
+                            channel.sendMessage(`由于${msg.user.ircUsername}在该图较前的位置请求abort，比赛abort。`);
+                            channel.sendMessage(`${msg.user.ircUsername} 用掉了Ta的abort机会。`);
                         }
                     }
                     break;
@@ -801,7 +801,8 @@ function createListeners() {
                     RepeatString = msg.message;
                     RepeatCounting = 1;
                 }
-            }
+                }
+            //config.username===msg.user.ircUsername
         }
     if(auto && msg.message === "!panic"){
       auto = false;
