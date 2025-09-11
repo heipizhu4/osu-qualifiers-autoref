@@ -505,45 +505,7 @@ function createListeners() {
       UpdatePlayerToRanderer();
   });
     lobby.on("playerLeft", () => {
-        let abortable = (Date.now() - match.timers.abortLeniency * 1000) <= timeStarted;
-        _updateSettings(true).then(async () => {
-            await new Promise(resolve => setTimeout(resolve, 500));
-          let Found = false;
-          let LeftName = "???";
-          playersLeftToJoin++;
-          for (const q of match.teams) {
-              Found = false;
-              for (const w of lobby.slots)
-                  if (w != null) {
-                      if (q.name === w.user.username) {
-                          Found = true;
-                      }
-                  }
-              if (!Found) {
-                  LeftName = q.name;
-                  break;
-              }
-            }
-            if (LeftName==="???") {
-                channel.sendMessage(`有个选手在一瞬间溜出去又跑回来了?`);
-            }
-          SendLogToRanderer(`player ${LeftName} Left`)
-            optionalOutput(LeftName, playerEvent.leave);
-            UpdatePlayerToRanderer();
-          if (inPick) {
-              if (!abortable)
-                  return;
-              if (!Found) {
-                  if (AbortMap.has(LeftName) && AbortMap.get(LeftName)) {
-                      AbortMap.set(LeftName, false);
-                      lobby.abortMatch();
-                      ready = false;
-                      channel.sendMessage(`由于${LeftName}在该图较前的位置断开了连接，比赛abort。`);
-                      channel.sendMessage(`${LeftName} 用掉了Ta的abort机会。`);
-                  }
-              }
-          }
-          else if (auto) lobby.setMap(match.waitSong, 3); });
+        
   })
     lobby.on("allPlayersReady", async() => {
     SendLogToRanderer("everyone ready");
@@ -814,7 +776,31 @@ function createListeners() {
         lobby.abortTimer();
       }
     }
-      if (msg.user.ircUsername === "BanchoBot") {
+        if (msg.user.ircUsername === "BanchoBot") {
+            let Expression = /^\w+ left the game\.$/;
+            if (Expression.test(msg.message)) {
+                let abortable = (Date.now() - match.timers.abortLeniency * 1000) <= timeStarted;
+                let LeftName = msg.message.trim().split(' ')[0];
+                _updateSettings(true);
+                    SendLogToRanderer(`player ${LeftName} Left`)
+                    optionalOutput(LeftName, playerEvent.leave);
+                    UpdatePlayerToRanderer();
+                    if (inPick) {
+                        if (!abortable)
+                            return;
+                        if (!Found) {
+                            if (AbortMap.has(LeftName) && AbortMap.get(LeftName)) {
+                                AbortMap.set(LeftName, false);
+                                lobby.abortMatch();
+                                ready = false;
+                                channel.sendMessage(`由于${LeftName}在该图较前的位置断开了连接，比赛abort。`);
+                                channel.sendMessage(`${LeftName} 用掉了Ta的abort机会。`);
+                            }
+                        }
+                    }
+                    else if (auto) lobby.setMap(match.waitSong, 3);
+                });
+            }
           if (msg.message === "Countdown finished")
               timerEnded();
       }
