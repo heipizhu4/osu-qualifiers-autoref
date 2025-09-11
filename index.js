@@ -423,8 +423,8 @@ function createListeners() {
                       AbortMap.set(LeftName, false);
                       lobby.abortMatch();
                       ready = false;
-                      channel.sendMessage(`Match aborted due to early disconnect because of ${LeftName}`);
-                      channel.sendMessage(`${LeftName} used his/her abort chance`);
+                      channel.sendMessage(`由于${LeftName}在该图较前的位置断开了连接，比赛abort。`);
+                      channel.sendMessage(`${LeftName} 用掉了Ta的abort机会。`);
                   }
               }
           }
