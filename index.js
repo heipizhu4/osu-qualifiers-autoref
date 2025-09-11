@@ -419,10 +419,10 @@ function createListeners() {
               if (!abortable)
                   return;
               if (!Found) {
-                  if (AbortMap.has(LeftName) || AbortMap.get(LeftName)) {
+                  if (AbortMap.has(LeftName) && AbortMap.get(LeftName)) {
                       AbortMap.set(LeftName, false);
                       lobby.abortMatch();
-                      //ready = false;
+                      ready = false;
                       channel.sendMessage(`Match aborted due to early disconnect because of ${LeftName}`);
                       channel.sendMessage(`${LeftName} used his/her abort chance`);
                   }
