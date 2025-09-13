@@ -6,8 +6,8 @@
   "scripts": {
     "WinStart": "powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; electron .\"",
     "WinRestart": "powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; electron . -r\"",
-    "start": "electron .\"",
-    "restart": "electron . -r\""
+    "start": "electron .",
+    "restart": "electron . -r"
   },
   "repository": {
     "type": "git",

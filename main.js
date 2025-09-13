@@ -198,6 +198,7 @@ async function _updateSettings(isForce) {
     Updateing = false;
     win.webContents.send('Updating-status-from-main', 'idle');
     UpdatePlayerToRanderer();
+    UpdateMapToRanderer(lobby.beatmap.id);
     return 0;
 }
 async function CheckMod(IfOutput,isForce) {
@@ -329,7 +330,8 @@ async function init() {
   await initPool();
     SendLogToRanderer('Loaded map pool!');
     if (process.argv.length > 2) {
-        switch (process.argv[2]) {
+        for (let i = 2; i < process.argv.length;i++)
+        switch (process.argv[i]) {
             case '-r':
             case '-R':
                 let RestartFilePath = './RestartSettings.json';
@@ -365,6 +367,9 @@ async function init() {
                 SendLogToRanderer(`Join the lobby ${lobby.name}`);
                 channel.sendMessage(`孩子们，我回来了`);
                 startLobby();
+                break;
+            case "-NoAuto":
+                auto = false;
                 break;
             default:
                 SendLogToRanderer(`Unknown command ${process.argv[2]}!`);
@@ -654,7 +659,7 @@ function createListeners() {
                     break;
                 case 'abort':
                     await lobby.abortMatch();
-                    channel.sendMessage("Match aborted by ref.");
+                    channel.sendMessage("裁判abort了比赛。");
                     break;
                 case 'mod':
                     await CheckMod(false, true);
@@ -753,10 +758,9 @@ function createListeners() {
             if (!msg.message.startsWith("!"))
             if (msg.user.ircUsername != "BanchoBot") {
                 if (msg.message === RepeatString) {
-                    if (RepeatCounting < 2) {
-                        RepeatCounting++;
-                    } else {
-                        RepeatCounting = 0;
+                    RepeatCounting++;
+                    if (RepeatCounting > 2) {
+                        RepeatCounting = -1;
                         channel.sendMessage(msg.message);
                     }
                 } else {
@@ -799,8 +803,8 @@ function createListeners() {
                         }
                     }
                     else if (auto) lobby.setMap(match.waitSong, 3);
-                });
-            }
+                }
+            
           if (msg.message === "Countdown finished")
               timerEnded();
       }
