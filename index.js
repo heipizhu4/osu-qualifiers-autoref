@@ -93,7 +93,7 @@ function initPool() {
       MapMap.set(b.code, b.id);
       IndexMap.set(b.code, _Index);
       _Index++;
-    console.log(chalk.dim(`Loaded ${info.title}`));
+      console.log(chalk.dim(`Loaded ${b.code}:${info.title}`));
   }));
 }
 function WriteReatartFile() {
@@ -557,9 +557,13 @@ function createListeners() {
                     break;
                 case 'map':
                     let TMapId = MapMap.get(m[1]) || -1;
-                    let TRound = m[2];
+                    let TRound = m[2]||-1;
                     if (TMapId == -1) {
                         channel.sendMessage(`图池代码不存在!`);
+                        break;
+                    }
+                    if (TRound == -1) {
+                        channel.sendMessage(`请输入轮次!`);
                         break;
                     }
                     if (TRound > match.numberOfRuns || TRound < 1) {

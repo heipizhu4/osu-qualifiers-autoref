@@ -126,6 +126,7 @@ async function UpdateMapToRanderer(id) {
         mapper: info.creator, // 铺面作者
         difficultyName: info.version, // 难度名称
         star: parseFloat(info.difficultyrating).toFixed(2), // 星级（与 OD 相同字段，视需求可调整）
+        od: parseFloat(info.diffOverall),
         bpm: parseFloat(info.bpm) // BPM
     };
     win.webContents.send('Map-data-from-main', beatmapInfo);

@@ -420,7 +420,19 @@
                     <p class="song-name"><span id="songName">这是一个example</span></p>
                     <p class="difficulty-info"><span id="difficultyName">osu真好看吧</span> by <span id="mapper">我喜欢你</span></p>
                     <div id="iqxsd" class="beatmap-stats">
-                        <span>HP: <span id="hp" class="cls-9v3b6g">0</span></span><span>★ <span id="star" class="cls-r7nfjv">daze</span></span><span>BPM: <span id="bpm" class="cls-g3f3qu">130</span></span><span>Length: <span id="length" class="cls-wdfp7u">127</span>s</span>
+                        <span id="il04bo">
+                            OD: <span id="od" class="cls-bbgrtp">-</span>
+                        </span>
+                        <span id="ilfa1h">
+                            HP: <span id="hp" class="cls-9v3b6g">-</span>
+                        </span>
+                        <span id="ivbm7j">
+                            ★ <span id="star" class="cls-r7nfjv">-</span>
+                        </span>
+                        <span id="ikwfdp">
+                            BPM: <span id="bpm" class="cls-g3f3qu">-</span>
+                        </span>
+                        <span id="ip0gc9">Length: <span id="length" class="cls-wdfp7u">-</span>s</span>
                     </div>
                 </div>
             </div>
@@ -814,6 +826,7 @@
             document.getElementById('difficultyName').textContent = data.difficultyName || '-';
             document.getElementById('mapper').textContent = data.mapper || '-';
             document.getElementById('hp').textContent = data.hp || '-';
+            document.getElementById('od').textContent = data.od;
             document.getElementById('star').textContent = data.star || '-';
             document.getElementById('bpm').textContent = data.bpm || '-';
             document.getElementById('length').textContent = data.length || '-';
