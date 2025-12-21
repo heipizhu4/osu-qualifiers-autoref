@@ -420,9 +420,6 @@
                     <p class="song-name"><span id="songName">这是一个example</span></p>
                     <p class="difficulty-info"><span id="difficultyName">osu真好看吧</span> by <span id="mapper">我喜欢你</span></p>
                     <div id="iqxsd" class="beatmap-stats">
-                        <span id="il04bo">
-                            OD: <span id="od" class="cls-bbgrtp">-</span>
-                        </span>
                         <span id="ilfa1h">
                             HP: <span id="hp" class="cls-9v3b6g">-</span>
                         </span>
@@ -826,7 +823,6 @@
             document.getElementById('difficultyName').textContent = data.difficultyName || '-';
             document.getElementById('mapper').textContent = data.mapper || '-';
             document.getElementById('hp').textContent = data.hp || '-';
-            document.getElementById('od').textContent = data.od;
             document.getElementById('star').textContent = data.star || '-';
             document.getElementById('bpm').textContent = data.bpm || '-';
             document.getElementById('length').textContent = data.length || '-';
