@@ -100,7 +100,9 @@ function WriteReatartFile() {
     const data = {
         RoomId: lobby.id,
         MapIndex: mapIndex,
-        Round: runIndex
+        Round: runIndex,
+        Ref: RefName,
+        PlayerStatus: Object.fromEntries(AbortMap)
     };
     fs.writeFileSync('RestartSettings.json', JSON.stringify(data, null, 2));
   console.log("重启文件已自动保存于RestartSettings.json");
@@ -245,6 +247,11 @@ async function init() {
                     await channel.join();
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
+                    RefName = [..._Restart.Ref];
+                    for (const [key, value] of Object.entries(_Restart.PlayerStatus)) {
+                        AbortMap.set(key, value);
+                        console.log(`Abort机会:  ${key}: ${value}`);
+                    }
                     MatchBegin=true;
                 }
                 catch (err) {
@@ -416,8 +423,8 @@ function createListeners() {
                       AbortMap.set(LeftName, false);
                       lobby.abortMatch();
                       //ready = false;
-                      channel.sendMessage(`Match aborted due to early disconnect because of ${LeftName}`);
-                      channel.sendMessage(`${LeftName} used his/her abort chance`);
+                      channel.sendMessage(`由于${LeftName}在该图较前的位置断开了连接，比赛abort。`);
+                      channel.sendMessage(`${LeftName} 用掉了Ta的abort机会。`);
                   }
               }
           }
@@ -550,7 +557,7 @@ function createListeners() {
                     break;
                 case 'abort':
                     await lobby.abortMatch();
-                    channel.sendMessage("Match aborted by ref.");
+                    channel.sendMessage("裁判abort了比赛。");
                     break;
                 case 'mod':
                     await CheckMod(false,true);
@@ -619,8 +626,8 @@ function createListeners() {
                             AbortMap.set(msg.user.ircUsername, false);
                             lobby.abortMatch();
                             ready = false;
-                            channel.sendMessage(`Match aborted due to early disconnect because of ${msg.user.ircUsername}`);
-                            channel.sendMessage(`${msg.user.ircUsername} used his/her abort chance`);
+                            channel.sendMessage(`由于${msg.user.ircUsername}在该图较前的位置断开了连接，比赛abort。`);
+                                channel.sendMessage(`${msg.user.ircUsername} 用掉了Ta的abort机会。`);
                         }
                         else {
                             channel.sendMessage(`${msg.user.ircUsername}没有剩余的abort机会了。`);
