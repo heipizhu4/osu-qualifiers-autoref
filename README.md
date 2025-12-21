@@ -67,10 +67,31 @@ Example:
 If this file doesn't exist or a player isn't listed, no special message will be sent.
 ## Running
 Requires: node.js ~~(I use node v10)~~ latest node.js also works though I recommend using LTS
-```py
+
+First, install dependencies:
+```bash
 npm install
-npm start OR node index
 ```
+
+### Starting the UI version (Recommended)
+To start the bot with the graphical user interface:
+```bash
+npm start
+```
+
+To restart the bot with UI:
+```bash
+npm run restart
+```
+
+### Text-only version
+If you prefer to run the bot without the UI (text-only mode):
+```bash
+node main.js
+```
+
+### Legacy version
+**Note:** `index.js` is now deprecated and will no longer be maintained. Please use the methods above instead.
 
 ## Usage
 Upon running this bot, a match will be created, and the password will be logged to the terminal. You can send messages to the chatroom via the terminal window, but this is kinda janky, so I'd recommenda also having an IRC client open/being in-game.
