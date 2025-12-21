@@ -66,7 +66,23 @@
 ```
 如果此文件不存在或玩家未被列出，则不会发送特殊消息。
 
-## 运行
+## 快速开始（Windows 便携版）
+**适用于不想安装 Node.js 的用户：**
+
+1. 从 [Releases](https://github.com/heipizhu4/osu-qualifiers-autoref/releases) 页面下载最新的 `osu-autoref-X.X.X-portable.exe`
+2. 将可执行文件放在一个新文件夹中
+3. 首次运行可执行文件 - 它会创建必要的文件夹结构
+4. 在同一目录中编辑 `config.json`，填写：
+   - osu! 用户名
+   - [IRC 密码](https://osu.ppy.sh/p/irc)
+   - osu! [API 密钥](https://osu.ppy.sh/p/api)
+   - [Discord Webhook 链接](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks)（可选）
+5. 为您的资格赛房间配置 `pool.json` 和 `match.json`
+6. 双击可执行文件即可启动应用！
+
+便携版包含您所需的一切 - 无需安装 Node.js 或使用命令行。
+
+## 运行（开发者版本）
 要求：安装 node.js ~~（我使用的是 node v10 版本）~~ 最新的 node.js 也可以工作，但我推荐使用 LTS 版本
 ```bash
 npm install
@@ -161,3 +177,25 @@ npm run restart
 ```
 #help
 ```
+
+## 构建便携式可执行文件（维护者使用）
+创建用于分发的 Windows 便携版本：
+
+```bash
+# 安装依赖
+npm install
+
+# 构建便携式可执行文件（仅限 Windows）
+npm run build
+
+# 输出文件将位于 dist/osu-autoref-X.X.X-portable.exe
+```
+
+**注意：** 在非 Windows 平台上为 Windows 构建需要 [Wine](https://electron.build/multi-platform-build#linux)。在 Windows 上，构建过程可以原生运行。
+
+便携版本包括：
+- 所有必要的 Node.js 运行时和依赖项
+- 示例配置文件（default-config.json、pool.json、match.json 等）
+- 完整的应用程序文件
+
+用户只需下载 .exe 文件，配置他们的文件，然后运行即可，无需安装 Node.js。

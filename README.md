@@ -65,7 +65,24 @@ Example:
 }
 ```
 If this file doesn't exist or a player isn't listed, no special message will be sent.
-## Running
+
+## Quick Start (Windows Portable)
+**For users who don't want to install Node.js:**
+
+1. Download the latest `osu-autoref-X.X.X-portable.exe` from the [Releases](https://github.com/heipizhu4/osu-qualifiers-autoref/releases) page
+2. Place the executable in a new folder
+3. Run the executable once - it will create the necessary folder structure
+4. Edit `config.json` in the same directory with your:
+   - osu! username
+   - [IRC password](https://osu.ppy.sh/p/irc)
+   - osu! [API key](https://osu.ppy.sh/p/api)
+   - [Discord webhook link](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) (optional)
+5. Configure `pool.json` and `match.json` for your qualifier lobby
+6. Double-click the executable to launch the app!
+
+The portable version includes everything you need - no Node.js or command line required.
+
+## Running (For Developers)
 Requires: node.js ~~(I use node v10)~~ latest node.js also works though I recommend using LTS
 ```bash
 npm install
@@ -160,3 +177,25 @@ They may learn how to use the player side command by using:
 ```
 #help
 ```
+
+## Building the Portable Executable (For Maintainers)
+To create a Windows portable build for distribution:
+
+```bash
+# Install dependencies
+npm install
+
+# Build the portable executable (Windows only)
+npm run build
+
+# The output will be in dist/osu-autoref-X.X.X-portable.exe
+```
+
+**Note:** Building for Windows on non-Windows platforms requires [Wine](https://electron.build/multi-platform-build#linux). On Windows, the build process works natively.
+
+The portable build includes:
+- All necessary Node.js runtime and dependencies
+- Example configuration files (default-config.json, pool.json, match.json, etc.)
+- Complete application files
+
+Users can simply download the .exe, configure their files, and run without installing Node.js.
