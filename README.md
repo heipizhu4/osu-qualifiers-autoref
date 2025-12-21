@@ -59,8 +59,8 @@ Example:
 ```json
 {
   "PlayerName": {
-    "join": "Welcome PlayerName to the lobby!",
-    "leave": "PlayerName has left the building"
+    "join": "Welcome MWC MVP PlayerName to the lobby!",
+    "leave": "PlayerName has left the lobby."
   }
 }
 ```

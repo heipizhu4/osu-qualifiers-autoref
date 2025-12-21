@@ -59,8 +59,8 @@
 ```json
 {
   "PlayerName": {
-    "join": "欢迎 PlayerName 来到房间！",
-    "leave": "PlayerName 已经离开了"
+    "join": "欢迎 MWC MVP PlayerName 来到房间！",
+    "leave": "PlayerName 离开了房间。"
   }
 }
 ```
