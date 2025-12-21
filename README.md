@@ -72,7 +72,7 @@ npm install
 npm start
 ```
 
-To restart the new UI:
+To restart the new UI just in case the program froze in the middle of a game:
 ```bash
 npm run restart
 ```

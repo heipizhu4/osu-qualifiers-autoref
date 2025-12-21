@@ -73,7 +73,7 @@ npm install
 npm start
 ```
 
-重启新版 UI：
+当比赛中途程序死机且需要重启新版 UI时：
 ```bash
 npm run restart
 ```
