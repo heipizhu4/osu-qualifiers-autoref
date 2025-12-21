@@ -70,8 +70,19 @@
 要求：安装 node.js ~~（我使用的是 node v10 版本）~~ 最新的 node.js 也可以工作，但我推荐使用 LTS 版本
 ```bash
 npm install
-npm start 或 node index
+npm start
 ```
+
+当比赛中途程序死机且需要重启新版 UI时：
+```bash
+npm run restart
+```
+
+仅文本版本：
+```bash
+node main.js
+```
+`index.js` 现为旧版，不再维护，请使用 `npm start`（或 `npm run restart`）运行新版 UI。
 
 ## 使用方法
 运行此机器人后，将自动创建一个比赛房间，密码将记录在终端中。您可以通过终端窗口向聊天室发送消息，但这有点不稳定，因此我建议同时打开一个 IRC 客户端或保持在游戏内。
@@ -123,7 +134,7 @@ npm start 或 node index
 ```
 如果事情变得非常糟糕，以至于您需要重启机器人，您需要填写 `RestartSettings.json`，并在**命令行**中输入：
 ```bash
-node index.js -r
+npm run restart
 ```
 请注意 `MapIndex` 从 0 开始。（也就是说，如果您想从第一轮的第二个谱面开始，那么 MapIndex=1, Round=1。）
 

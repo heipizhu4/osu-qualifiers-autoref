@@ -67,10 +67,21 @@ Example:
 If this file doesn't exist or a player isn't listed, no special message will be sent.
 ## Running
 Requires: node.js ~~(I use node v10)~~ latest node.js also works though I recommend using LTS
-```py
+```bash
 npm install
-npm start OR node index
+npm start
 ```
+
+To restart the new UI just in case the program froze in the middle of a game:
+```bash
+npm run restart
+```
+
+For a text-only version:
+```bash
+node main.js
+```
+`index.js` is legacy and no longer maintained; use `npm start` (or `npm run restart`) for the new UI.
 
 ## Usage
 Upon running this bot, a match will be created, and the password will be logged to the terminal. You can send messages to the chatroom via the terminal window, but this is kinda janky, so I'd recommenda also having an IRC client open/being in-game.
@@ -121,8 +132,8 @@ If you happened to forget a certain command, feel free to use this:
 >help
 ```
 In case things went terribly wrong that you need to restart the bot, you need to fill out `RestartSettings.json`, and type this into the **command line**:
-```py
-node index.js -r
+```bash
+npm run restart
 ```
 Please note that `MapIndex` starts with 0. (That is, if you want to start out with the second map of the first round, then MapIndex=1, Round=1.)
 
