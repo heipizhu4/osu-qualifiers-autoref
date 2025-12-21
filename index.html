@@ -15,6 +15,7 @@
     <div class="main-container">
         <!-- Left Sidebar -->
         <aside id="i4j2j" class="left-sidebar">
+            <br>
             <p style="text-align: center; color: deeppink; font-size: 24px;">Osu Qualifiers Autoref</p>
             <!-- Player Status Section -->
             <div id="ioi4b" class="player-status-section">
@@ -232,99 +233,99 @@
                                 }
                             });
                         }
-                    window.updatePlayerData = function (slotIndex, playerData) {
-                        const slot = document.querySelector(`[data-slot="${slotIndex}"]`);
-                        if (!slot) return;
+                        window.updatePlayerData = function (slotIndex, playerData) {
+                            const slot = document.querySelector(`[data-slot="${slotIndex}"]`);
+                            if (!slot) return;
 
-                        // Update player name
-                        const nameElement = slot.querySelector('.player-name');
-                        if (nameElement && playerData.playerName) {
-                            nameElement.textContent = playerData.playerName;
-                        }
+                            // Update player name
+                            const nameElement = slot.querySelector('.player-name');
+                            if (nameElement && playerData.playerName) {
+                                nameElement.textContent = playerData.playerName;
+                            }
 
-                        // Update ready state
-                        const stateElement = slot.querySelector('.ready-state');
-                        if (stateElement) {
-                            stateElement.classList.remove('ready', 'not-ready', 'no-map', 'empty');
-                            if (playerData.state === 0) {
-                                stateElement.classList.add('not-ready');
-                                stateElement.textContent = 'Not Ready';
-                            } else if (playerData.state === 1) {
-                                stateElement.classList.add('ready');
-                                stateElement.textContent = 'Ready';
-                            } else if (playerData.state === -1) {
-                                stateElement.classList.add('no-map');
-                                stateElement.textContent = 'No Map';
+                            // Update ready state
+                            const stateElement = slot.querySelector('.ready-state');
+                            if (stateElement) {
+                                stateElement.classList.remove('ready', 'not-ready', 'no-map', 'empty');
+                                if (playerData.state === 0) {
+                                    stateElement.classList.add('not-ready');
+                                    stateElement.textContent = 'Not Ready';
+                                } else if (playerData.state === 1) {
+                                    stateElement.classList.add('ready');
+                                    stateElement.textContent = 'Ready';
+                                } else if (playerData.state === -1) {
+                                    stateElement.classList.add('no-map');
+                                    stateElement.textContent = 'No Map';
+                                } else {
+                                    stateElement.classList.add('empty');
+                                    stateElement.textContent = '-';
+                                }
+                            }
+
+                            // Update slot appearance
+                            if (playerData.isEnable) {
+                                slot.classList.remove('empty-slot');
+                                slot.classList.add('active-slot');
                             } else {
-                                stateElement.classList.add('empty');
-                                stateElement.textContent = '-';
+                                slot.classList.add('empty-slot');
+                                slot.classList.remove('active-slot');
                             }
+
+                            // Update mods
+                            if (playerData.mods) {
+                                updateSlotMods(slotIndex, playerData.mods);
+                            }
+                        };
+                        // Run immediately
+                        initializePlayerSlots();
+
+                        // Run on DOM ready
+                        if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', initializePlayerSlots);
                         }
 
-                        // Update slot appearance
-                        if (playerData.isEnable) {
-                            slot.classList.remove('empty-slot');
-                            slot.classList.add('active-slot');
-                        } else {
-                            slot.classList.add('empty-slot');
-                            slot.classList.remove('active-slot');
-                        }
+                        // Run on window load
+                        window.addEventListener('load', initializePlayerSlots);
 
-                        // Update mods
-                        if (playerData.mods) {
-                            updateSlotMods(slotIndex, playerData.mods);
-                        }
-                    };
-                    // Run immediately
-                    initializePlayerSlots();
+                        // Periodic check to maintain state
+                        setInterval(initializePlayerSlots, 1000);
 
-                    // Run on DOM ready
-                    if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', initializePlayerSlots);
-                    }
-
-                    // Run on window load
-                    window.addEventListener('load', initializePlayerSlots);
-
-                    // Periodic check to maintain state
-                    setInterval(initializePlayerSlots, 1000);
-
-                    // Monitor DOM changes
-                    const observer = new MutationObserver(function (mutations) {
-                        let needsRefresh = false;
-                        mutations.forEach(function (mutation) {
-                            if (mutation.type === 'childList' ||
-                                (mutation.type === 'attributes' &&
-                                    (mutation.target.id === 'ioi4b' ||
-                                        mutation.target.id === 'playerList' ||
-                                        mutation.target.classList?.contains('player-slot')))) {
-                                needsRefresh = true;
+                        // Monitor DOM changes
+                        const observer = new MutationObserver(function (mutations) {
+                            let needsRefresh = false;
+                            mutations.forEach(function (mutation) {
+                                if (mutation.type === 'childList' ||
+                                    (mutation.type === 'attributes' &&
+                                        (mutation.target.id === 'ioi4b' ||
+                                            mutation.target.id === 'playerList' ||
+                                            mutation.target.classList?.contains('player-slot')))) {
+                                    needsRefresh = true;
+                                }
+                            });
+                            if (needsRefresh) {
+                                initializePlayerSlots();
                             }
                         });
-                        if (needsRefresh) {
-                            initializePlayerSlots();
-                        }
-                    });
 
-                    // Start observing
-                    const targetNode = document.getElementById('ioi4b');
-                    if (targetNode) {
-                        observer.observe(targetNode.parentElement || document.body, {
-                            childList: true,
-                            subtree: true,
-                            attributes: true,
-                            attributeFilter: ['style', 'class']
-                        });
-                    }
-                    // Listen for external player data updates
-                    if (window.electronAPI && window.electronAPI.onPlayerData) {
-                        window.electronAPI.onPlayerData((data) => {
-                            if (typeof data.slot === 'number') {
-                                window.updatePlayerData(data.slot, data);
-                            }
-                        });
-                    }
-                                                    }) ();
+                        // Start observing
+                        const targetNode = document.getElementById('ioi4b');
+                        if (targetNode) {
+                            observer.observe(targetNode.parentElement || document.body, {
+                                childList: true,
+                                subtree: true,
+                                attributes: true,
+                                attributeFilter: ['style', 'class']
+                            });
+                        }
+                        // Listen for external player data updates
+                        if (window.electronAPI && window.electronAPI.onPlayerData) {
+                            window.electronAPI.onPlayerData((data) => {
+                                if (typeof data.slot === 'number') {
+                                    window.updatePlayerData(data.slot, data);
+                                }
+                            });
+                        }
+                    })();
                 </script>
             </div>
             <script id="iq227k">
@@ -436,10 +437,10 @@
             <h1 style="color: greenyellow; font-size: 26px;">Made by </h1>
             <a style="color: lightpink; font-size: 26px;" target="_blank" href="https://osu.ppy.sh/users/33138632">31415906</a>
             <h1 style="color: greenyellow; font-size: 26px;">&</h1>
-                <a style="color: springgreen; font-size: 26px;" target="_blank" href="https://osu.ppy.sh/users/29319435">heipizhu</a>
-                <a target="_blank" href="https://osu.ppy.sh/users/26795413" style="color: lightgray; font-size: 7px;">Special thanks:xiaobaidan</a>
-                <h1 style="color: orangered; font-size: 16px;"><a target="_blank" href="https://github.com/31415906/osu-qualifiers-autoref">仓库链接</a></h1>
-</aside><!-- Right Main Area -->
+            <a style="color: springgreen; font-size: 26px;" target="_blank" href="https://osu.ppy.sh/users/29319435">heipizhu</a>
+            <a target="_blank" href="https://osu.ppy.sh/users/26795413" style="color: lightgray; font-size: 7px;">Special thanks:xiaobaidan</a>
+            <h1 style="color: orangered; font-size: 16px;"><a target="_blank" href="https://github.com/31415906/osu-qualifiers-autoref">仓库链接</a></h1>
+        </aside><!-- Right Main Area -->
         <main class="right-main-area">
             <!-- Connection Status -->
             <header id="ijha4" class="connection-status-bar">
