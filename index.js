@@ -96,7 +96,7 @@ function initPool() {
       console.log(chalk.dim(`Loaded ${b.code}:${info.title}`));
   }));
 }
-function WriteReatartFile() {
+function WriteRestartFile() {
     const data = {
         RoomId: lobby.id,
         MapIndex: mapIndex,
@@ -318,7 +318,7 @@ function startLobby() {
     lobby.startTimer(match.timers.betweenMaps);
     const map = setBeatmap(pool[mapIndex].code);
     if (map) {
-        WriteReatartFile();
+        WriteRestartFile();
         console.log(chalk.cyan(`Changing map to ${map}`));
     }
 }
@@ -327,7 +327,7 @@ function startLobby2() {
     lobby.startTimer(match.timers.betweenRounds)
     const map = setBeatmap(pool[mapIndex].code);
     if (map) {
-        WriteReatartFile();
+        WriteRestartFile();
         console.log(chalk.cyan(`Changing map to ${map}`));
     }
 }

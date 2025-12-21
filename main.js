@@ -199,7 +199,7 @@ function initPool() {
     SendLogToRanderer(`Loaded ${info.title}`);
   }));
 }
-function WriteReatartFile() {
+function WriteRestartFile() {
     const data = {
         RoomId: lobby.id,
         MapIndex: mapIndex,
@@ -456,7 +456,7 @@ async function init() {
         return true;
     };
     
-    WriteReatartFile();
+    WriteRestartFile();
   createListeners();
 }
 
@@ -466,7 +466,7 @@ function startLobby() {
     lobby.startTimer(match.timers.betweenMaps);
     const map = setBeatmap(pool[mapIndex].code);
     if (map) {
-        WriteReatartFile();
+        WriteRestartFile();
         SendLogToRanderer(`Changing map to ${map}`);
     }
 }
@@ -475,7 +475,7 @@ function startLobby2() {
     lobby.startTimer(match.timers.betweenRounds)
     const map = setBeatmap(pool[mapIndex].code);
     if (map) {
-        WriteReatartFile();
+        WriteRestartFile();
         SendLogToRanderer(`Changing map to ${map}`);
     }
 }
