@@ -6,8 +6,8 @@ const { WebhookClient } = require('discord.js');
 
 const readline = require('readline');
 const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
+  input: process.stdin,
+  output: process.stdout
 });
 const playerEvent = {
     join: 'join',
@@ -43,7 +43,7 @@ const PokeString = new Array(`戳坏了${config.username}，你赔得起吗？`,
     "放手啦，不给戳QAQ"
 );
 let channel, lobby;
-let playersLeftToJoin = match.teams.length
+let playersLeftToJoin = match.teams.length 
 let playersSkipToSkip = 0
 let mapIndex = 0; //map iterator
 let runIndex = 1; //what run we're on
@@ -87,25 +87,23 @@ function optionalOutput(Name, _playerEvent) {
 // populate mappool with map info
 function initPool() {
     let _Index = 0;
-    return Promise.all(pool.map(async (b) => {
-        const info = (await api.beatmaps.getByBeatmapId(b.id))[0];
-        b.name = b.code + ': ' + info.artist + ' - ' + info.title + ' [' + info.version + ']';
-        MapMap.set(b.code, b.id);
-        IndexMap.set(b.code, _Index);
-        _Index++;
-        console.log(chalk.dim(`Loaded ${b.code}:${info.title}`));
-    }));
+  return Promise.all(pool.map(async (b) => {
+    const info = (await api.beatmaps.getByBeatmapId(b.id))[0];
+      b.name = b.code + ': ' + info.artist + ' - ' + info.title + ' [' + info.version + ']';
+      MapMap.set(b.code, b.id);
+      IndexMap.set(b.code, _Index);
+      _Index++;
+    console.log(chalk.dim(`Loaded ${info.title}`));
+  }));
 }
-function WriteRestartFile() {
+function WriteReatartFile() {
     const data = {
         RoomId: lobby.id,
         MapIndex: mapIndex,
-        Round: runIndex,
-        Ref: RefName,
-        PlayerStatus: Object.fromEntries(AbortMap)
+        Round: runIndex
     };
     fs.writeFileSync('RestartSettings.json', JSON.stringify(data, null, 2));
-    console.log("重启文件已自动保存于RestartSettings.json");
+  console.log("重启文件已自动保存于RestartSettings.json");
 }
 function SkipMapReset() {
     playersSkipToSkip = 0;
@@ -118,28 +116,28 @@ function EachMapReset() {
     SkipMapReset();
     MapTimeout = false;
 }
-async function CheckMod(IfOutput, isForce) {
+async function CheckMod(IfOutput,isForce) {
     if (CheckingMod && (!isForce)) {
         return -1;
     }
     CheckingMod = true;
     await lobby.updateSettings();
     await new Promise(resolve => setTimeout(resolve, 1500));
-    let CheckPass = true;
-    for (const w of lobby.slots)
-        if (w != null)
-            if (w.mods && w.mods.length > 0) {
-                for (const p of w.mods) {
-                    if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
-                        if (IfOutput)
-                            channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod}` + (MapTimeout ? `若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。` : ``));
-                        CheckPass = 0;
+        let CheckPass = true;
+        for (const w of lobby.slots)
+            if (w != null)
+                if (w.mods && w.mods.length > 0) {
+                    for (const p of w.mods) {
+                        if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
+                            if (IfOutput)
+                                channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod}` + (MapTimeout ? `若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。` : ``));
+                            CheckPass = 0;
+                        }
+                        console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
                     }
-                    console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
-                }
             }
     CheckingMod = false;
-    return CheckPass;
+        return CheckPass;
 }
 function RestartMap() {
     EachMapReset();
@@ -203,16 +201,16 @@ async function timerEnded() {
     if (closing) {
         close();
     } else if ((playersLeftToJoin <= 0 || auto)) {
-
+      
         if (!MapTimeout) {
             MapTimeout = true;
-            if (await CheckMod(true, true)) {
+            if (await CheckMod(true,true)) {
                 lobby.startMatch(match.timers.forceStart);
                 return;
             }
             lobby.startTimer(30);
         }
-        else if (!ready && timeout) {
+        else if (!ready&&timeout) {
             lobby.startTimer(match.timers.timeout);
             timeout = false;
         } else {
@@ -224,7 +222,7 @@ async function timerEnded() {
 }
 // Creates a new multi lobby
 async function init() {
-    await initPool();
+  await initPool();
     console.log(chalk.bold.green('Loaded map pool!'));
 
     if (process.argv.length > 2) {
@@ -247,12 +245,7 @@ async function init() {
                     await channel.join();
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
-                    RefName = [..._Restart.Ref];
-                    for (const [key, value] of Object.entries(_Restart.PlayerStatus)) {
-                        AbortMap.set(key, value);
-                        console.log(`Abort机会:  ${key}: ${value}`);
-                    }
-                    MatchBegin = true;
+                    MatchBegin=true;
                 }
                 catch (err) {
                     console.log(err);
@@ -290,7 +283,7 @@ async function init() {
         const password = Math.random().toString(36).substring(8);
         await lobby.setPassword(password);
         await lobby.setMap(match.waitSong, 3); //elevator music
-
+        
         console.log(chalk.bold.green("Lobby created!"));
         console.log(chalk.bold.cyan(`Name: ${lobby.name}, password: ${password}`));
         console.log(chalk.bold.cyan(`Multiplayer link: https://osu.ppy.sh/mp/${lobby.id}`));
@@ -308,7 +301,7 @@ async function init() {
         // 写入到控制台
         originalWrite(chunk, encoding, callback);
         const cleanChunk = removeAnsiCodes(chunk.toString());
-        fs.appendFile(`./lobbies/mp${lobby.id}.log`, getFormattedTime() + cleanChunk, (err) => {
+        fs.appendFile(`./lobbies/mp${lobby.id}.log`, getFormattedTime()+cleanChunk, (err) => {
             if (err) {
                 console.error('写入文件失败:', err);
             }
@@ -316,7 +309,7 @@ async function init() {
 
         return true;
     };
-    createListeners();
+  createListeners();
 }
 
 // Starts the refereeing
@@ -325,7 +318,7 @@ function startLobby() {
     lobby.startTimer(match.timers.betweenMaps);
     const map = setBeatmap(pool[mapIndex].code);
     if (map) {
-        WriteRestartFile();
+        WriteReatartFile();
         console.log(chalk.cyan(`Changing map to ${map}`));
     }
 }
@@ -334,109 +327,108 @@ function startLobby2() {
     lobby.startTimer(match.timers.betweenRounds)
     const map = setBeatmap(pool[mapIndex].code);
     if (map) {
-        WriteRestartFile();
+        WriteReatartFile();
         console.log(chalk.cyan(`Changing map to ${map}`));
     }
 }
 // Sets current beatmap
 function setBeatmap(mapCode) {
-    // Find the map with the given code
-    const map = pool.find((map) => map.code.toLowerCase() === mapCode.toLowerCase());
+  // Find the map with the given code
+  const map = pool.find((map) => map.code.toLowerCase() === mapCode.toLowerCase());
 
-    // If no map was found, return
-    if (!map) {
-        return;
-    }
+  // If no map was found, return
+  if (!map) {
+    return;
+  }
 
-    // Find correct mods based on map code
-    let mapType = map.code.slice(0, 2);
-    let mod = 'Freemod';
-    if (map.mod) {
-        mod = map.mod; // if mod explicitly provided (not normal)
-    } else if (['HD', 'HR', 'DT'].includes(mapType)) {
-        mod = mapType + " NF";
-    } else if (mapType === 'NM') {
-        mod = 'NF';
-    }
+  // Find correct mods based on map code
+  let mapType = map.code.slice(0, 2);
+  let mod = 'Freemod';
+  if (map.mod) {
+    mod = map.mod; // if mod explicitly provided (not normal)
+  } else if (['HD', 'HR', 'DT'].includes(mapType)) {
+    mod = mapType + " NF";
+  } else if (mapType === 'NM') {
+    mod = 'NF';
+  }
 
-    // Set the map and mods in the lobby
+  // Set the map and mods in the lobby
 
-    channel.sendMessage("当前图：" + map.name);
-    lobby.setMap(map.id, 3);
+  channel.sendMessage("当前图：" + map.name);
+  lobby.setMap(map.id,3);
 
-    lobby.setMods(mod, false);
+  lobby.setMods(mod, false);
 
-    return map.code;
+  return map.code;
 }
 
 function createListeners() {
-    lobby.on("playerJoined", (obj) => {
-        console.log("player joined")
-        const name = obj.player.user.username;
-        console.log(chalk.yellow(`Player ${name} has joined!`))
-        optionalOutput(name, playerEvent.join);
-        if (!MatchBegin) {
-            if (!match.teams.some(team => team.name === name)) {
+  lobby.on("playerJoined", (obj) => {
+    console.log("player joined")
+    const name = obj.player.user.username;
+      console.log(chalk.yellow(`Player ${name} has joined!`))
+      optionalOutput(name, playerEvent.join);
+      if (!MatchBegin) {
+          if (!match.teams.some(team => team.name === name)) {
 
-            }
-            else if (playersLeftToJoin-- <= 1 || auto) { //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
-                channel.sendMessage("所有玩家已来到房间！资格赛现在开始。");
-                MatchBegin = true;
-                channel.sendMessage("#help");
-                startLobby();
-            }
-            else {
-                channel.sendMessage(`欢迎！还剩余${playersLeftToJoin}位选手未进入房间，资格赛将在所有人到齐后开始。`);
-            }
-        }
-    });
+          }
+          else if (playersLeftToJoin-- <= 1 || auto) { //if auto is enabled the lobby will start as soon as someone joins, else it'll wait until everyone has joined
+              channel.sendMessage("所有玩家已来到房间！资格赛现在开始。");
+              MatchBegin = true;
+              channel.sendMessage("#help");
+              startLobby();
+          }
+          else {
+              channel.sendMessage(`欢迎！还剩余${playersLeftToJoin}位选手未进入房间，资格赛将在所有人到齐后开始。`);
+          }
+      }
+  });
     lobby.on("playerLeft", () => {
         let abortable = (Date.now() - match.timers.abortLeniency * 1000) <= timeStarted;
         lobby.updateSettings().then(async () => {
             await new Promise(resolve => setTimeout(resolve, 500));
-            let Found = false;
-            let LeftName = "???";
-            playersLeftToJoin++;
-            for (const q of match.teams) {
-                Found = false;
-                for (const w of lobby.slots)
-                    if (w != null) {
-                        if (q.name === w.user.username) {
-                            Found = true;
-                        }
-                    }
-                if (!Found) {
-                    LeftName = q.name;
-                    break;
-                }
+          let Found = false;
+          let LeftName = "???";
+          playersLeftToJoin++;
+          for (const q of match.teams) {
+              Found = false;
+              for (const w of lobby.slots)
+                  if (w != null) {
+                      if (q.name === w.user.username) {
+                          Found = true;
+                      }
+                  }
+              if (!Found) {
+                  LeftName = q.name;
+                  break;
+              }
             }
-            if (LeftName === "???") {
+            if (LeftName==="???") {
                 channel.sendMessage(`有个选手在一瞬间溜出去又跑回来了?`);
             }
-            console.log(`player ${LeftName} Left`)
-            optionalOutput(LeftName, playerEvent.leave);
-            if (inPick) {
-                if (!abortable)
-                    return;
-                if (!Found) {
-                    if (AbortMap.has(LeftName) || AbortMap.get(LeftName)) {
-                        AbortMap.set(LeftName, false);
-                        lobby.abortMatch();
-                        //ready = false;
-                        channel.sendMessage(`由于${LeftName}在该图较前的位置断开了连接，比赛abort。`);
-                        channel.sendMessage(`${LeftName} 用掉了Ta的abort机会。`);
-                    }
-                }
-            }
-            else if (auto) lobby.setMap(match.waitSong, 3);
-        });
-    })
-    lobby.on("allPlayersReady", async () => {
-        console.log(chalk.magenta("everyone ready"));
-        ready = true;
+          console.log(`player ${LeftName} Left`)
+          optionalOutput(LeftName, playerEvent.leave);
+          if (inPick) {
+              if (!abortable)
+                  return;
+              if (!Found) {
+                  if (AbortMap.has(LeftName) || AbortMap.get(LeftName)) {
+                      AbortMap.set(LeftName, false);
+                      lobby.abortMatch();
+                      //ready = false;
+                      channel.sendMessage(`Match aborted due to early disconnect because of ${LeftName}`);
+                      channel.sendMessage(`${LeftName} used his/her abort chance`);
+                  }
+              }
+          }
+          else if (auto) lobby.setMap(match.waitSong, 3); });
+  })
+    lobby.on("allPlayersReady", async() => {
+    console.log(chalk.magenta("everyone ready"));
+    ready = true;
         timeout = false;
         if (auto && !StatusLock) {
-            let Res = await CheckMod(true, false);
+            let Res = await CheckMod(true,false);
             if (Res == 1) {
                 channel.sendMessage('所有人都已准备完毕，准备开始比赛...');
                 lobby.abortTimer();
@@ -444,7 +436,7 @@ function createListeners() {
                     lobby.startMatch(match.timers.readyStart);
                 else
                     lobby.startMatch(match.timers.forceStart);
-                Res = await CheckMod(true, false);
+                Res = await CheckMod(true,false);
                 if (Res == 0) {
                     channel.sendMessage('?有人耍我');
                     channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
@@ -459,32 +451,31 @@ function createListeners() {
 
                 channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
             }
-        }
-    });
+    }});
     lobby.on("matchStarted", () => {
-        timeStarted = new Date().valueOf();//log time started
-        inPick = true;
+      timeStarted = new Date().valueOf();//log time started
+      inPick = true;
     });
     lobby.on("matchAborted", () => {
         console.log(chalk.yellow.bold("Match Aborted"));
         EachMapReset();
-        timeout = false;
-        ready = false;
+      timeout = false;
+      ready = false;
         inPick = false;
         RestartMap();
-        //if (auto) startLobby();
+      //if (auto) startLobby();
     });
-    lobby.on("matchFinished", (obj) => {
-        console.log("matchFinished")
-        EachMapReset();
-        obj.forEach(element => {
-            fs.appendFileSync(`./players/${element.player.user.username}.txt`, `${pool[mapIndex].code}: ${element.score}\n`);
-        });
-        TryNextMap();
+  lobby.on("matchFinished", (obj) => {
+      console.log("matchFinished")
+      EachMapReset();
+    obj.forEach(element => {
+      fs.appendFileSync(`./players/${element.player.user.username}.txt`,`${pool[mapIndex].code}: ${element.score}\n`);
     });
+      TryNextMap();
+   });
     lobby.on("timerEnded", () => {
         //timerEnded();
-    });
+  });
     channel.on("message", async (msg) => {
         // All ">" commands must be sent by host
         console.log(chalk.dim(`${msg.user.ircUsername}: ${msg.message}`));
@@ -559,20 +550,16 @@ function createListeners() {
                     break;
                 case 'abort':
                     await lobby.abortMatch();
-                    channel.sendMessage("裁判abort了比赛。");
+                    channel.sendMessage("Match aborted by ref.");
                     break;
                 case 'mod':
-                    await CheckMod(false, true);
+                    await CheckMod(false,true);
                     break;
                 case 'map':
                     let TMapId = MapMap.get(m[1]) || -1;
-                    let TRound = m[2] || -1;
+                    let TRound = m[2];
                     if (TMapId == -1) {
                         channel.sendMessage(`图池代码不存在!`);
-                        break;
-                    }
-                    if (TRound == -1) {
-                        channel.sendMessage(`请输入轮次!`);
                         break;
                     }
                     if (TRound > match.numberOfRuns || TRound < 1) {
@@ -607,8 +594,8 @@ function createListeners() {
                 case 'hyw':
                     channel.sendMessage(`何意味(#\`O′)¿`,);
                     break;
-                case 'poke':
-                    channel.sendMessage(PokeString[Math.floor(Math.random() * PokeString.length)]);
+            case 'poke': 
+                channel.sendMessage(PokeString[Math.floor(Math.random() * PokeString.length)]);
                     break;
                 case 'help':
                     channel.sendMessage(`使用#gsm 对${config.username}进行干什么`);
@@ -619,81 +606,78 @@ function createListeners() {
                     channel.sendMessage(`遇到过于严重的事故请使用!panic。请勿滥用。`);
                     break;
                 case 'abort':
+                    let abortable = (Date.now() - match.timers.abortLeniency * 1000) <= timeStarted;
                     if (inPick) {
-                        if ((Date.now() - timeStarted) > (match.timers.abortLeniency * 1000)) {
-                            channel.sendMessage(`abort超时。当且仅当在图的前${match.timers.abortLeniency}秒可以使用#abort。`);
+                        if (!abortable)
                             break;
-                        }
-                        if (AbortMap.has(msg.user.ircUsername) && AbortMap.get(msg.user.ircUsername)) {
-                            AbortMap.set(msg.user.ircUsername, false);
-                            lobby.abortMatch();
-                            ready = false;
-                            channel.sendMessage(`由于${msg.user.ircUsername}在该图较前的位置断开了连接，比赛abort。`);
-                            channel.sendMessage(`${msg.user.ircUsername} 用掉了Ta的abort机会。`);
-                        }
-                        else {
-                            channel.sendMessage(`${msg.user.ircUsername}没有剩余的abort机会了。`);
-                        }
+                            if (AbortMap.has(msg.user.ircUsername) || AbortMap.get(msg.user.ircUsername)) {
+                                AbortMap.set(msg.user.ircUsername, false);
+                                lobby.abortMatch();
+                                ready = false;
+                                channel.sendMessage(`Match aborted due to early disconnect because of ${msg.user.ircUsername}`);
+                                channel.sendMessage(`${msg.user.ircUsername} used his/her abort chance`);
+                            }
                     }
                     break;
                 case 'abortchance':
                     for (let [_name, _chance] of AbortMap) {
-                        channel.sendMessage(`${_name} 剩余 ` + (_chance ? 1 : 0) + ` 次abort机会`);
+                        channel.sendMessage(`${_name} 剩余 `+(_chance?1:0)+` 次abort机会`);
                     }
                     break;
-                case 'skip':
-                    {
+              case 'skip':
+                {
                         if (closing | StatusLock)
-                            break;
-                        if (runIndex == 1) {
-                            channel.sendMessage("只有第二轮支持使用#skip跳过图。");
-                            break;
-                        }
-                        if (!SkipMap.has(msg.user.ircUsername) || !SkipMap.get(msg.user.ircUsername))
-                            break;
-                        SkipMap.set(msg.user.ircUsername, false);
-                        playersSkipToSkip += 1;
-                        channel.sendMessage("跳过投票：" + playersSkipToSkip + "/" + match.teams.length);
-                        if (playersSkipToSkip >= match.teams.length) {
-                            channel.sendMessage("所有玩家选择跳过该图。正在选择下一张......");
-                            TryNextMap();
-                        }
+                        break;
+                    if (runIndex == 1) {
+                        channel.sendMessage("只有第二轮支持使用#skip跳过图。");
+                        break;
                     }
-                    break;
-            }
-        }
-        if (auto && msg.message === "!panic") {
-            auto = false;
-            channel.sendMessage("已收到panic指令。裁判正在赶来的路上。")
-            console.log(chalk.red.bold("Something has gone really wrong!\n") + "Someone has executed the !panic command and " + chalk.yellow("auto mode has been disabled"));
-            /*await webhook.send(`<@${config.discord.refRole}>, someone has executed the !panic command on match https://osu.ppy.sh/mp/${lobby.id}.\n`+
-            "join using ` /join #mp_"+lobby.id+"` The host is " + config.username+".")*/
-            if (!ready && !inPick) {
-                lobby.abortTimer();
-            }
-        }
-        if (msg.user.ircUsername === "BanchoBot") {
-            if (msg.message === "Countdown finished")
-                timerEnded();
-        }
+                      if (!SkipMap.has(msg.user.ircUsername) || !SkipMap.get(msg.user.ircUsername))
+                          break;
+                      SkipMap.set(msg.user.ircUsername, false);
+                      playersSkipToSkip += 1;
+                      channel.sendMessage("跳过投票：" + playersSkipToSkip + "/" + match.teams.length);
+                      if (playersSkipToSkip >= match.teams.length) {
+                          channel.sendMessage("所有玩家选择跳过该图。正在选择下一张......");
+                          TryNextMap();
+                      }
+                  }
+                  break;
+              
+          }
+      }
+    if(auto && msg.message === "!panic"){
+      auto = false;
+      channel.sendMessage("已收到panic指令。裁判正在赶来的路上。")
+      console.log(chalk.red.bold("Something has gone really wrong!\n")+"Someone has executed the !panic command and "+chalk.yellow("auto mode has been disabled"));
+      /*await webhook.send(`<@${config.discord.refRole}>, someone has executed the !panic command on match https://osu.ppy.sh/mp/${lobby.id}.\n`+
+      "join using ` /join #mp_"+lobby.id+"` The host is " + config.username+".")*/
+      if(!ready && !inPick){
+        lobby.abortTimer();
+      }
+    }
+      if (msg.user.ircUsername === "BanchoBot") {
+          if (msg.message === "Countdown finished")
+              timerEnded();
+      }
 
-    });
+  });
 }
 
 rl.on('line', (input) => {
-    channel.sendMessage(input);
+  channel.sendMessage(input);
 });
 
 async function close() {
-    console.log(chalk.cyan("Closing..."));
-    rl.close();
-    await lobby.closeLobby();
-    await client.disconnect();
-    console.log(chalk.cyan("Closed."));
-    process.exit(0);
+  console.log(chalk.cyan("Closing..."));
+  rl.close();
+  await lobby.closeLobby();
+  await client.disconnect();
+  console.log(chalk.cyan("Closed."));
+  process.exit(0);
 }
 
 init()
-    .then(() => {
-        console.log(chalk.bold.green("Initialization complete!"));
-    })
+  .then(() => {
+    console.log(chalk.bold.green("Initialization complete!"));
+  })
