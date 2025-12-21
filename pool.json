@@ -1,4 +1,12 @@
 [
-  {"code": "sv1", "id": 4821478, "mod": "freemod"},
-  {"code": "rc1", "id": 5063207, "mod": "freemod"}
+  {
+    "code": "rc1",
+    "id": 1158910,
+    "mod": "freemod"
+  },
+  {
+    "code": "rc2",
+    "id": 4223691,
+    "mod": "freemod"
+  }
 ]
