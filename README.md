@@ -90,9 +90,6 @@ If you prefer to run the bot without the UI (text-only mode):
 node main.js
 ```
 
-### Legacy version
-**Note:** `index.js` is now deprecated and will no longer be maintained. Please use the methods above instead.
-
 ## Usage
 Upon running this bot, a match will be created, and the password will be logged to the terminal. You can send messages to the chatroom via the terminal window, but this is kinda janky, so I'd recommenda also having an IRC client open/being in-game.
 
