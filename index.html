@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>osu! Referee Dashboard</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index,follow">
+    <meta name="generator" content="GrapesJS Studio">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./index_files/style.css">
+</head>
+
+<body class="gjs-t-body page-body">
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <aside id="i4j2j" class="left-sidebar">
+            <p style="text-align: center; color: deeppink; font-size: 24px;">Osu Qualifiers Autoref</p>
+            <!-- Player Status Section -->
+            <div id="ioi4b" class="player-status-section">
+                <h2 id="iczqf" class="gjs-t-h2 player-status-title">Players</h2>
+                <div id="playerList" class="player-list-container">
+                    <!-- Player slot 1 -->
+                    <div data-slot="0" id="ihlyo7" class="player-slot empty-slot">
+                        <div id="icy8lj" class="player-info">
+                            <span id="i97tpf" class="slot-number">#1</span><span id="idyxw6" class="player-name">NULL</span>
+                        </div>
+                        <div id="i6ataz" class="player-status">
+                            <div data-slot-mods="0" class="player-mods"></div><span id="i6oijm" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 2 -->
+                    <div data-slot="1" id="itabph" class="player-slot empty-slot">
+                        <div id="izi066" class="player-info">
+                            <span id="iec0hk" class="slot-number">#2</span><span id="i46sh6" class="player-name">NULL</span>
+                        </div>
+                        <div id="iikn7v" class="player-status">
+                            <div data-slot-mods="1" class="player-mods"></div><span id="ij62bd" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 3 -->
+                    <div data-slot="2" id="i2y4la" class="player-slot empty-slot">
+                        <div id="izc4rh" class="player-info">
+                            <span id="irkj8i" class="slot-number">#3</span><span id="iztxgr" class="player-name">NULL</span>
+                        </div>
+                        <div id="ijb3ye" class="player-status">
+                            <div data-slot-mods="2" class="player-mods"></div><span id="iu2kjk" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 4 -->
+                    <div data-slot="3" id="i3krv7" class="player-slot empty-slot">
+                        <div id="ivyiu6" class="player-info">
+                            <span id="io5qf6" class="slot-number">#4</span><span id="iiblmi" class="player-name">NULL</span>
+                        </div>
+                        <div id="icey7j" class="player-status">
+                            <div data-slot-mods="3" class="player-mods"></div><span id="ir6kme" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 5 -->
+                    <div data-slot="4" id="is807z" class="player-slot empty-slot">
+                        <div id="ifhh2j" class="player-info">
+                            <span id="idx9gy" class="slot-number">#5</span><span id="iacowl" class="player-name">NULL</span>
+                        </div>
+                        <div id="i5lfg3" class="player-status">
+                            <div data-slot-mods="4" class="player-mods"></div><span id="iuyapr" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 6 -->
+                    <div data-slot="5" id="ivn7pq" class="player-slot empty-slot">
+                        <div id="iiucqf" class="player-info">
+                            <span id="icnpqj" class="slot-number">#6</span><span id="is4clj" class="player-name">NULL</span>
+                        </div>
+                        <div id="i8trbq" class="player-status">
+                            <div data-slot-mods="5" class="player-mods"></div><span id="ir8akp" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 7 -->
+                    <div data-slot="6" id="inw4pn" class="player-slot empty-slot">
+                        <div id="i9380k" class="player-info">
+                            <span id="izcg41" class="slot-number">#7</span><span id="i3k6cn" class="player-name">NULL</span>
+                        </div>
+                        <div id="ibn78k" class="player-status">
+                            <div data-slot-mods="6" class="player-mods"></div><span id="i8jm3w" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 8 -->
+                    <div data-slot="7" id="ir4vf1" class="player-slot empty-slot">
+                        <div id="ibxrib" class="player-info">
+                            <span id="icb2ad" class="slot-number">#8</span><span id="i4wksh" class="player-name">NULL</span>
+                        </div>
+                        <div id="ilp945" class="player-status">
+                            <div data-slot-mods="7" class="player-mods"></div><span id="i48uuk" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 9 -->
+                    <div data-slot="8" id="i3m3dd" class="player-slot empty-slot">
+                        <div id="iadv1l" class="player-info">
+                            <span id="ib03si" class="slot-number">#9</span><span id="ipo91f" class="player-name">NULL</span>
+                        </div>
+                        <div id="imdljp" class="player-status">
+                            <div data-slot-mods="8" class="player-mods"></div><span id="ix8zaj" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 10 -->
+                    <div data-slot="9" id="iodddi" class="player-slot empty-slot">
+                        <div id="i3mdrs" class="player-info">
+                            <span id="i988b4" class="slot-number">#10</span><span id="iboydy" class="player-name">NULL</span>
+                        </div>
+                        <div id="iveg8j" class="player-status">
+                            <div data-slot-mods="9" class="player-mods"></div><span id="i74pkv" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 11 -->
+                    <div data-slot="10" id="ioxckd" class="player-slot empty-slot">
+                        <div id="i3drzl" class="player-info">
+                            <span id="ii24uu" class="slot-number">#11</span><span id="ihf99i" class="player-name">NULL</span>
+                        </div>
+                        <div id="iq07es" class="player-status">
+                            <div data-slot-mods="10" class="player-mods"></div><span id="iaof77" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 12 -->
+                    <div data-slot="11" id="iidux7" class="player-slot empty-slot">
+                        <div id="iyzsnb" class="player-info">
+                            <span id="i9z1f1" class="slot-number">#12</span><span id="i7i0j7" class="player-name">NULL</span>
+                        </div>
+                        <div id="iuuehf" class="player-status">
+                            <div data-slot-mods="11" class="player-mods"></div><span id="ivs4xi" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 13 -->
+                    <div data-slot="12" id="i8iyp9" class="player-slot empty-slot">
+                        <div id="iplicr" class="player-info">
+                            <span id="i29fds" class="slot-number">#13</span><span id="iqbpuh" class="player-name">NULL</span>
+                        </div>
+                        <div id="ilmrmu" class="player-status">
+                            <div data-slot-mods="12" class="player-mods"></div><span id="iw4m85" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 14 -->
+                    <div data-slot="13" id="irinpf" class="player-slot empty-slot">
+                        <div id="ihb4pc" class="player-info">
+                            <span id="i9x4jm" class="slot-number">#14</span><span id="i6a5w7" class="player-name">NULL</span>
+                        </div>
+                        <div id="ia7kfd" class="player-status">
+                            <div data-slot-mods="13" class="player-mods"></div><span id="ic2fbz" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 15 -->
+                    <div data-slot="14" id="iamynk" class="player-slot empty-slot">
+                        <div id="i542mk" class="player-info">
+                            <span id="i3anak" class="slot-number">#15</span><span id="iu2khn" class="player-name">NULL</span>
+                        </div>
+                        <div id="ilu3go" class="player-status">
+                            <div data-slot-mods="14" class="player-mods"></div><span id="iac0m6" class="ready-state empty">-</span>
+                        </div>
+                    </div><!-- Player slot 16 -->
+                    <div data-slot="15" id="i5obdj" class="player-slot empty-slot">
+                        <div id="i07xtg" class="player-info">
+                            <span id="iumbr5" class="slot-number">#16</span><span id="in0fbq" class="player-name">NULL</span>
+                        </div>
+                        <div id="ibmkze" class="player-status">
+                            <div data-slot-mods="15" class="player-mods"></div><span id="i1gi1t" class="ready-state empty">-</span>
+                        </div>
+                    </div>
+                </div>
+                <script id="ivyx6t">
+                    // Enhanced Player slots initialization with full state persistence
+                    (function () {
+                        'use strict';
+
+                        // Sample mod data for demonstration
+                        const sampleMods = {
+                            HD: { shortMod: 'HD', color: 'mod-fl' },
+                            HR: { shortMod: 'HR', color: 'mod-hr' },
+                            DT: { shortMod: 'DT', color: 'mod-hr' },
+                            FL: { shortMod: 'FL', color: 'mod-fl' },
+                            EZ: { shortMod: 'EZ', color: 'mod-hr' },
+                            NF: { shortMod: 'NF', color: 'mod-fl' },
+                            FI: { shortMod: 'FI', color: 'mod-fl' }
+                        };
+                        // Function to create mod block element
+                        function createModBlock(modCode, colorClass) {
+                            const modBlock = document.createElement('div');
+                            modBlock.className = `mod-block ${colorClass || 'mod-hr'}`;
+                            modBlock.textContent = modCode.toUpperCase();
+                            modBlock.style.setProperty('display', 'flex', 'important');
+                            modBlock.style.setProperty('visibility', 'visible', 'important');
+                            return modBlock;
+                        }
+
+                        // Function to update mods for a specific slot
+                        function updateSlotMods(slotIndex, mods) {
+                            const modContainer = document.querySelector(`[data-slot-mods="${slotIndex}"]`);
+                            if (!modContainer) return;
+
+                            // Clear existing mods
+                            modContainer.innerHTML = '';
+
+                            // Add new mod blocks
+                            if (mods && mods.length > 0) {
+                                mods.forEach(mod => {
+                                    const modInfo = sampleMods[mod.shortMod] || { shortMod: mod.shortMod, color: 'mod-hr' };
+                                    const modBlock = createModBlock(modInfo.shortMod, modInfo.color);
+                                    modContainer.appendChild(modBlock);
+                                });
+                            }
+                        }
+                        // Complete initialization function
+                        function initializePlayerSlots() {
+                            const container = document.getElementById('ioi4b');
+                            const playerList = document.getElementById('playerList');
+                            const slots = document.querySelectorAll('.player-slot');
+
+                            // Ensure container visibility
+                            if (container) {
+                                container.style.setProperty('display', 'flex', 'important');
+                                container.style.setProperty('flex-direction', 'column', 'important');
+                                container.style.setProperty('position', 'relative', 'important');
+                                container.style.setProperty('z-index', '9999', 'important');
+                                container.style.setProperty('opacity', '1', 'important');
+                                container.style.setProperty('visibility', 'visible', 'important');
+                            }
+
+                            // Ensure player list visibility
+                            if (playerList) {
+                                playerList.style.setProperty('display', 'block', 'important');
+                                playerList.style.setProperty('position', 'relative', 'important');
+                                playerList.style.setProperty('z-index', '9999', 'important');
+                                playerList.style.setProperty('opacity', '1', 'important');
+                                playerList.style.setProperty('visibility', 'visible', 'important');
+                            }
+
+                            // Ensure all slots are visible
+                            slots.forEach((slot, index) => {
+                                slot.style.setProperty('display', 'flex', 'important');
+                                slot.style.setProperty('position', 'relative', 'important');
+                                slot.style.setProperty('z-index', '10000', 'important');
+                                slot.style.setProperty('opacity', '0.5', 'important');
+                                slot.style.setProperty('visibility', 'visible', 'important');
+                                // Initialize mod containers
+                                const modContainer = slot.querySelector('.player-mods');
+                                if (modContainer) {
+                                    modContainer.style.setProperty('display', 'flex', 'important');
+                                    modContainer.style.setProperty('visibility', 'visible', 'important');
+                                }
+                            });
+                        }
+                    window.updatePlayerData = function (slotIndex, playerData) {
+                        const slot = document.querySelector(`[data-slot="${slotIndex}"]`);
+                        if (!slot) return;
+
+                        // Update player name
+                        const nameElement = slot.querySelector('.player-name');
+                        if (nameElement && playerData.playerName) {
+                            nameElement.textContent = playerData.playerName;
+                        }
+
+                        // Update ready state
+                        const stateElement = slot.querySelector('.ready-state');
+                        if (stateElement) {
+                            stateElement.classList.remove('ready', 'not-ready', 'no-map', 'empty');
+                            if (playerData.state === 0) {
+                                stateElement.classList.add('not-ready');
+                                stateElement.textContent = 'Not Ready';
+                            } else if (playerData.state === 1) {
+                                stateElement.classList.add('ready');
+                                stateElement.textContent = 'Ready';
+                            } else if (playerData.state === -1) {
+                                stateElement.classList.add('no-map');
+                                stateElement.textContent = 'No Map';
+                            } else {
+                                stateElement.classList.add('empty');
+                                stateElement.textContent = '-';
+                            }
+                        }
+
+                        // Update slot appearance
+                        if (playerData.isEnable) {
+                            slot.classList.remove('empty-slot');
+                            slot.classList.add('active-slot');
+                        } else {
+                            slot.classList.add('empty-slot');
+                            slot.classList.remove('active-slot');
+                        }
+
+                        // Update mods
+                        if (playerData.mods) {
+                            updateSlotMods(slotIndex, playerData.mods);
+                        }
+                    };
+                    // Run immediately
+                    initializePlayerSlots();
+
+                    // Run on DOM ready
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', initializePlayerSlots);
+                    }
+
+                    // Run on window load
+                    window.addEventListener('load', initializePlayerSlots);
+
+                    // Periodic check to maintain state
+                    setInterval(initializePlayerSlots, 1000);
+
+                    // Monitor DOM changes
+                    const observer = new MutationObserver(function (mutations) {
+                        let needsRefresh = false;
+                        mutations.forEach(function (mutation) {
+                            if (mutation.type === 'childList' ||
+                                (mutation.type === 'attributes' &&
+                                    (mutation.target.id === 'ioi4b' ||
+                                        mutation.target.id === 'playerList' ||
+                                        mutation.target.classList?.contains('player-slot')))) {
+                                needsRefresh = true;
+                            }
+                        });
+                        if (needsRefresh) {
+                            initializePlayerSlots();
+                        }
+                    });
+
+                    // Start observing
+                    const targetNode = document.getElementById('ioi4b');
+                    if (targetNode) {
+                        observer.observe(targetNode.parentElement || document.body, {
+                            childList: true,
+                            subtree: true,
+                            attributes: true,
+                            attributeFilter: ['style', 'class']
+                        });
+                    }
+                    // Listen for external player data updates
+                    if (window.electronAPI && window.electronAPI.onPlayerData) {
+                        window.electronAPI.onPlayerData((data) => {
+                            if (typeof data.slot === 'number') {
+                                window.updatePlayerData(data.slot, data);
+                            }
+                        });
+                    }
+                                                    }) ();
+                </script>
+            </div>
+            <script id="iq227k">
+                // Player Slots Position Fix - Ensures proper display on every page load
+                (function () {
+                    // Function to apply position and z-index fixes
+                    function fixPlayerSlotsDisplay() {
+                        // Fix main container
+                        const container = document.getElementById('ioi4b');
+                        if (container) {
+                            container.style.setProperty('position', 'relative', 'important');
+                            container.style.setProperty('z-index', '9999', 'important');
+
+                            // Fix all player slots
+                            const slots = container.querySelectorAll('.player-slot');
+                            slots.forEach(slot => {
+                                slot.style.setProperty('position', 'relative', 'important');
+                                slot.style.setProperty('z-index', '10000', 'important');
+                            });
+
+                            // Also fix the playerList container if it exists
+                            const playerList = document.getElementById('playerList');
+                            if (playerList) {
+                                playerList.style.setProperty('position', 'relative', 'important');
+                                playerList.style.setProperty('z-index', '9999', 'important');
+                            }
+                        }
+                    }
+
+                    // Run on DOMContentLoaded to ensure elements exist
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', fixPlayerSlotsDisplay);
+                    } else {
+                        // DOM is already loaded
+                        fixPlayerSlotsDisplay();
+                    }
+
+                    // Also run on window load as a failsafe
+                    window.addEventListener('load', fixPlayerSlotsDisplay);
+
+                    // Monitor for dynamic changes using MutationObserver
+                    const observer = new MutationObserver((mutations) => {
+                        let shouldReapply = false;
+
+                        mutations.forEach((mutation) => {
+                            // Check if player slots were added or modified
+                            if (mutation.type === 'childList') {
+                                mutation.addedNodes.forEach((node) => {
+                                    if (node.nodeType === 1 && (node.classList?.contains('player-slot') || node.id === 'playerList')) {
+                                        shouldReapply = true;
+                                    }
+                                });
+                            } else if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                                // Check if styles were reset on our target elements
+                                const target = mutation.target;
+                                if (target.id === 'ioi4b' || target.id === 'playerList' || target.classList?.contains('player-slot')) {
+                                    shouldReapply = true;
+                                }
+                            }
+                        });
+
+                        if (shouldReapply) {
+                            fixPlayerSlotsDisplay();
+                        }
+                    });
+
+                    // Start observing once DOM is ready
+                    const startObserving = () => {
+                        const container = document.getElementById('ioi4b');
+                        if (container && container.parentElement) {
+                            observer.observe(container.parentElement, {
+                                childList: true,
+                                subtree: true,
+                                attributes: true,
+                                attributeFilter: ['style']
+                            });
+                        }
+                    };
+
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', startObserving);
+                    } else {
+                        startObserving();
+                    }
+                })();
+            </script><!-- Beatmap Info Section -->
+            <div id="ilqi3" class="beatmap-info-section">
+                <div id="icdgi" class="beatmap-image-container">
+                    <!--1319651-->
+                    <img id="beatmapImage" src="https://assets.ppy.sh/beatmaps/1011011/covers/cover.jpg" alt="Beatmap cover art" loading="lazy" class="beatmap-image" />
+                </div>
+                <div id="beatmapDetails" class="beatmap-details">
+                    <p class="song-name"><span id="songName">这是一个example</span></p>
+                    <p class="difficulty-info"><span id="difficultyName">osu真好看吧</span> by <span id="mapper">我喜欢你</span></p>
+                    <div id="iqxsd" class="beatmap-stats">
+                        <span id="il04bo">
+                            OD: <span id="od" class="cls-bbgrtp">-</span>
+                        </span>
+                        <span id="ilfa1h">
+                            HP: <span id="hp" class="cls-9v3b6g">-</span>
+                        </span>
+                        <span id="ivbm7j">
+                            ★ <span id="star" class="cls-r7nfjv">-</span>
+                        </span>
+                        <span id="ikwfdp">
+                            BPM: <span id="bpm" class="cls-g3f3qu">-</span>
+                        </span>
+                        <span id="ip0gc9">Length: <span id="length" class="cls-wdfp7u">-</span>s</span>
+                    </div>
+                </div>
+            </div>
+            <h1 style="color: greenyellow; font-size: 26px;">Made by </h1>
+            <a style="color: lightpink; font-size: 26px;" target="_blank" href="https://osu.ppy.sh/users/33138632">31415906</a>
+            <h1 style="color: greenyellow; font-size: 26px;">&</h1>
+                <a style="color: springgreen; font-size: 26px;" target="_blank" href="https://osu.ppy.sh/users/29319435">heipizhu</a>
+                <a target="_blank" href="https://osu.ppy.sh/users/26795413" style="color: lightgray; font-size: 7px;">Special thanks:xiaobaidan</a>
+                <h1 style="color: orangered; font-size: 16px;"><a target="_blank" href="https://github.com/31415906/osu-qualifiers-autoref">仓库链接</a></h1>
+</aside><!-- Right Main Area -->
+        <main class="right-main-area">
+            <!-- Connection Status -->
+            <header id="ijha4" class="connection-status-bar">
+                <div id="i36s7" class="connection-info">
+                    <div id="serverConnectionIndicator" class="connection-indicator">
+                        <div id="ifem5" class="status-dot"></div><span id="ieiuf" class="status-text">osu! Server: Connected</span>
+                    </div>
+                    <div id="mainThreadIndicator" class="connection-indicator">
+                        <div id="mainThreadDot" class="status-dot main-thread-dot"></div>
+                        <span id="mainThreadText" class="status-text">Main Thread: Connected</span>
+                    </div>
+                    <div id="updateStatus" class="update-status">
+                        <div id="ivss7j-2" class="status-icon-wrapper">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg" id="inj0oo-2" class="status-icon">
+                                <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3"
+                                      stroke="currentColor" stroke-width="2" stroke-linecap="round" id="iibw7t-2"></path>
+                                <path d="M18 3L21 3V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                      stroke-linejoin="round" id="i3efr5-2"></path>
+                                <path d="M21 3L16.5 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="i2pr1u-2">
+                                </path>
+                            </svg>
+                        </div><span id="updateText-2" class="status-text">Idle</span>
+                    </div>
+                    <script>
+                        // Connection status management
+                        const connectionStatus = {
+                            osuServer: 'connected',
+                            mainThread: 'connected',
+                            updateStatus: 'idle'
+                        };
+
+                        // Auto status check function
+                        function checkConnectionStatus() {
+                            // Check osu! Server status
+                            if (window.electronAPI && window.electronAPI.getServerStatus) {
+                                window.electronAPI.getServerStatus().then(status => {
+                                    updateOsuServerStatus(status);
+                                }).catch(() => {
+                                    updateOsuServerStatus('disconnected');
+                                });
+                            } else {
+                                // Simulate status changes for demo
+                                const randomStatus = Math.random() > 0.9 ? 'disconnected' : 'connected';
+                                updateOsuServerStatus(randomStatus);
+                            }
+
+                            // Check Main Thread status
+                            if (window.electronAPI && window.electronAPI.getMainThreadStatus) {
+                                window.electronAPI.getMainThreadStatus().then(status => {
+                                    updateMainThreadStatus(status);
+                                }).catch(() => {
+                                    updateMainThreadStatus('disconnected');
+                                });
+                            } else {
+                                // Simulate status changes for demo
+                                const randomStatus = Math.random() > 0.95 ? 'disconnected' : 'connected';
+                                updateMainThreadStatus(randomStatus);
+                            }
+
+                            // Check Update status
+                            if (window.electronAPI && window.electronAPI.getUpdateStatus) {
+                                window.electronAPI.getUpdateStatus().then(status => {
+                                    updateUpdateStatus(status);
+                                }).catch(() => {
+                                    updateUpdateStatus('idle');
+                                });
+                            } else {
+                                // Simulate status changes for demo
+                                const statuses = ['idle', 'updating', 'active'];
+                                const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+                                updateUpdateStatus(randomStatus);
+                            }
+                        }
+
+                        // Update osu! Server status
+                        function updateOsuServerStatus(status) {
+                            const dot = document.getElementById('ifem5');
+                            const text = document.getElementById('ieiuf');
+
+                            if (status === 'connected') {
+                                dot.classList.remove('disconnected', 'connecting');
+                                dot.style.backgroundColor = 'rgb(34 197 94 / 1)';
+                                text.textContent = 'osu! Server: Connected';
+                                text.style.color = 'rgb(156, 163, 175)';
+                            } else if (status === 'connecting') {
+                                dot.classList.remove('disconnected');
+                                dot.classList.add('connecting');
+                                dot.style.backgroundColor = 'rgb(251 191 36 / 1)';
+                                text.textContent = 'osu! Server: Connecting...';
+                                text.style.color = 'rgb(251 191 36)';
+                            } else {
+                                dot.classList.add('disconnected');
+                                dot.classList.remove('connecting');
+                                dot.style.backgroundColor = 'rgb(239 68 68 / 1)';
+                                text.textContent = 'osu! Server: Disconnected';
+                                text.style.color = 'rgb(239 68 68)';
+                            }
+
+                            connectionStatus.osuServer = status;
+                        }
+
+                        // Update Main Thread status
+                        function updateMainThreadStatus(status) {
+                            const dot = document.getElementById('mainThreadDot');
+                            const text = document.getElementById('mainThreadText');
+
+                            if (status === 'connected') {
+                                dot.classList.remove('disconnected', 'connecting');
+                                dot.style.backgroundColor = 'rgb(34 197 94 / 1)';
+                                text.textContent = 'Main Thread: Connected';
+                                text.style.color = 'rgb(156, 163, 175)';
+                            } else if (status === 'connecting') {
+                                dot.classList.remove('disconnected');
+                                dot.classList.add('connecting');
+                                dot.style.backgroundColor = 'rgb(251 191 36 / 1)';
+                                text.textContent = 'Main Thread: Connecting...';
+                                text.style.color = 'rgb(251 191 36)';
+                            } else {
+                                dot.classList.add('disconnected');
+                                dot.classList.remove('connecting');
+                                dot.style.backgroundColor = 'rgb(239 68 68 / 1)';
+                                text.textContent = 'Main Thread: Disconnected';
+                                text.style.color = 'rgb(239 68 68)';
+                            }
+
+                            connectionStatus.mainThread = status;
+                        }
+
+                        // Update Update status
+                        function updateUpdateStatus(status) {
+                            const container = document.getElementById('updateStatus');
+                            const text = document.getElementById('updateText-2');
+                            const icon = document.querySelector('#updateStatus .status-icon');
+
+                            if (status === 'active' || status === 'updating') {
+                                container.classList.add('active');
+                                container.classList.add('status-changing');
+                                text.textContent = 'Updating...';
+                                setTimeout(() => {
+                                    container.classList.remove('status-changing');
+                                }, 500);
+                            } else {
+                                container.classList.remove('active');
+                                container.classList.add('status-changing');
+                                text.textContent = 'Idle';
+                                setTimeout(() => {
+                                    container.classList.remove('status-changing');
+                                }, 500);
+                            }
+
+                            connectionStatus.updateStatus = status;
+                        }
+
+                        // Listen for external status updates if available
+                        if (window.electronAPI) {
+                            if (window.electronAPI.onServerStatusChange) {
+                                window.electronAPI.onServerStatusChange((status) => {
+                                    updateOsuServerStatus(status);
+                                });
+                            }
+
+                            if (window.electronAPI.onUpdateStatusChange) {
+                                window.electronAPI.onUpdateStatusChange((status) => {
+                                    updateUpdateStatus(status);
+                                });
+                            }
+                        }
+
+                        // Initial status check
+                        checkConnectionStatus();
+
+                        // Set up auto-check interval (500ms)
+                        const statusCheckInterval = setInterval(checkConnectionStatus, 500);
+
+                        // Clean up interval when element is removed
+                        const observer = new MutationObserver((mutations) => {
+                            mutations.forEach((mutation) => {
+                                mutation.removedNodes.forEach((node) => {
+                                    if (node.id === 'i36s7' || (node.querySelector && node.querySelector('#i36s7'))) {
+                                        clearInterval(statusCheckInterval);
+                                        observer.disconnect();
+                                    }
+                                });
+                            });
+                        });
+
+                        // Start observing the parent element for removals
+                        if (document.getElementById('i36s7').parentElement) {
+                            observer.observe(document.getElementById('i36s7').parentElement, { childList: true, subtree: true });
+                        }
+                    </script>
+                </div>
+            </header><!-- Chat Area -->
+            <div class="chat-container">
+                <!-- Messages Area -->
+                <div class="messages-section">
+                    <div id="messagesList" class="messages-list">
+                        <!-- Messages will be dynamically added here -->
+                    </div>
+                </div><!-- Quick Commands Sidebar -->
+                <aside id="iv44k" class="quick-commands">
+                    <h3 id="icxut" class="commands-title">Quick Commands</h3>
+                    <div id="iqw3i" class="commands-list">
+                        <button type="button" data-command=">help" id="iaaa" class="command-button">>help</button>
+                        <button type="button" data-command=">start" id="idwlu" class="command-button">>start</button>
+                        <button type="button" data-command=">abort" id="iqlu8" class="command-button">>abort</button>
+                        <button type="button" data-command=">invite" id="iaaaa" class="command-button">>invite</button>
+                        <button type="button" data-command=">skip" id="iaaab" class="command-button">>skip</button>
+                        <button type="button" data-command=">close" id="iaaac" class="command-button">>close</button>
+                        <button type="button" data-command=">abort" id="iaaad" class="command-button">>abort</button>
+                        <button type="button" data-command=">auto" id="iaaae" class="command-button">>auto &lt;on/off&gt;</button>
+                        <button type="button" data-command=">map " id="iaaaf" class="command-button">>map &lt;code&gt; &lt;round&gt;</button>
+                        <button type="button" data-command=">mod" id="iaaag" class="command-button">>mod</button>
+                        <button type="button" data-command=">addref " id="iaaah" class="command-button">>addref &lt;user&gt;</button>
+                        <button type="button" data-command=">removeref " id="iaaai" class="command-button">>removeref &lt;user&gt;</button>
+                        <button type="button" data-command="!mp kick " id="i7i0s" class="command-button">!mp kick &lt;player&gt;</button>
+                        <button type="button" data-command="!mp move " id="ies37" class="command-button">!mp move &lt;player&gt; &lt;slot&gt;</button>
+                        <button type="button" data-command="!mp host " id="ihhlq" class="command-button">!mp host &lt;player&gt;</button>
+                        <button type="button" data-command="!mp clearhost" id="itdbh" class="command-button">!mp clearhost</button>
+                        <button type="button" data-command="!mp settings" id="i42mn" class="command-button">!mp settings</button>
+                        <button type="button" data-command=">timeout" id="i7prvm" class="command-button">>timeout</button>
+                        <script>
+                            // Link command buttons to message input
+                            document.querySelectorAll('#iqw3i .command-button').forEach(button => {
+                                button.addEventListener('click', function () {
+                                    const command = this.getAttribute('data-command');
+                                    const messageInput = document.getElementById('messageInput');
+                                    if (messageInput) {
+                                        messageInput.value = command;
+                                        messageInput.focus();
+
+                                        // Position cursor appropriately for commands with placeholders
+                                        if (command.includes('<') && command.includes('>')) {
+                                            const startPos = command.indexOf('<');
+                                            const endPos = command.indexOf('>') + 1;
+                                            messageInput.setSelectionRange(startPos, endPos);
+                                        } else {
+                                            messageInput.setSelectionRange(command.length, command.length);
+                                        }
+                                    }
+                                });
+                            });
+                        </script>
+                    </div>
+                </aside>
+            </div><!-- Input Area -->
+            <footer id="iodiyk" class="input-area">
+                <div class="input-container">
+                    <input type="text" id="messageInput" placeholder="Type a command or message..." class="message-input" /><button type="button" id="sendButton" class="gjs-t-button send-button">Send</button>
+                </div>
+            </footer>
+        </main>
+    </div>
+    <script>
+        // Initialize player slots
+        const playerSlots = [];
+        for (let i = 0; i < 16; i++) {
+            playerSlots[i] = {
+                isEnable: false,
+                playerName: '',
+                mods: [],
+                state: -1
+            };
+        }
+
+        // Role colors
+        const roleColors = {
+            Unknown: 'text-orange-400',
+            Player: 'text-white',
+            BanchoBot: 'text-red-400',
+            Ref: 'text-blue-400',
+            MySelf: 'text-green-400'
+        };
+
+        // Render player list
+        function renderPlayerList() {
+            const container = document.getElementById('playerList');
+            container.innerHTML = '';
+
+            playerSlots.forEach((player, index) => {
+                if (player.isEnable) {
+                    const playerDiv = document.createElement('div');
+                    playerDiv.setAttribute('data-gjs-name', 'Player Item');
+                    playerDiv.className = 'bg-gray-800 rounded-lg px-3 py-2 flex items-center justify-between';
+
+                    const leftDiv = document.createElement('div');
+                    leftDiv.setAttribute('data-gjs-name', 'Player Info');
+                    leftDiv.className = 'flex items-center gap-2';
+
+                    const slotSpan = document.createElement('span');
+                    slotSpan.setAttribute('data-gjs-name', 'Slot Number');
+                    slotSpan.className = 'text-xs text-gray-500 w-6';
+                    slotSpan.textContent = `#${index + 1}`;
+
+                    const nameSpan = document.createElement('span');
+                    nameSpan.setAttribute('data-gjs-name', 'Player Name');
+                    nameSpan.className = 'text-sm text-white font-medium';
+                    nameSpan.textContent = player.playerName;
+
+                    leftDiv.appendChild(slotSpan);
+                    leftDiv.appendChild(nameSpan);
+
+                    const rightDiv = document.createElement('div');
+                    rightDiv.setAttribute('data-gjs-name', 'Player Status');
+                    rightDiv.className = 'flex items-center gap-2';
+
+                    if (player.mods.length > 0) {
+                        const modsSpan = document.createElement('span');
+                        modsSpan.setAttribute('data-gjs-name', 'Player Mods');
+                        modsSpan.className = 'text-xs text-gray-400';
+                        modsSpan.textContent = player.mods.map(m => m.shortMod).join(' ');
+                        rightDiv.appendChild(modsSpan);
+                    }
+
+                    const stateSpan = document.createElement('span');
+                    stateSpan.setAttribute('data-gjs-name', 'Ready State');
+                    stateSpan.className = 'text-xs px-2 py-0.5 rounded';
+
+                    if (player.state === 0) {
+                        stateSpan.className += ' bg-red-900/30 text-red-400';
+                        stateSpan.textContent = 'Not Ready';
+                    } else if (player.state === 1) {
+                        stateSpan.className += ' bg-green-900/30 text-green-400';
+                        stateSpan.textContent = 'Ready';
+                    } else {
+                        stateSpan.className += ' bg-gray-700 text-gray-400';
+                        stateSpan.textContent = 'No Map';
+                    }
+
+                    rightDiv.appendChild(stateSpan);
+
+                    playerDiv.appendChild(leftDiv);
+                    playerDiv.appendChild(rightDiv);
+                    container.appendChild(playerDiv);
+                }
+            });
+        }
+
+        // Add message to chat
+        function addMessage(playerName, text, role) {
+            const messagesContainer = document.getElementById('messagesList');
+            const messageDiv = document.createElement('div');
+            messageDiv.setAttribute('data-gjs-name', 'Chat Message');
+            messageDiv.className = 'flex gap-2';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.setAttribute('data-gjs-name', 'Message Author');
+            nameSpan.className = `font-medium ${roleColors[role] || 'text-gray-400'}`;
+            nameSpan.textContent = playerName + ':';
+
+            const textSpan = document.createElement('span');
+            textSpan.setAttribute('data-gjs-name', 'Message Text');
+            textSpan.className = 'text-gray-200';
+            textSpan.textContent = text;
+
+            messageDiv.appendChild(nameSpan);
+            messageDiv.appendChild(textSpan);
+            messagesContainer.appendChild(messageDiv);
+
+            // Auto-scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Add log message
+        function addLogMessage(text) {
+            const messagesContainer = document.getElementById('messagesList');
+            const logDiv = document.createElement('div');
+            logDiv.setAttribute('data-gjs-name', 'Log Message');
+            logDiv.className = 'text-gray-500 text-xs italic';
+            logDiv.textContent = text;
+
+            messagesContainer.appendChild(logDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Update beatmap info
+        function updateBeatmap(data) {
+            document.getElementById('beatmapImage').src = data.pictureUrl || 'https://app.grapesjs.com/api/assets/random-image?query=abstract%20music%20visualization&w=720&h=200';
+            document.getElementById('songName').textContent = data.name || '-';
+            document.getElementById('difficultyName').textContent = data.difficultyName || '-';
+            document.getElementById('mapper').textContent = data.mapper || '-';
+            document.getElementById('hp').textContent = data.hp || '-';
+            document.getElementById('od').textContent = data.od;
+            document.getElementById('star').textContent = data.star || '-';
+            document.getElementById('bpm').textContent = data.bpm || '-';
+            document.getElementById('length').textContent = data.length || '-';
+        }
+
+        // Event listeners
+        if (window.electronAPI) {
+            window.electronAPI.onUserMessage((msg) => {
+                addMessage(msg.playerName, msg.text, msg.role);
+            });
+
+            window.electronAPI.onLogMessage((text) => {
+                addLogMessage(text);
+            });
+
+            window.electronAPI.onMapData((data) => {
+                updateBeatmap(data);
+            });
+
+            window.electronAPI.onPlayerData((data) => {
+                playerSlots[data.slot] = {
+                    isEnable: data.isEnable,
+                    playerName: data.playerName || '',
+                    mods: data.mods || [],
+                    state: data.state
+                };
+                renderPlayerList();
+            });
+        }
+
+        // Send message functionality
+        const sendButton = document.getElementById('sendButton');
+        const messageInput = document.getElementById('messageInput');
+
+        sendButton.addEventListener('click', () => {
+            const text = messageInput.value.trim();
+            if (text && window.electronAPI) {
+                window.electronAPI.sendToMain(text);
+                messageInput.value = '';
+            }
+        });
+
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+
+        // Quick command buttons
+        document.querySelectorAll('.command-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const command = btn.getAttribute('data-command');
+                messageInput.value = command;
+                messageInput.focus();
+
+                // Place cursor at end if command has placeholder
+                if (command.includes('<')) {
+                    const cursorPos = command.indexOf('<');
+                    messageInput.setSelectionRange(cursorPos, command.length);
+                }
+            });
+        });
+
+        // Initialize empty player list
+        renderPlayerList();
+    </script>
+</body>
+
+</html>
