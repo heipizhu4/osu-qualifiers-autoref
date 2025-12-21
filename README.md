@@ -44,6 +44,27 @@ In case you need to add more players do it like this:
       {"name": "Player 3"}
   ]
 ```
+
+### optionalWords.json (Optional)
+This file allows you to configure custom join/leave messages for specific players. When a player with an entry in this file joins or leaves the lobby, the bot will send a personalized message. The format is:
+```json
+{
+  "playerUsername": {
+    "join": "Custom message when player joins",
+    "leave": "Custom message when player leaves"
+  }
+}
+```
+Example:
+```json
+{
+  "PlayerName": {
+    "join": "Welcome PlayerName to the lobby!",
+    "leave": "PlayerName has left the building"
+  }
+}
+```
+If this file doesn't exist or a player isn't listed, no special message will be sent.
 ## Running
 Requires: node.js ~~(I use node v10)~~ latest node.js also works though I recommend using LTS
 ```py
@@ -85,6 +106,15 @@ At the end of the match, close the lobby with:
 >close
 ```
 This command is recommended over `!mp close`, because it also disconnects the bot from Bancho and cleanly exits the program.
+
+If you need to add additional referees who can use `>` commands, use:
+```py
+>addref [username]
+```
+To remove a referee (cannot remove the bot owner):
+```py
+>removeref [username]
+```
 
 If you happened to forget a certain command, feel free to use this:
 ```py
