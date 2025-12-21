@@ -93,16 +93,14 @@ function initPool() {
       MapMap.set(b.code, b.id);
       IndexMap.set(b.code, _Index);
       _Index++;
-    console.log(chalk.dim(`Loaded ${info.title}`));
+      console.log(chalk.dim(`Loaded ${b.code}:${info.title}`));
   }));
 }
 function WriteReatartFile() {
     const data = {
         RoomId: lobby.id,
         MapIndex: mapIndex,
-        Round: runIndex,
-        Ref: RefName,
-        PlayerStatus: Object.fromEntries(AbortMap)
+        Round: runIndex
     };
     fs.writeFileSync('RestartSettings.json', JSON.stringify(data, null, 2));
   console.log("重启文件已自动保存于RestartSettings.json");
@@ -247,11 +245,6 @@ async function init() {
                     await channel.join();
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
-                    RefName = [..._Restart.Ref];
-                    for (const [key, value] of Object.entries(_Restart.PlayerStatus)) {
-                        AbortMap.set(key, value);
-                        console.log(`Abort机会:  ${key}: ${value}`);
-                    }
                     MatchBegin=true;
                 }
                 catch (err) {
@@ -419,12 +412,12 @@ function createListeners() {
               if (!abortable)
                   return;
               if (!Found) {
-                  if (AbortMap.has(LeftName) && AbortMap.get(LeftName)) {
+                  if (AbortMap.has(LeftName) || AbortMap.get(LeftName)) {
                       AbortMap.set(LeftName, false);
                       lobby.abortMatch();
-                      ready = false;
-                      channel.sendMessage(`由于${LeftName}在该图较前的位置断开了连接，比赛abort。`);
-                      channel.sendMessage(`${LeftName} 用掉了Ta的abort机会。`);
+                      //ready = false;
+                      channel.sendMessage(`Match aborted due to early disconnect because of ${LeftName}`);
+                      channel.sendMessage(`${LeftName} used his/her abort chance`);
                   }
               }
           }
@@ -557,16 +550,20 @@ function createListeners() {
                     break;
                 case 'abort':
                     await lobby.abortMatch();
-                   channel.sendMessage("裁判abort了比赛。");
+                    channel.sendMessage("Match aborted by ref.");
                     break;
                 case 'mod':
                     await CheckMod(false,true);
                     break;
                 case 'map':
                     let TMapId = MapMap.get(m[1]) || -1;
-                    let TRound = m[2];
+                    let TRound = m[2]||-1;
                     if (TMapId == -1) {
                         channel.sendMessage(`图池代码不存在!`);
+                        break;
+                    }
+                    if (TRound == -1) {
+                        channel.sendMessage(`请输入轮次!`);
                         break;
                     }
                     if (TRound > match.numberOfRuns || TRound < 1) {
@@ -613,17 +610,21 @@ function createListeners() {
                     channel.sendMessage(`遇到过于严重的事故请使用!panic。请勿滥用。`);
                     break;
                 case 'abort':
-                    let abortable = (Date.now() - match.timers.abortLeniency * 1000) <= timeStarted;
                     if (inPick) {
-                        if (abortable)
+                        if ((Date.now() - timeStarted) > (match.timers.abortLeniency * 1000)) {
+                            channel.sendMessage(`abort超时。当且仅当在图的前30秒可以使用#abort。`);
                             break;
-                            if (AbortMap.has(msg.user.ircUsername) && AbortMap.get(msg.user.ircUsername)) {
-                                AbortMap.set(msg.user.ircUsername, false);
-                                lobby.abortMatch();
-                                ready = false;
-                                channel.sendMessage(`由于${msg.user.ircUsername}在该图较前的位置断开了连接，比赛abort。`);
-                                channel.sendMessage(`${msg.user.ircUsername} 用掉了Ta的abort机会。`);
-                            }
+                        }
+                        if (AbortMap.has(msg.user.ircUsername) && AbortMap.get(msg.user.ircUsername)) {
+                            AbortMap.set(msg.user.ircUsername, false);
+                            lobby.abortMatch();
+                            ready = false;
+                            channel.sendMessage(`Match aborted due to early disconnect because of ${msg.user.ircUsername}`);
+                            channel.sendMessage(`${msg.user.ircUsername} used his/her abort chance`);
+                        }
+                        else {
+                            channel.sendMessage(`${msg.user.ircUsername}没有剩余的abort机会了。`);
+                        }
                     }
                     break;
                 case 'abortchance':
@@ -633,7 +634,7 @@ function createListeners() {
                     break;
               case 'skip':
                 {
-                        if (closing | StatusLock)
+                    if (closing | StatusLock)
                         break;
                     if (runIndex == 1) {
                         channel.sendMessage("只有第二轮支持使用#skip跳过图。");
@@ -650,7 +651,6 @@ function createListeners() {
                       }
                   }
                   break;
-              
           }
       }
     if(auto && msg.message === "!panic"){
