@@ -12,3 +12,8 @@ match.json
 .idea/misc.xml
 .idea/discord.xml
 RestartSettings.json
+
+# Build artifacts
+dist
+build
+*.exe

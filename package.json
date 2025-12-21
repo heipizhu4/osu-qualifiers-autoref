@@ -7,7 +7,9 @@
     "WinStart": "powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; electron .\"",
     "WinRestart": "powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; electron . -r\"",
     "start": "electron .",
-    "restart": "electron . -r"
+    "restart": "electron . -r",
+    "build": "electron-builder --win portable",
+    "build:dir": "electron-builder --win --dir"
   },
   "repository": {
     "type": "git",
@@ -26,7 +28,60 @@
     "nodesu": "^0.6.4"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "electron": "^37.4.0",
-    "cross-env": "^7.0.3"
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.osu.autoref",
+    "productName": "osu-autoref",
+    "files": [
+      "main.js",
+      "index.html",
+      "index.js",
+      "preload.js",
+      "index_files/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "config.example.json",
+        "to": "default-config.json"
+      },
+      {
+        "from": "pool.json",
+        "to": "pool.json"
+      },
+      {
+        "from": "match.json",
+        "to": "match.json"
+      },
+      {
+        "from": "optionalWords.json",
+        "to": "optionalWords.json"
+      },
+      {
+        "from": "RestartSettings.Example.json",
+        "to": "RestartSettings.Example.json"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.exe"
+    },
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    }
   }
 }

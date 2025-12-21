@@ -1,0 +1,15 @@
+{
+	"host": "irc.ppy.sh",
+	"port": 6667,
+	"username": "YOUR_OSU_USERNAME",
+	"password": "YOUR_IRC_PASSWORD",
+	"apiKey": "YOUR_API_KEY",
+	"userId": 0,
+	"limiterTimespan": 6000,
+	"limiterPrivate": 4,
+	"limiterPublic": 3,
+	"discord" : {
+		"webhookLink" : "YOUR_DISCORD_WEBHOOK_LINK",
+		"refereeRole": 0
+	}
+}
