@@ -61,6 +61,7 @@ const SkipMap = new Map();
 const AbortMap = new Map();
 const MapMap = new Map();
 const IndexMap = new Map();
+let CheckingMod = false;
 function removeAnsiCodes(str) {
     return str.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
 }
@@ -92,14 +93,16 @@ function initPool() {
       MapMap.set(b.code, b.id);
       IndexMap.set(b.code, _Index);
       _Index++;
-    console.log(chalk.dim(`Loaded ${info.title}`));
+      console.log(chalk.dim(`Loaded ${b.code}:${info.title}`));
   }));
 }
 function WriteReatartFile() {
     const data = {
         RoomId: lobby.id,
         MapIndex: mapIndex,
-        Round: runIndex
+        Round: runIndex,
+        Ref: RefName,
+        PlayerStatus: Object.fromEntries(AbortMap)
     };
     fs.writeFileSync('RestartSettings.json', JSON.stringify(data, null, 2));
   console.log("重启文件已自动保存于RestartSettings.json");
@@ -115,8 +118,11 @@ function EachMapReset() {
     SkipMapReset();
     MapTimeout = false;
 }
-async function CheckMod(IfOutput) {
-    
+async function CheckMod(IfOutput,isForce) {
+    if (CheckingMod && (!isForce)) {
+        return -1;
+    }
+    CheckingMod = true;
     await lobby.updateSettings();
     await new Promise(resolve => setTimeout(resolve, 1500));
         let CheckPass = true;
@@ -127,11 +133,12 @@ async function CheckMod(IfOutput) {
                         if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
                             if (IfOutput)
                                 channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod}` + (MapTimeout ? `若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。` : ``));
-                            CheckPass = false;
+                            CheckPass = 0;
                         }
                         console.log(`${w.user.username} 使用了mod: ${p.longMod}`);
                     }
-                }
+            }
+    CheckingMod = false;
         return CheckPass;
 }
 function RestartMap() {
@@ -191,7 +198,6 @@ async function syncStatus() {
         }
     });
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
 }
 async function timerEnded() {
     if (closing) {
@@ -200,7 +206,7 @@ async function timerEnded() {
       
         if (!MapTimeout) {
             MapTimeout = true;
-            if (await CheckMod(true)) {
+            if (await CheckMod(true,true)) {
                 lobby.startMatch(match.timers.forceStart);
                 return;
             }
@@ -241,7 +247,11 @@ async function init() {
                     await channel.join();
                     mapIndex = _Restart.MapIndex;
                     runIndex = _Restart.Round;
-                    
+                    RefName = [..._Restart.Ref];
+                    for (const [key, value] of Object.entries(_Restart.PlayerStatus)) {
+                        AbortMap.set(key, value);
+                        console.log(`Abort机会:  ${key}: ${value}`);
+                    }
                     MatchBegin=true;
                 }
                 catch (err) {
@@ -381,7 +391,7 @@ function createListeners() {
       }
   });
     lobby.on("playerLeft", () => {
-        let abortable = (Date.now() - match.timers.abortLeniency * 1000) >= timeStarted;
+        let abortable = (Date.now() - match.timers.abortLeniency * 1000) <= timeStarted;
         lobby.updateSettings().then(async () => {
             await new Promise(resolve => setTimeout(resolve, 500));
           let Found = false;
@@ -406,48 +416,48 @@ function createListeners() {
           console.log(`player ${LeftName} Left`)
           optionalOutput(LeftName, playerEvent.leave);
           if (inPick) {
-              if (abortable)
+              if (!abortable)
                   return;
               if (!Found) {
                   if (AbortMap.has(LeftName) || AbortMap.get(LeftName)) {
                       AbortMap.set(LeftName, false);
                       lobby.abortMatch();
-                      ready = false;
-                      channel.sendMessage(`Match aborted due to early disconnect because of ${LeftName}`);
-                      channel.sendMessage(`${LeftName} used his/her abort chance`);
+                      //ready = false;
+                      channel.sendMessage(`由于${LeftName}在该图较前的位置断开了连接，比赛abort。`);
+                      channel.sendMessage(`${LeftName} 用掉了Ta的abort机会。`);
                   }
               }
-
-
           }
           else if (auto) lobby.setMap(match.waitSong, 3); });
-      
   })
     lobby.on("allPlayersReady", async() => {
     console.log(chalk.magenta("everyone ready"));
     ready = true;
         timeout = false;
         if (auto && !StatusLock) {
-          if (await CheckMod(true)) {
-              channel.sendMessage('所有人都已准备完毕，准备开始比赛...');
-              lobby.abortTimer();
-              if (!MapTimeout)
-                  lobby.startMatch(match.timers.readyStart);
-              else
-                  lobby.startMatch(match.timers.forceStart);
-              if (!(await CheckMod(true))) {
-                  channel.sendMessage('?有人耍我');
-                  channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
+            let Res = await CheckMod(true,false);
+            if (Res == 1) {
+                channel.sendMessage('所有人都已准备完毕，准备开始比赛...');
+                lobby.abortTimer();
+                if (!MapTimeout)
+                    lobby.startMatch(match.timers.readyStart);
+                else
+                    lobby.startMatch(match.timers.forceStart);
+                Res = await CheckMod(true,false);
+                if (Res == 0) {
+                    channel.sendMessage('?有人耍我');
+                    channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
                     lobby.abortTimer();
                     lobby.startTimer(10);
-              }
-              else
-              StatusLock = true;
-          }
-          else {
-              
-              channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
-          }
+                }
+                else if (Res == 1) {
+                    StatusLock = true;
+                }
+            }
+            else if (Res == 0) {
+
+                channel.sendMessage('请使用不被允许的mod的选手替换mod后再重新准备!');
+            }
     }});
     lobby.on("matchStarted", () => {
       timeStarted = new Date().valueOf();//log time started
@@ -493,6 +503,7 @@ function createListeners() {
                 case 'removeref':
                     if (m[1] === config.username) {
                         channel.sendMessage(`${m[1]}是房主，不可被删除！`);
+                        break;
                     }
                     let NameCheck = false;
                     for (let i = RefName.length - 1; i >= 0; i--) {
@@ -546,16 +557,20 @@ function createListeners() {
                     break;
                 case 'abort':
                     await lobby.abortMatch();
-                    channel.sendMessage("Match aborted manually.")
+                    channel.sendMessage("裁判abort了比赛。");
                     break;
                 case 'mod':
-                    await CheckMod(false);
+                    await CheckMod(false,true);
                     break;
                 case 'map':
                     let TMapId = MapMap.get(m[1]) || -1;
-                    let TRound = m[2];
+                    let TRound = m[2]||-1;
                     if (TMapId == -1) {
                         channel.sendMessage(`图池代码不存在!`);
+                        break;
+                    }
+                    if (TRound == -1) {
+                        channel.sendMessage(`请输入轮次!`);
                         break;
                     }
                     if (TRound > match.numberOfRuns || TRound < 1) {
@@ -597,8 +612,27 @@ function createListeners() {
                     channel.sendMessage(`使用#gsm 对${config.username}进行干什么`);
                     channel.sendMessage(`使用#poke 戳一戳${config.username}`);
                     channel.sendMessage(`使用#skip 申请跳过该图，仅限第二轮可用。`);
+                    channel.sendMessage(`在比赛后在${match.timers.abortLeniency}秒内若有abort切内可以使用#abort 中断比赛。`);
                     channel.sendMessage(`使用#abortchance 查看所有选手的abort机会。`);
                     channel.sendMessage(`遇到过于严重的事故请使用!panic。请勿滥用。`);
+                    break;
+                case 'abort':
+                    if (inPick) {
+                        if ((Date.now() - timeStarted) > (match.timers.abortLeniency * 1000)) {
+                            channel.sendMessage(`abort超时。当且仅当在图的前30秒可以使用#abort。`);
+                            break;
+                        }
+                        if (AbortMap.has(msg.user.ircUsername) && AbortMap.get(msg.user.ircUsername)) {
+                            AbortMap.set(msg.user.ircUsername, false);
+                            lobby.abortMatch();
+                            ready = false;
+                            channel.sendMessage(`由于${msg.user.ircUsername}在该图较前的位置断开了连接，比赛abort。`);
+                                channel.sendMessage(`${msg.user.ircUsername} 用掉了Ta的abort机会。`);
+                        }
+                        else {
+                            channel.sendMessage(`${msg.user.ircUsername}没有剩余的abort机会了。`);
+                        }
+                    }
                     break;
                 case 'abortchance':
                     for (let [_name, _chance] of AbortMap) {
@@ -607,7 +641,7 @@ function createListeners() {
                     break;
               case 'skip':
                 {
-                        if (closing | StatusLock)
+                    if (closing | StatusLock)
                         break;
                     if (runIndex == 1) {
                         channel.sendMessage("只有第二轮支持使用#skip跳过图。");
@@ -624,7 +658,6 @@ function createListeners() {
                       }
                   }
                   break;
-              
           }
       }
     if(auto && msg.message === "!panic"){
