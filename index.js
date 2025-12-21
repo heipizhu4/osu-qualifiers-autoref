@@ -166,7 +166,7 @@ function TryNextMap() {
             } else if (runIndex < match.numberOfRuns) {
                 runIndex++;
                 mapIndex = 0; //sets the pointer to the first map of the pool and sets first to false.
-                startLobby();
+                startLobby2();
             } else {
                 closing = true;
                 channel.sendMessage(`恭喜！你已完成资格赛的全部图池，各位可以安全离开。房间将在${match.timers.closeLobby}秒后关闭。`);
