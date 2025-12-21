@@ -610,16 +610,20 @@ function createListeners() {
                     channel.sendMessage(`遇到过于严重的事故请使用!panic。请勿滥用。`);
                     break;
                 case 'abort':
-                    //let abortable = (Date.now() - timeStarted) <= (match.timers.abortLeniency * 1000);
                     if (inPick) {
-                        if ((Date.now() - timeStarted) > (match.timers.abortLeniency * 1000))
+                        if ((Date.now() - timeStarted) > (match.timers.abortLeniency * 1000)) {
+                            channel.sendMessage(`abort超时。当且仅当在图的前30秒可以使用#abort。`);
                             break;
+                        }
                         if (AbortMap.has(msg.user.ircUsername) && AbortMap.get(msg.user.ircUsername)) {
                             AbortMap.set(msg.user.ircUsername, false);
                             lobby.abortMatch();
                             ready = false;
                             channel.sendMessage(`Match aborted due to early disconnect because of ${msg.user.ircUsername}`);
                             channel.sendMessage(`${msg.user.ircUsername} used his/her abort chance`);
+                        }
+                        else {
+                            channel.sendMessage(`${msg.user.ircUsername}没有剩余的abort机会了。`);
                         }
                     }
                     break;
