@@ -82,7 +82,7 @@ npm run restart
 ```bash
 node main.js
 ```
-`index.js` 现为旧版，不再维护。
+`index.js` 现为旧版，不再维护，请使用 `npm start`（或 `npm run restart`）运行新版 UI。
 
 ## 使用方法
 运行此机器人后，将自动创建一个比赛房间，密码将记录在终端中。您可以通过终端窗口向聊天室发送消息，但这有点不稳定，因此我建议同时打开一个 IRC 客户端或保持在游戏内。
