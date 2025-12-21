@@ -1,4 +1,5 @@
 {
+	"_comment": "IMPORTANT: Replace all placeholder values (YOUR_*) with your actual credentials before running!",
 	"host": "irc.ppy.sh",
 	"port": 6667,
 	"username": "YOUR_OSU_USERNAME",
