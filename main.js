@@ -67,7 +67,7 @@ const SkipMap = new Map();
 const AbortMap = new Map();
 const MapMap = new Map();
 const IndexMap = new Map();
-let Updateing = false;
+let Updating = false;
 let win;
 let RepeatString = "";
 let RepeatCounting = 0;
@@ -226,12 +226,12 @@ async function _updateSettings(isForce) {
         SendLogToRanderer(`Still updating! ${isForce} ${Updating}`);
         return -1;
     }
-    Updateing = true;
+    Updating = true;
     if (IsUI)
     win.webContents.send('Updating-status-from-main', 'updating');
     await lobby.updateSettings();
     await new Promise(resolve => setTimeout(resolve, 1500));
-    Updateing = false;
+    Updating = false;
     if (IsUI)
     win.webContents.send('Updating-status-from-main', 'idle');
     UpdatePlayerToRanderer();
@@ -546,8 +546,46 @@ function createListeners() {
       UpdatePlayerToRanderer();
   });
     lobby.on("playerLeft", () => {
-        
-  })
+        let abortable = (Date.now() - match.timers.abortLeniency * 1000) <= timeStarted;
+        lobby.updateSettings().then(async () => {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            let Found = false;
+            let LeftName = "???";
+            playersLeftToJoin++;
+            for (const q of match.teams) {
+                Found = false;
+                for (const w of lobby.slots)
+                    if (w != null) {
+                        if (q.name === w.user.username) {
+                            Found = true;
+                        }
+                    }
+                if (!Found) {
+                    LeftName = q.name;
+                    break;
+                }
+            }
+            if (LeftName === "???") {
+                channel.sendMessage(`有个选手在一瞬间溜出去又跑回来了?`);
+            }
+            console.log(`player ${LeftName} Left`)
+            optionalOutput(LeftName, playerEvent.leave);
+            if (inPick) {
+                if (!abortable)
+                    return;
+                if (!Found) {
+                    if (AbortMap.has(LeftName) || AbortMap.get(LeftName)) {
+                        AbortMap.set(LeftName, false);
+                        lobby.abortMatch();
+                        //ready = false;
+                        channel.sendMessage(`由于${LeftName}在该图较前的位置断开了连接，比赛abort。`);
+                        channel.sendMessage(`${LeftName} 用掉了Ta的abort机会。`);
+                    }
+                }
+            }
+            else if (auto) lobby.setMap(match.waitSong, 3);
+        });
+    })
     lobby.on("allPlayersReady", async() => {
     SendLogToRanderer("everyone ready");
     ready = true;
@@ -757,15 +795,15 @@ function createListeners() {
                 case 'abort':
                     if (inPick) {
                         if ((Date.now() - timeStarted) > (match.timers.abortLeniency * 1000)) {
-                            channel.sendMessage(`abort超时。当且仅当在图的前30秒可以使用#abort。`);
+                            channel.sendMessage(`abort超时。当且仅当在图的前${match.timers.abortLeniency}秒可以使用#abort。`);
                             break;
                         }
                         if (AbortMap.has(msg.user.ircUsername) && AbortMap.get(msg.user.ircUsername)) {
                             AbortMap.set(msg.user.ircUsername, false);
                             lobby.abortMatch();
                             ready = false;
-                            channel.sendMessage(`Match aborted due to early disconnect because of ${msg.user.ircUsername}`);
-                            channel.sendMessage(`${msg.user.ircUsername} used his/her abort chance`);
+                            channel.sendMessage(`由于${msg.user.ircUsername}在该图较前的位置断开了连接，比赛abort。`);
+                            channel.sendMessage(`${msg.user.ircUsername} 用掉了Ta的abort机会。`);
                         }
                         else {
                             channel.sendMessage(`${msg.user.ircUsername}没有剩余的abort机会了。`);
@@ -866,7 +904,7 @@ if (IsUI) {
         channel.sendMessage(msg);
     });
     ipcMain.handle('Update-request-from-renderer', async() => {
-        return Updateing ? "updating" : "idle";
+        return Updating ? "updating" : "idle";
     });
     ipcMain.handle('Update-server-request-from-renderer', async() => {
         return client.isConnected() ? "connected" : "disconnected";

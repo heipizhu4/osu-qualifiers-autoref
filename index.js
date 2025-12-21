@@ -621,7 +621,7 @@ function createListeners() {
                 case 'abort':
                     if (inPick) {
                         if ((Date.now() - timeStarted) > (match.timers.abortLeniency * 1000)) {
-                            channel.sendMessage(`abort超时。当且仅当在图的前30秒可以使用#abort。`);
+                            channel.sendMessage(`abort超时。当且仅当在图的前${match.timers.abortLeniency}秒可以使用#abort。`);
                             break;
                         }
                         if (AbortMap.has(msg.user.ircUsername) && AbortMap.get(msg.user.ircUsername)) {
