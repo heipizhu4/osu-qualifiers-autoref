@@ -2,6 +2,7 @@ const bancho = require('bancho.js');
 const chalk = require('chalk');
 const nodesu = require('nodesu');
 const fs = require('fs');
+const { exec, spawn: childSpawn } = require('child_process');
 const { WebhookClient } = require('discord.js');
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
@@ -9,8 +10,9 @@ const BanchoLobbyPlayerStates = require("./node_modules/bancho.js/lib/Multiplaye
 const readline = require('readline');
 let rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
+    output: process.stdout
 });
+
 const playerEvent = {
     join: 'join',
     leave: 'leave'
@@ -58,15 +60,42 @@ let closing = false; //whether the lobby is closing or not
 let MatchBegin = false;
 let MapTimeout = false;
 let StatusLock = false;
+let IsUI = true;
+let IsRestart = false;
 let RefName = new Array(config.username);
 const SkipMap = new Map();
 const AbortMap = new Map();
 const MapMap = new Map();
 const IndexMap = new Map();
-let Updating = false;
+let Updateing = false;
 let win;
 let RepeatString = "";
 let RepeatCounting = 0;
+
+if (process.argv[1]!='.') {
+    IsUI = false;
+}
+console.log(process.argv);
+if (process.argv.length > 2) {
+    for (let i = 2; i < process.argv.length; i++)
+        switch (process.argv[i]) {
+            case '--r':
+            case '--R':
+                IsRestart = true;
+                break;
+            case "--NoAuto":
+                auto = false;
+                break;
+            default:
+                SendLogToRanderer(`Unknown command ${process.argv[2]}!`);
+                process.exit(1);
+        }
+}
+if (process.platform.includes('win')) {
+    exec('chcp 65001');
+}
+//process.stdout.setEncoding('utf8');
+console.log(process.platform);
 function createWindow() {
     win = new BrowserWindow({
         width: 1920,
@@ -82,9 +111,12 @@ function createWindow() {
 }
 async function SendLogToRanderer(text) {
     console.log(text);
+    if (IsUI)
     win.webContents.send('Log-msg-from-main', text);
 }
 async function UpdatePlayerToRanderer() {
+    if (!IsUI)
+        return;
     let a = 0;
     for (const w of lobby.slots) {
         let q = 1;
@@ -117,6 +149,8 @@ async function UpdatePlayerToRanderer() {
     }
 }
 async function UpdateMapToRanderer(id) {
+    if (!IsUI)
+        return;
     const info = (await api.beatmaps.getByBeatmapId(id))[0];
     const beatmapInfo = {
         pictureUrl: `https://assets.ppy.sh/beatmaps/${info.beatmapset_id}/covers/cover.jpg`, // 封面图片 URL
@@ -193,10 +227,12 @@ async function _updateSettings(isForce) {
         return -1;
     }
     Updateing = true;
+    if (IsUI)
     win.webContents.send('Updating-status-from-main', 'updating');
     await lobby.updateSettings();
     await new Promise(resolve => setTimeout(resolve, 1500));
     Updateing = false;
+    if (IsUI)
     win.webContents.send('Updating-status-from-main', 'idle');
     UpdatePlayerToRanderer();
     UpdateMapToRanderer(lobby.beatmap.id);
@@ -268,20 +304,22 @@ function TryNextMap() {
     }
 }
 async function syncStatus() {
-    _updateSettings(true).then(() => {
-        playersLeftToJoin = match.teams.length;
-        for (const q of match.teams) {
-            Found = false;
-            for (const w of lobby.slots)
-                if (w != null) {
-                    if (q === w.user.username) {
-                        playersLeftToJoin--;
-                        break;
-                    }
-                }
-        }
-    });
+    _updateSettings(true);
     await new Promise(resolve => setTimeout(resolve, 1500));
+    playersLeftToJoin = match.teams.length;
+    for (const q of match.teams) {
+        Found = false;
+        for (const w of lobby.slots)
+            if (w != null) {
+                if (q === w.user.username) {
+                    playersLeftToJoin--;
+                    break;
+                }
+            }
+    }
+    if (playersLeftToJoin <= 0) {
+        MatchBegin = true;
+    }
 }
 async function timerEnded() {
     if (closing) {
@@ -309,75 +347,67 @@ async function timerEnded() {
 // Creates a new multi lobby
 async function init() {
     /*did-finish-load*/
-    console.log('正在等待渲染窗口创建及加载完毕...');
-    await app.whenReady();
-    createWindow();
-    await new Promise((resolve, reject) => {
-        win.loadFile('index.html');
+    if (IsUI) {
+        console.log('正在等待渲染窗口创建及加载完毕...');
+        await app.whenReady();
+        createWindow();
+        await new Promise((resolve, reject) => {
+            win.loadFile('index.html');
 
-        win.webContents.on('did-finish-load', () => {
-            console.log('页面及其所有子资源已加载完成');
-            win.show();
-            win.setFullScreen(true);
-            resolve();
-        });
+            win.webContents.on('did-finish-load', () => {
+                console.log('页面及其所有子资源已加载完成');
+                win.show();
+                win.setFullScreen(true);
+                resolve();
+            });
 
-        // 错误处理
-        win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-            console.error('页面加载失败:', errorDescription);
-            reject(new Error(errorDescription));
+            // 错误处理
+            win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+                console.error('页面加载失败:', errorDescription);
+                reject(new Error(errorDescription));
+            });
         });
-    });
-  await initPool();
-    SendLogToRanderer('Loaded map pool!');
-    if (process.argv.length > 2) {
-        for (let i = 2; i < process.argv.length;i++)
-        switch (process.argv[i]) {
-            case '-r':
-            case '-R':
-                let RestartFilePath = './RestartSettings.json';
-                SendLogToRanderer("Restarting...");
-                if (process.argv.length > 3)
-                    RestartFilePath = process.argv[3];
-                const _Restart = require(RestartFilePath);
-                SendLogToRanderer(`Use ${RestartFilePath} as restart file`);
-                try {
-                    await client.connect();
-                    SendLogToRanderer("Connected to Bancho!");
-                    SendLogToRanderer(`Room id: ${_Restart.RoomId}`);
-                    SendLogToRanderer(`Map index: ${_Restart.MapIndex}`);
-                    SendLogToRanderer(`Round: ${_Restart.Round}`);
-                    channel = await client.getChannel(`#mp_${_Restart.RoomId}`);//#multiplayer
-                    await channel.join();
-                    mapIndex = _Restart.MapIndex;
-                    runIndex = _Restart.Round;
-                    RefName = [..._Restart.Ref];
-                    for (const [key, value] of Object.entries(_Restart.PlayerStatus)) {
-                        AbortMap.set(key, value);
-                        SendLogToRanderer(`Abort机会:  ${key}: ${value}`);
-                    }
-                    MatchBegin=true;
-                }
-                catch (err) {
-                    SendLogToRanderer(err);
-                    SendLogToRanderer("Failed to find lobby");
-                    process.exit(1);
-                }
-                lobby = channel.lobby;
-                syncStatus();
-                SendLogToRanderer(`Join the lobby ${lobby.name}`);
-                channel.sendMessage(`孩子们，我回来了`);
-                startLobby();
-                break;
-            case "-NoAuto":
-                auto = false;
-                break;
-            default:
-                SendLogToRanderer(`Unknown command ${process.argv[2]}!`);
-                process.exit(1);
-        }
     }
-    else {
+    await initPool();
+    SendLogToRanderer('Loaded map pool!');
+    
+    
+    
+    if (IsRestart) {
+        let RestartFilePath = './RestartSettings.json';
+        SendLogToRanderer("Restarting...");
+        const _Restart = require(RestartFilePath);
+        SendLogToRanderer(`Use ${RestartFilePath} as restart file`);
+        try {
+            await client.connect();
+            SendLogToRanderer("Connected to Bancho!");
+            SendLogToRanderer(`Room id: ${_Restart.RoomId}`);
+            SendLogToRanderer(`Map index: ${_Restart.MapIndex}`);
+            SendLogToRanderer(`Round: ${_Restart.Round}`);
+            channel = await client.getChannel(`#mp_${_Restart.RoomId}`);//#multiplayer
+            await channel.join();
+            mapIndex = _Restart.MapIndex;
+            runIndex = _Restart.Round;
+            RefName = [..._Restart.Ref];
+            for (const [key, value] of Object.entries(_Restart.PlayerStatus)) {
+                AbortMap.set(key, value);
+                SendLogToRanderer(`Abort机会:  ${key}: ${value}`);
+            }
+            if (mapIndex > 0 && runIndex==1)
+            MatchBegin = true;
+        }
+        catch (err) {
+            SendLogToRanderer(err);
+            SendLogToRanderer("Failed to find lobby");
+            process.exit(1);
+        }
+        lobby = channel.lobby;
+        syncStatus();
+        SendLogToRanderer(`Join the lobby ${lobby.name}`);
+        channel.sendMessage(`孩子们，我回来了`);
+        startLobby();
+    }
+    else{
         SendLogToRanderer('Attempting to connect...');
 
         try {
@@ -406,6 +436,8 @@ async function init() {
         lobby.setSettings(bancho.BanchoLobbyTeamModes.HeadToHead, bancho.BanchoLobbyWinConditions.ScoreV2);
 
     }
+    
+    
     EachMapReset();
     for (const p of match.teams) {
         SkipMap.set(p.name, true);
@@ -423,6 +455,7 @@ async function init() {
 
         return true;
     };
+    
     WriteReatartFile();
   createListeners();
 }
@@ -479,18 +512,20 @@ function setBeatmap(mapCode) {
 
 function createListeners() {
     client.on("connect", () => {
+        if (IsUI)
         win.webContents.send('Server-status-from-main', 'connected');
         console.log("客户端已连接");
         console.log("连接状态:", client.isConnected); // true
     });
 
     client.on("disconnect", () => {
+        if (IsUI)
         win.webContents.send('Server-status-from-main', 'disconnected');
         console.log("客户端断开连接");
         console.log("连接状态:", client.isConnected); // false
     });
   lobby.on("playerJoined", (obj) => {
-    SendLogToRanderer("player joined")
+      SendLogToRanderer("player joined");
     const name = obj.player.user.username;
       SendLogToRanderer(`Player ${name} has joined!`)
       optionalOutput(name, playerEvent.join);
@@ -517,7 +552,7 @@ function createListeners() {
     SendLogToRanderer("everyone ready");
     ready = true;
         timeout = false;
-        if (auto && !StatusLock) {
+        if (auto && !StatusLock && MatchBegin) {
             SendLogToRanderer("Check everyone's mods");
             let Res = await CheckMod(true,false);
             if (Res == 1) {
@@ -561,7 +596,11 @@ function createListeners() {
       SendLogToRanderer("matchFinished")
       EachMapReset();
     obj.forEach(element => {
-      fs.appendFileSync(`./players/${element.player.user.username}.txt`,`${pool[mapIndex].code}: ${element.score}\n`);
+        fs.appendFileSync(`./players/${element.player.user.username}.txt`, `${pool[mapIndex].code}: ${element.score}\n`);
+        if (element.score > 990000)
+            channel.sendMessage(`${element.player.user.username} 取得了 ${element.score} 的成绩,是${config.username}的一辈子呢`);
+        if (element.score < 900000)
+            channel.sendMessage(`${element.player.user.username} 取得了 ${element.score} 的成绩,emm还是可以通过资格赛的，对吧?`);
     });
       TryNextMap();
    });
@@ -716,16 +755,20 @@ function createListeners() {
                     channel.sendMessage(`遇到过于严重的事故请使用!panic。请勿滥用。`);
                     break;
                 case 'abort':
-                    let abortable = (Date.now() - match.timers.abortLeniency * 1000) <= timeStarted;
                     if (inPick) {
-                        if (abortable)
+                        if ((Date.now() - timeStarted) > (match.timers.abortLeniency * 1000)) {
+                            channel.sendMessage(`abort超时。当且仅当在图的前30秒可以使用#abort。`);
                             break;
+                        }
                         if (AbortMap.has(msg.user.ircUsername) && AbortMap.get(msg.user.ircUsername)) {
                             AbortMap.set(msg.user.ircUsername, false);
                             lobby.abortMatch();
                             ready = false;
-                            channel.sendMessage(`由于${msg.user.ircUsername}在该图较前的位置请求abort，比赛abort。`);
-                            channel.sendMessage(`${msg.user.ircUsername} 用掉了Ta的abort机会。`);
+                            channel.sendMessage(`Match aborted due to early disconnect because of ${msg.user.ircUsername}`);
+                            channel.sendMessage(`${msg.user.ircUsername} used his/her abort chance`);
+                        }
+                        else {
+                            channel.sendMessage(`${msg.user.ircUsername}没有剩余的abort机会了。`);
                         }
                     }
                     break;
@@ -798,6 +841,8 @@ function createListeners() {
                                 AbortMap.set(LeftName, false);
                                 lobby.abortMatch();
                                 ready = false;
+                                playersLeftToJoin++;
+                                MatchBegin = false;
                                 channel.sendMessage(`由于${LeftName}在该图较前的位置断开了连接，比赛abort。`);
                                 channel.sendMessage(`${LeftName} 用掉了Ta的abort机会。`);
                             }
@@ -816,24 +861,27 @@ function createListeners() {
 rl.on('line', (input) => {
   channel.sendMessage(input);
 });
-ipcMain.on('msg-from-renderer', (event, msg) => {
-    channel.sendMessage(msg);
-});
-ipcMain.on('Update-request-from-renderer', (event) => {
-    return Updateing ? "updating" : "idle";
-});
-ipcMain.on('Update-server-request-from-renderer', (event) => {
-    return client.isConnected() ? 'connected' : 'disconnected';
-});
-ipcMain.on('Update-thread-request-from-renderer', (event) => {
-    return 'connected';
-});
+if (IsUI) {
+    ipcMain.on('msg-from-renderer', (event, msg) => {
+        channel.sendMessage(msg);
+    });
+    ipcMain.handle('Update-request-from-renderer', async() => {
+        return Updateing ? "updating" : "idle";
+    });
+    ipcMain.handle('Update-server-request-from-renderer', async() => {
+        return client.isConnected() ? "connected" : "disconnected";
+    });
+    ipcMain.handle('Update-thread-request-from-renderer', async() => {
+        return "connected";
+    });
+}
 async function close() {
   SendLogToRanderer("Closing...");
   rl.close();
   await lobby.closeLobby();
   await client.disconnect();
     SendLogToRanderer("Closed.");
+    if(IsUI)
     SendLogToRanderer("The lobby has been closed,but uou can still view the chat log here.");
   //process.exit(0);
 }
