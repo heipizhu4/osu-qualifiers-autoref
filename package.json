@@ -2,25 +2,31 @@
   "name": "osu-autoref",
   "version": "0.2.0",
   "description": "Semi-automted referee interface for osu!",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "WinStart": "powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; electron .\"",
+    "WinRestart": "powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; electron . -r\"",
+    "start": "electron .",
+    "restart": "electron . -r"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cory2067/osu-autoref.git"
+    "url": "git+https://github.com/31415906/osu-qualifiers-autoref.git"
   },
   "author": "Cory Lynch",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/cory2067/osu-autoref/issues"
+    "url": "https://github.com/31415906/osu-qualifiers-autoref/issues"
   },
-  "homepage": "https://github.com/cory2067/osu-autoref#readme",
+  "homepage": "https://github.com/31415906/osu-qualifiers-autoref#readme",
   "dependencies": {
     "bancho.js": "^0.11.6",
     "chalk": "^2.4.2",
     "discord.js": "^14.14.1",
     "nodesu": "^0.6.4"
+  },
+  "devDependencies": {
+    "electron": "^37.4.0",
+    "cross-env": "^7.0.3"
   }
 }
