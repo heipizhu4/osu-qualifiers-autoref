@@ -610,17 +610,17 @@ function createListeners() {
                     channel.sendMessage(`遇到过于严重的事故请使用!panic。请勿滥用。`);
                     break;
                 case 'abort':
-                    let abortable = (Date.now() - match.timers.abortLeniency * 1000) <= timeStarted;
+                    //let abortable = (Date.now() - timeStarted) <= (match.timers.abortLeniency * 1000);
                     if (inPick) {
-                        if (abortable)
+                        if ((Date.now() - timeStarted) > (match.timers.abortLeniency * 1000))
                             break;
-                            if (AbortMap.has(msg.user.ircUsername) && AbortMap.get(msg.user.ircUsername)) {
-                                AbortMap.set(msg.user.ircUsername, false);
-                                lobby.abortMatch();
-                                ready = false;
-                                channel.sendMessage(`Match aborted due to early disconnect because of ${msg.user.ircUsername}`);
-                                channel.sendMessage(`${msg.user.ircUsername} used his/her abort chance`);
-                            }
+                        if (AbortMap.has(msg.user.ircUsername) && AbortMap.get(msg.user.ircUsername)) {
+                            AbortMap.set(msg.user.ircUsername, false);
+                            lobby.abortMatch();
+                            ready = false;
+                            channel.sendMessage(`Match aborted due to early disconnect because of ${msg.user.ircUsername}`);
+                            channel.sendMessage(`${msg.user.ircUsername} used his/her abort chance`);
+                        }
                     }
                     break;
                 case 'abortchance':
@@ -630,7 +630,7 @@ function createListeners() {
                     break;
               case 'skip':
                 {
-                        if (closing | StatusLock)
+                    if (closing | StatusLock)
                         break;
                     if (runIndex == 1) {
                         channel.sendMessage("只有第二轮支持使用#skip跳过图。");
@@ -647,7 +647,6 @@ function createListeners() {
                       }
                   }
                   break;
-              
           }
       }
     if(auto && msg.message === "!panic"){
