@@ -80,7 +80,9 @@ if (process.argv.length > 2) {
     for (let i = 2; i < process.argv.length; i++)
         switch (process.argv[i]) {
             case '--r':
+            case '-r':
             case '--R':
+            case '-R':
                 IsRestart = true;
                 break;
             case "--NoAuto":
