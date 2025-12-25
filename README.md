@@ -66,7 +66,7 @@ Example:
 ```
 If this file doesn't exist or a player isn't listed, no special message will be sent.
 ## Running
-Requires: node.js ~~(I use node v10)~~ latest node.js also works though I recommend using LTS
+Requires: [node.js](https://nodejs.org/en/download) ~~(I use node v10)~~ latest node.js also works though I recommend using LTS
 ```bash
 npm install
 npm start
