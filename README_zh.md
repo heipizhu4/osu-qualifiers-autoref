@@ -67,7 +67,7 @@
 如果此文件不存在或玩家未被列出，则不会发送特殊消息。
 
 ## 运行
-要求：安装 node.js ~~（我使用的是 node v10 版本）~~ 最新的 node.js 也可以工作，但我推荐使用 LTS 版本
+要求：安装 [node.js](https://nodejs.org/en/download) ~~（我使用的是 node v10 版本）~~ 最新的 node.js 也可以工作，但我推荐使用 LTS 版本
 ```bash
 npm install
 npm start
