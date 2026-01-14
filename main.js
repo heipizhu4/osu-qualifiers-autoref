@@ -24,7 +24,7 @@ const pool = require('./pool.json');
 const match = require('./match.json');
 const { randomInt } = require('crypto');
 const { request } = require('./node_modules/undici/index');
-const webhook = new WebhookClient({ url: config.discord.webhookLink });
+// const webhook = new WebhookClient({ url: config.discord.webhookLink });
 const lobbydate = new Date();
 const originalWrite = process.stdout.write.bind(process.stdout);
 const client = new bancho.BanchoClient(config);
@@ -71,7 +71,9 @@ let Updating = false;
 let win;
 let RepeatString = "";
 let RepeatCounting = 0;
-
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 if (process.argv[1]!='.') {
     IsUI = false;
 }
@@ -177,6 +179,7 @@ function getFormattedTime() {
 function optionalOutput(Name, _playerEvent) {
     let o = optionalWords[Name];
     if (o != undefined) {
+        sleep(1000)
         if (o[_playerEvent] != undefined) {
             channel.sendMessage(o[_playerEvent]);
         }
