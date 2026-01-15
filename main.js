@@ -176,10 +176,10 @@ function getFormattedTime() {
     const now = new Date();
     return `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]`;
 }
-function optionalOutput(Name, _playerEvent) {
+async function optionalOutput(Name, _playerEvent) {
     let o = optionalWords[Name];
     if (o != undefined) {
-        sleep(1000)
+        sleep(500)
         if (o[_playerEvent] != undefined) {
             channel.sendMessage(o[_playerEvent]);
         }
