@@ -81,7 +81,6 @@ For a text-only version:
 ```bash
 node main.js
 ```
-`index.js` is legacy and no longer maintained; use `npm start` (or `npm run restart`) for the new UI.
 
 ## Usage
 Upon running this bot, a match will be created, and the password will be logged to the terminal. You can send messages to the chatroom via the terminal window, but this is kinda janky, so I'd recommenda also having an IRC client open/being in-game.
