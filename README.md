@@ -167,5 +167,8 @@ They may learn how to use the player side command by using:
 1. Place the files from the directory containing the Node.js program into the ./bin directory of this project (create the directory if it does not exist).
 2. Install Python, with version 3.13 recommended, and install the corresponding version of Tkinter (if it is not automatically included with Python).
 3. Run pip install pyinstaller in the terminal.
-4. In the terminal within the current directory, run pyinstaller --onefile --noconsole --distpath ./ --name "launcher" launcher.py to package the launcher into a single executable program.
+4. In the terminal within the current directory, run command to package the launcher into a single executable program:
+```
+pyinstaller --onefile --noconsole --distpath ./ --name "launcher" launcher.py
+```
 5. Run launcher.
