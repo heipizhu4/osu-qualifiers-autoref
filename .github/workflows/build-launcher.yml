@@ -141,6 +141,9 @@ jobs:
           cp package.json dist/
           cp package-lock.json dist/
           cp -R node_modules dist/
+                    
+          # Remove macOS quarantine attribute from Electron to prevent "app is damaged" error
+          xattr -cr dist/node_modules/electron/dist/Electron.app || true
           
           # Copy index_files folder
           cp -R index_files dist/
