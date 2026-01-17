@@ -475,9 +475,16 @@ class OsuBotLauncher:
             cwd = os.getcwd()
             env = os.environ.copy()
             env["PATH"] = os.path.join(cwd, 'bin') + os.pathsep + env["PATH"]
-            cmd = "npm start"
-            if os.name == 'nt': subprocess.Popen(f"start cmd /k {cmd}", shell=True, env=env, cwd=cwd)
-            else: subprocess.Popen(cmd.split(), env=env, cwd=cwd)
+            cmd = ["npm", "start"]
+            if os.name == 'nt':
+                subprocess.Popen(
+                    ["cmd", "/k"] + cmd,
+                    env=env,
+                    cwd=cwd,
+                    creationflags=subprocess.CREATE_NEW_CONSOLE,
+                )
+            else:
+                subprocess.Popen(cmd, env=env, cwd=cwd)
         threading.Thread(target=run_proc).start()
 
     def add_team(self):
