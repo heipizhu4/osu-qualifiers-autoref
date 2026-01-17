@@ -500,8 +500,11 @@ class OsuBotLauncher:
                     )
             else:
                 # macOS: Run Electron directly from node_modules
-                electron_path = os.path.join(cwd, 'node_modules', 'electron', 'dist', 'electron.app')
+                electron_app_path = os.path.join(cwd, 'node_modules', 'electron', 'dist', 'Electron.app')
+                electron_path = os.path.join(electron_app_path, 'Contents', 'MacOS', 'Electron')
                 if os.path.exists(electron_path):
+                    # Remove quarantine attribute to prevent "app is damaged" error
+                    subprocess.run(['xattr', '-cr', electron_app_path], capture_output=True)
                     subprocess.Popen([electron_path, '.'], env=env, cwd=cwd)
                 else:
                     # Fallback to npm start for development
