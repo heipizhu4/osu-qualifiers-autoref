@@ -1,0 +1,177 @@
+name: Build Launcher
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            launcher_name: launcher.exe
+            node_archive: node-win-x64.zip
+            asset_name: osu-autoref-windows
+          - os: macos-latest
+            launcher_name: launcher
+            node_archive: node-darwin-x64.tar.gz
+            asset_name: osu-autoref-macos
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node.js dependencies
+        run: npm install
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+
+      - name: Build launcher with PyInstaller
+        run: |
+          pyinstaller --onefile --noconsole --distpath ./ --name "launcher" launcher.py
+
+      - name: Download portable Node.js (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $nodeVersion = "v20.18.0"
+          $nodeUrl = "https://nodejs.org/dist/$nodeVersion/node-$nodeVersion-win-x64.zip"
+          Invoke-WebRequest -Uri $nodeUrl -OutFile node.zip
+          Expand-Archive -Path node.zip -DestinationPath ./node-temp
+          New-Item -ItemType Directory -Force -Path ./bin
+          Move-Item -Path "./node-temp/node-$nodeVersion-win-x64/*" -Destination ./bin/
+          Remove-Item -Recurse -Force ./node-temp, ./node.zip
+
+      - name: Download portable Node.js (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          NODE_VERSION="v20.18.0"
+          curl -o node.tar.gz "https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-darwin-x64.tar.gz"
+          mkdir -p bin
+          tar -xzf node.tar.gz --strip-components=1 -C bin
+          rm node.tar.gz
+
+      - name: Create distribution package (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $distDir = "dist"
+          New-Item -ItemType Directory -Force -Path $distDir
+          
+          # Copy launcher
+          Copy-Item -Path "launcher.exe" -Destination "$distDir/"
+          
+          # Copy Node.js bin folder
+          Copy-Item -Path "bin" -Destination "$distDir/" -Recurse
+          
+          # Copy application files
+          Copy-Item -Path "main.js" -Destination "$distDir/"
+          Copy-Item -Path "preload.js" -Destination "$distDir/"
+          Copy-Item -Path "index.html" -Destination "$distDir/"
+          Copy-Item -Path "package.json" -Destination "$distDir/"
+          Copy-Item -Path "package-lock.json" -Destination "$distDir/"
+          Copy-Item -Path "node_modules" -Destination "$distDir/" -Recurse
+          
+          # Copy index_files folder
+          Copy-Item -Path "index_files" -Destination "$distDir/" -Recurse
+          
+          # Copy example/template files
+          Copy-Item -Path "config.example.json" -Destination "$distDir/"
+          Copy-Item -Path "RestartSettings.Example.json" -Destination "$distDir/"
+          Copy-Item -Path "pool_pfcs3_full.json" -Destination "$distDir/"
+          Copy-Item -Path "pool_pfcs3_short.json" -Destination "$distDir/"
+          
+          # Copy documentation
+          Copy-Item -Path "README.md" -Destination "$distDir/"
+          Copy-Item -Path "README_zh.md" -Destination "$distDir/"
+          Copy-Item -Path "LICENSE" -Destination "$distDir/"
+          
+          # Create empty directories for user data
+          New-Item -ItemType Directory -Force -Path "$distDir/lobbies"
+          New-Item -ItemType Directory -Force -Path "$distDir/players"
+          
+          # Create placeholder files
+          Set-Content -Path "$distDir/lobbies/yourlobbieshere.txt" -Value ""
+          Set-Content -Path "$distDir/players/player historic here.txt" -Value ""
+          
+          # Create empty config files for user to fill
+          Set-Content -Path "$distDir/config.json" -Value "{}"
+          Set-Content -Path "$distDir/match.json" -Value "{}"
+          Set-Content -Path "$distDir/pool.json" -Value "[]"
+          Set-Content -Path "$distDir/optionalWords.json" -Value "{}"
+          Set-Content -Path "$distDir/RestartSettings.json" -Value "{}"
+
+      - name: Create distribution package (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          mkdir -p dist
+          
+          # Copy launcher
+          cp launcher dist/
+          chmod +x dist/launcher
+          
+          # Copy Node.js bin folder
+          cp -R bin dist/
+          
+          # Copy application files
+          cp main.js dist/
+          cp preload.js dist/
+          cp index.html dist/
+          cp package.json dist/
+          cp package-lock.json dist/
+          cp -R node_modules dist/
+          
+          # Copy index_files folder
+          cp -R index_files dist/
+          
+          # Copy example/template files
+          cp config.example.json dist/
+          cp RestartSettings.Example.json dist/
+          cp pool_pfcs3_full.json dist/
+          cp pool_pfcs3_short.json dist/
+          
+          # Copy documentation
+          cp README.md dist/
+          cp README_zh.md dist/
+          cp LICENSE dist/
+          
+          # Create empty directories for user data
+          mkdir -p dist/lobbies
+          mkdir -p dist/players
+          
+          # Create placeholder files
+          touch "dist/lobbies/yourlobbieshere.txt"
+          touch "dist/players/player historic here.txt"
+          
+          # Create empty config files for user to fill
+          echo '{}' > dist/config.json
+          echo '{}' > dist/match.json
+          echo '[]' > dist/pool.json
+          echo '{}' > dist/optionalWords.json
+          echo '{}' > dist/RestartSettings.json
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: dist/
+          retention-days: 30
