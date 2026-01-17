@@ -27,6 +27,8 @@
 
 ## 配置
 在运行 osu!autoref 之前，您需要填写一些配置信息。
+这些配置也可以通过启动器launcher来进行。使用图形化配置时，可以导入example模板（文件夹中含有_example.json后缀的文件）来查看配置。
+若要手动打包启动器到单个可执行文件，请参照本文档“打包”部分
 
 ### config.json
 创建一个名为 `config.json` 的文件。您可以复制模板文件 `config.example.json`。您需要填写您的用户名、[IRC 服务器密码](https://osu.ppy.sh/p/irc)、osu! [API 密钥](https://osu.ppy.sh/p/api) 以及 [Discord Webhook 链接](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks)。
@@ -160,3 +162,12 @@ npm run restart
 ```
 #help
 ```
+### 打包
+1. 将node程序所在目录下文件放到本项目的./bin目录下（不存在需要创建）
+2. 安装python，推荐版本为3.13，并安装对应版本的Tkinter（如果python没有自动附带）
+3. 终端运行pip install pyinstaller
+4. 将启动器打包成单个可执行程序，在当前目录终端运行：
+```
+pyinstaller --onefile --noconsole --distpath ./ --name "launcher" launcher.py
+```
+5. 运行launcher

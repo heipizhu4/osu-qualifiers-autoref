@@ -27,6 +27,10 @@ Uses bancho.js by ThePoon.
  
 ## Configuration
 Before running osu!autoref, you'll need to fill out some configuration.
+These configurations can also be performed via the launcher. When using the graphical configuration, you can import example templates (files with the suffix _example.json in the folder) to view the configurations.
+
+To manually package the launcher into a single executable file, please refer to the "Packaging" section of this document.
+
 
 ### config.json
 Create a file `config.json`. You can copy the template file `config.example.json`. You will need to add your username, [IRC password](https://osu.ppy.sh/p/irc),  osu! [API key](https://osu.ppy.sh/p/api), and [Discord webhook link](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks)
@@ -159,3 +163,12 @@ They may learn how to use the player side command by using:
 ```
 #help
 ```
+### Packaging
+1. Place the files from the directory containing the Node.js program into the ./bin directory of this project (create the directory if it does not exist).
+2. Install Python, with version 3.13 recommended, and install the corresponding version of Tkinter (if it is not automatically included with Python).
+3. Run pip install pyinstaller in the terminal.
+4. In the terminal within the current directory, run command to package the launcher into a single executable program:
+```
+pyinstaller --onefile --noconsole --distpath ./ --name "launcher" launcher.py
+```
+5. Run launcher.
