@@ -117,8 +117,10 @@ jobs:
           Set-Content -Path "$distDir/config.json" -Value "{}"
           Set-Content -Path "$distDir/match.json" -Value "{}"
           Set-Content -Path "$distDir/pool.json" -Value "[]"
-          Set-Content -Path "$distDir/optionalWords.json" -Value "{}"
           Set-Content -Path "$distDir/RestartSettings.json" -Value "{}"
+          
+          # Copy optionalWords from repo
+          Copy-Item -Path "optionalWords.json" -Destination "$distDir/"
 
       - name: Create distribution package (macOS)
         if: matrix.os == 'macos-latest'
@@ -166,8 +168,10 @@ jobs:
           echo '{}' > dist/config.json
           echo '{}' > dist/match.json
           echo '[]' > dist/pool.json
-          echo '{}' > dist/optionalWords.json
           echo '{}' > dist/RestartSettings.json
+          
+          # Copy optionalWords from repo
+          cp optionalWords.json dist/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
