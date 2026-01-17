@@ -154,6 +154,7 @@ class OsuBotLauncher:
         file_menu.add_command(label=self._t("menu_import").format("Config"), command=lambda: self.import_template("config"))
         file_menu.add_command(label=self._t("menu_import").format("Match"), command=lambda: self.import_template("match"))
         file_menu.add_command(label=self._t("menu_import").format("Pool"), command=lambda: self.import_template("pool"))
+        file_menu.add_command(label=self._t("menu_import").format("Words"), command=lambda: self.import_template("words"))
         file_menu.add_separator()
         file_menu.add_command(label=self._t("menu_exit"), command=self.root.quit)
         menubar.add_cascade(label=self._t("menu_file"), menu=file_menu)
