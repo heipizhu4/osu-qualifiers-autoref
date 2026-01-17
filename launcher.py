@@ -323,19 +323,23 @@ class OsuBotLauncher:
         try:
             with open(self.files["config"], 'r', encoding='utf-8') as f:
                 self.data["config"] = json.load(f)
-        except: self.data["config"] = {}
+        except (OSError, json.JSONDecodeError):
+            self.data["config"] = {}
         try:
             with open(self.files["match"], 'r', encoding='utf-8') as f:
                 self.data["match"] = json.load(f)
-        except: self.data["match"] = {}
+        except (OSError, json.JSONDecodeError):
+            self.data["match"] = {}
         try:
             with open(self.files["pool"], 'r', encoding='utf-8') as f:
                 self.data["pool"] = json.load(f)
-        except: self.data["pool"] = []
+        except (OSError, json.JSONDecodeError):
+            self.data["pool"] = []
         try:
             with open(self.files["words"], 'r', encoding='utf-8') as f:
                 self.data["words"] = json.load(f)
-        except: self.data["words"] = {}
+        except (OSError, json.JSONDecodeError):
+            self.data["words"] = {}
 
     def populate_all_tabs(self):
         self.populate_basic()
