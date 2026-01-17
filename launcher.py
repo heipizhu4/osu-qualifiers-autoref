@@ -487,9 +487,17 @@ class OsuBotLauncher:
     def del_team(self):
         if s := self.team_listbox.curselection(): self.team_listbox.delete(s)
     def add_pool_item(self):
-        if self.ent_p_code.get():
-            self.pool_tree.insert("", "end", values=(self.ent_p_code.get(), self.ent_p_id.get(), self.cmb_p_mod.get()))
-            self.ent_p_code.delete(0, "end"); self.ent_p_id.delete(0, "end")
+        code = self.ent_p_code.get().strip()
+        if not code:
+            return
+        id_str = self.ent_p_id.get().strip()
+        try:
+            int(id_str)
+        except ValueError:
+            messagebox.showerror("Invalid ID", "ID must be a valid integer.")
+            return
+        self.pool_tree.insert("", "end", values=(code, id_str, self.cmb_p_mod.get()))
+        self.ent_p_code.delete(0, "end"); self.ent_p_id.delete(0, "end")
     def del_pool_item(self):
         for i in self.pool_tree.selection(): self.pool_tree.delete(i)
     def add_word_item(self):
