@@ -253,7 +253,7 @@ async function CheckMod(IfOutput,isForce) {
             if (w != null)
                 if (w.mods && w.mods.length > 0) {
                     for (const p of w.mods) {
-                        if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
+                        if ((p.enumValue | 1074791433) != 1074791433) {//mr fl fi hd nf
                             if (IfOutput)
                                 channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod}` + (MapTimeout ? `若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。` : ``));
                             CheckPass = 0;
