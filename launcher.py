@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import json
 import os
+import sys
 import subprocess
 import threading
 
@@ -284,6 +285,26 @@ class OsuBotLauncher:
         threading.Thread(target=run_proc).start()
 
 if __name__ == "__main__":
+    # Fix for PyInstaller path resolution on macOS
+    if getattr(sys, 'frozen', False):
+        # If running as a bundled executable
+        if sys.platform == 'darwin' and '.app' in sys.executable:
+            # If inside a .app bundle, the executable is deep inside Contents/MacOS
+            # We want the directory containing the .app bundle
+            base_dir = os.path.abspath(os.path.join(os.path.dirname(sys.executable), "../../.."))
+        else:
+            # Standard executable
+            base_dir = os.path.dirname(sys.executable)
+    else:
+        # Running as a script
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Set the working directory to the base directory
+    try:
+        os.chdir(base_dir)
+    except Exception as e:
+        print(f"Failed to change directory to {base_dir}: {e}")
+
     root = tk.Tk()
     app = OsuBotLauncher(root)
     root.mainloop()
