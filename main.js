@@ -258,6 +258,7 @@ async function CheckMod(IfOutput,isForce) {
                                 channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod}` + (MapTimeout ? `若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。` : ``));
                             CheckPass = 0;
                         }
+                        // channel.sendMessage(`enumValue : ${p.enumValue}`); //uncomment it for test, value==1 means allowed.
                         SendLogToRanderer(`${w.user.username} 使用了mod: ${p.longMod}`);
                     }
             }
