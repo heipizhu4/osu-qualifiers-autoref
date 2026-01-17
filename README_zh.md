@@ -166,5 +166,8 @@ npm run restart
 1. 将node程序所在目录下文件放到本项目的./bin目录下（不存在需要创建）
 2. 安装python，推荐版本为3.13，并安装对应版本的Tkinter（如果python没有自动附带）
 3. 终端运行pip install pyinstaller
-4. 在当前目录终端运行pyinstaller --onefile --noconsole --distpath ./ --name "launcher" launcher.py将启动器打包成单个可执行程序
+4. 将启动器打包成单个可执行程序，在当前目录终端运行：
+```
+pyinstaller --onefile --noconsole --distpath ./ --name "launcher" launcher.py
+```
 5. 运行launcher
