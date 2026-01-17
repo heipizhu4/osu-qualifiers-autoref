@@ -479,17 +479,33 @@ class OsuBotLauncher:
         def run_proc():
             cwd = os.getcwd()
             env = os.environ.copy()
-            env["PATH"] = os.path.join(cwd, 'bin') + os.pathsep + env["PATH"]
-            cmd = ["npm", "start"]
+            
             if os.name == 'nt':
-                subprocess.Popen(
-                    ["cmd", "/k"] + cmd,
-                    env=env,
-                    cwd=cwd,
-                    creationflags=subprocess.CREATE_NEW_CONSOLE,
-                )
+                # Windows: Run Electron directly from node_modules
+                electron_path = os.path.join(cwd, 'node_modules', 'electron', 'dist', 'electron.exe')
+                if os.path.exists(electron_path):
+                    subprocess.Popen(
+                        [electron_path, '.'],
+                        env=env,
+                        cwd=cwd,
+                        creationflags=subprocess.CREATE_NEW_CONSOLE,
+                    )
+                else:
+                    # Fallback to npm start for development
+                    subprocess.Popen(
+                        ["cmd", "/k", "npm", "start"],
+                        env=env,
+                        cwd=cwd,
+                        creationflags=subprocess.CREATE_NEW_CONSOLE,
+                    )
             else:
-                subprocess.Popen(cmd, env=env, cwd=cwd)
+                # macOS: Run Electron directly from node_modules
+                electron_path = os.path.join(cwd, 'node_modules', 'electron', 'dist', 'Electron.app', 'Contents', 'MacOS', 'Electron')
+                if os.path.exists(electron_path):
+                    subprocess.Popen([electron_path, '.'], env=env, cwd=cwd)
+                else:
+                    # Fallback to npm start for development
+                    subprocess.Popen(["npm", "start"], env=env, cwd=cwd)
         threading.Thread(target=run_proc).start()
 
     def add_team(self):
