@@ -459,8 +459,15 @@ class OsuBotLauncher:
         messagebox.showinfo(self._t("msg_success"), self._t("msg_save"))
 
     def _save_json(self, name, d):
-        with open(name, 'w', encoding='utf-8') as f:
-            json.dump(d, f, indent=4, ensure_ascii=False)
+        try:
+            with open(name, 'w', encoding='utf-8') as f:
+                json.dump(d, f, indent=4, ensure_ascii=False)
+        except OSError as e:
+            # Inform the user that saving failed instead of failing silently.
+            messagebox.showerror(
+                "Error Saving File",
+                f"Failed to save file:\n{name}\n\n{e}"
+            )
 
     def start_bot(self):
         self.save_all()
