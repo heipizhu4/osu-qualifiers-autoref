@@ -535,7 +535,8 @@ if __name__ == "__main__":
         if sys.platform == 'darwin' and '.app' in sys.executable:
             base_dir = os.path.abspath(os.path.join(base_dir, "../../.."))
     try: os.chdir(base_dir)
-    except: pass
+    except OSError:
+        pass
     root = tk.Tk()
     app = OsuBotLauncher(root)
     root.mainloop()
