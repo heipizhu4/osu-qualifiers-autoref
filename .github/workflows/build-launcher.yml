@@ -117,8 +117,10 @@ jobs:
           Set-Content -Path "$distDir/config.json" -Value "{}"
           Set-Content -Path "$distDir/match.json" -Value "{}"
           Set-Content -Path "$distDir/pool.json" -Value "[]"
-          Set-Content -Path "$distDir/optionalWords.json" -Value "{}"
           Set-Content -Path "$distDir/RestartSettings.json" -Value "{}"
+          
+          # Copy optionalWords from repo
+          Copy-Item -Path "optionalWords.json" -Destination "$distDir/"
 
       - name: Create distribution package (macOS)
         if: matrix.os == 'macos-latest'
@@ -139,6 +141,9 @@ jobs:
           cp package.json dist/
           cp package-lock.json dist/
           cp -R node_modules dist/
+                    
+          # Remove macOS quarantine attribute from Electron to prevent "app is damaged" error
+          xattr -cr dist/node_modules/electron/dist/Electron.app || true
           
           # Copy index_files folder
           cp -R index_files dist/
@@ -166,8 +171,10 @@ jobs:
           echo '{}' > dist/config.json
           echo '{}' > dist/match.json
           echo '[]' > dist/pool.json
-          echo '{}' > dist/optionalWords.json
           echo '{}' > dist/RestartSettings.json
+          
+          # Copy optionalWords from repo
+          cp optionalWords.json dist/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
