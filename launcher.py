@@ -78,7 +78,7 @@ TRANSLATIONS = {
         "lbl_mid": "房间名模板 (Match ID):",
         "lbl_wait": "等人图 ID (Wait Song):",
         "lbl_runs": "轮次数 (Runs):",
-        "chk_priv": "私人房间 (Private)",
+        "chk_priv": "History不公开 (Private)",
         "btn_add": "添加",
         "btn_del": "删除选中",
         "col_code": "代号",
