@@ -500,7 +500,7 @@ class OsuBotLauncher:
                     )
             else:
                 # macOS: Run Electron directly from node_modules
-                electron_path = os.path.join(cwd, 'node_modules', 'electron', 'dist', 'Electron.app', 'Contents', 'MacOS', 'Electron')
+                electron_path = os.path.join(cwd, 'node_modules', 'electron', 'dist', 'electron.app')
                 if os.path.exists(electron_path):
                     subprocess.Popen([electron_path, '.'], env=env, cwd=cwd)
                 else:
