@@ -49,27 +49,6 @@ jobs:
         run: |
           pyinstaller --onefile --noconsole --distpath ./ --name "launcher" launcher.py
 
-      - name: Download portable Node.js (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          $nodeVersion = "v20.18.0"
-          $nodeUrl = "https://nodejs.org/dist/$nodeVersion/node-$nodeVersion-win-x64.zip"
-          Invoke-WebRequest -Uri $nodeUrl -OutFile node.zip
-          Expand-Archive -Path node.zip -DestinationPath ./node-temp
-          New-Item -ItemType Directory -Force -Path ./bin
-          Move-Item -Path "./node-temp/node-$nodeVersion-win-x64/*" -Destination ./bin/
-          Remove-Item -Recurse -Force ./node-temp, ./node.zip
-
-      - name: Download portable Node.js (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          NODE_VERSION="v20.18.0"
-          curl -o node.tar.gz "https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-darwin-x64.tar.gz"
-          mkdir -p bin
-          tar -xzf node.tar.gz --strip-components=1 -C bin
-          rm node.tar.gz
-
       - name: Create distribution package (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
@@ -79,9 +58,6 @@ jobs:
           
           # Copy launcher
           Copy-Item -Path "launcher.exe" -Destination "$distDir/"
-          
-          # Copy Node.js bin folder
-          Copy-Item -Path "bin" -Destination "$distDir/" -Recurse
           
           # Copy application files
           Copy-Item -Path "main.js" -Destination "$distDir/"
@@ -130,9 +106,6 @@ jobs:
           # Copy launcher
           cp launcher dist/
           chmod +x dist/launcher
-          
-          # Copy Node.js bin folder
-          cp -R bin dist/
           
           # Copy application files
           cp main.js dist/
