@@ -74,7 +74,7 @@ If this file doesn't exist or a player isn't listed, no special message will be 
 ### For players / tournament staff (recommended)
 You do **not** need to install Node.js.
 
-1. Download the latest release from GitHub Releases: https://github.com/heipizhu4/osu-qualifiers-autoref/releases
+1. Download the latest release from [GitHub Releases](https://github.com/heipizhu4/osu-qualifiers-autoref/releases)
 2. Extract/unzip it.
 3. Double-click the launcher to start the program.
 
