@@ -69,13 +69,25 @@
 如果此文件不存在或玩家未被列出，则不会发送特殊消息。
 
 ## 运行
-要求：安装 [node.js](https://nodejs.org/en/download) ~~（我使用的是 node v10 版本）~~ 最新的 node.js 也可以工作，但我推荐使用 LTS 版本
+
+### 玩家 / 比赛Staff（推荐）
+你**不需要**安装 Node.js。
+
+1. 从 [GitHub Releases](https://github.com/heipizhu4/osu-qualifiers-autoref/releases)  下载最新版本。
+2. 解压缩。
+3. 双击 launcher 启动程序。
+
+launcher 内置重启功能将会在后续版本加入。
+
+### 开发者
+要求：安装 [Node.js（LTS）](https://nodejs.org/en/download)
+
 ```bash
 npm install
 npm start
 ```
 
-当比赛中途程序死机且需要重启新版 UI时：
+如需在命令行中重启 UI：
 ```bash
 npm run restart
 ```

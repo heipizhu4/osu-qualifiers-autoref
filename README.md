@@ -70,13 +70,25 @@ Example:
 ```
 If this file doesn't exist or a player isn't listed, no special message will be sent.
 ## Running
-Requires: [node.js](https://nodejs.org/en/download) ~~(I use node v10)~~ latest node.js also works though I recommend using LTS
+
+### For tournament staff (recommended)
+You do **not** need to install Node.js.
+
+1. Download the latest release from [GitHub Releases](https://github.com/heipizhu4/osu-qualifiers-autoref/releases).
+2. Extract/unzip it.
+3. Double-click the launcher to start the program.
+
+Launcher restart support will be added soon.
+
+### For developers
+Requires: [Node.js (LTS)](https://nodejs.org/en/download)
+
 ```bash
 npm install
 npm start
 ```
 
-To restart the new UI just in case the program froze in the middle of a game:
+To restart the UI from the command line:
 ```bash
 npm run restart
 ```
