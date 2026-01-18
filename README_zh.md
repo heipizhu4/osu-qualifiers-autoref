@@ -149,7 +149,6 @@ node main.js
 ```bash
 npm run restart
 ```
-launcher 内置重启功能将会在后续版本加入（届时将不需要命令行）。
 请注意 `MapIndex` 从 0 开始。（也就是说，如果您想从第一轮的第二个谱面开始，那么 MapIndex=1, Round=1。）
 
 ### 玩家侧命令
