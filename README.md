@@ -70,13 +70,26 @@ Example:
 ```
 If this file doesn't exist or a player isn't listed, no special message will be sent.
 ## Running
-Requires: [node.js](https://nodejs.org/en/download) ~~(I use node v10)~~ latest node.js also works though I recommend using LTS
+
+### For players / tournament staff (recommended)
+You do **not** need to install Node.js.
+
+1. Download the latest release from GitHub Releases: https://github.com/heipizhu4/osu-qualifiers-autoref/releases
+2. Extract/unzip it.
+3. Double-click the launcher to start the program.
+
+If the UI freezes during a run, close the launcher and open it again.
+Launcher restart support will be added soon.
+
+### For developers
+Requires: [Node.js (LTS)](https://nodejs.org/en/download)
+
 ```bash
 npm install
 npm start
 ```
 
-To restart the new UI just in case the program froze in the middle of a game:
+To restart the UI from the command line:
 ```bash
 npm run restart
 ```
@@ -138,6 +151,7 @@ In case things went terribly wrong that you need to restart the bot, you need to
 ```bash
 npm run restart
 ```
+Launcher restart support will be added soon (so you won’t need the command line for this).
 Please note that `MapIndex` starts with 0. (That is, if you want to start out with the second map of the first round, then MapIndex=1, Round=1.)
 
 ## Player side command
