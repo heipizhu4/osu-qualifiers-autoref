@@ -4,12 +4,5 @@
 	"username": "",
 	"password": "",
 	"apiKey": "",
-	"userId": 0,
-	"limiterTimespan": 6000,
-	"limiterPrivate": 4,
-	"limiterPublic": 3,
-	"discord" : {
-		"webhookLink" : "",
-		"refereeRole": 0
-	}
+	"userId": 0
 }
