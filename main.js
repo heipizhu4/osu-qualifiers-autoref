@@ -89,7 +89,7 @@ if (process.argv.length > 2) {
                 auto = false;
                 break;
             default:
-                SendLogToRanderer(`Unknown command ${process.argv[2]}!`);
+                SendLogToRanderer(`Unknown command ${process.argv[i]}!`); 
                 process.exit(1);
         }
 }
