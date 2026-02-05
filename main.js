@@ -71,7 +71,9 @@ let Updating = false;
 let win;
 let RepeatString = "";
 let RepeatCounting = 0;
-
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 if (process.argv[1]!='.') {
     IsUI = false;
 }
@@ -174,9 +176,10 @@ function getFormattedTime() {
     const now = new Date();
     return `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]`;
 }
-function optionalOutput(Name, _playerEvent) {
+async function optionalOutput(Name, _playerEvent) {
     let o = optionalWords[Name];
     if (o != undefined) {
+        sleep(500)
         if (o[_playerEvent] != undefined) {
             channel.sendMessage(o[_playerEvent]);
         }
