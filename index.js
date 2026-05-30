@@ -85,16 +85,16 @@ function optionalOutput(Name, _playerEvent) {
 }
 //RefName.has()
 // populate mappool with map info
-function initPool() {
+async function initPool() {
     let _Index = 0;
-    return Promise.all(pool.map(async (b) => {
+    for (const b of pool) {
         const info = (await api.beatmaps.getByBeatmapId(b.id))[0];
         b.name = b.code + ': ' + info.artist + ' - ' + info.title + ' [' + info.version + ']';
         MapMap.set(b.code, b.id);
         IndexMap.set(b.code, _Index);
         _Index++;
-        console.log(chalk.dim(`Loaded ${b.code}:${info.title}`));
-    }));
+        SendLogToRanderer(`Loaded ${info.title} -> ${b.name}`);
+    }
 }
 function WriteRestartFile() {
     const data = {
