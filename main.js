@@ -192,14 +192,14 @@ function optionalOutput(Name, _playerEvent) {
 // populate mappool with map info
 function initPool() {
     let _Index = 0;
-  return Promise.all(pool.map(async (b) => {
-    const info = (await api.beatmaps.getByBeatmapId(b.id))[0];
-      b.name = b.code + ': ' + info.artist + ' - ' + info.title + ' [' + info.version + ']';
-      MapMap.set(b.code, b.id);
-      IndexMap.set(b.code, _Index);
-      _Index++;
-    SendLogToRanderer(`Loaded ${info.title}`);
-  }));
+    for (const b of pool) {
+        const info = (await api.beatmaps.getByBeatmapId(b.id))[0];
+        b.name = b.code + ': ' + info.artist + ' - ' + info.title + ' [' + info.version + ']';
+        MapMap.set(b.code, b.id);
+        IndexMap.set(b.code, _Index);
+        _Index++;
+        SendLogToRanderer(`Loaded ${info.title} -> ${b.name}`);
+    }
 }
 function WriteRestartFile() {
     const data = {
