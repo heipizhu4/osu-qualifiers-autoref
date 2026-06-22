@@ -1,19 +1,21 @@
 {
-  "timers": {
-    "betweenMaps": 120,
-    "betweenRounds": 300,
-    "readyStart": 10,
-    "forceStart": 15,
-    "timeout": 300,
-    "closeLobby": 30,
-    "abortLeniency": 15
-  },
-  "waitSong": 4974176,
-  "id": "H5",
-  "private": false,
-  "numberOfRuns": 2,
-  "tournament": "PFC S4",
-  "teams": [
-    {"name": "31415906"}
-  ]
+    "timers": {
+        "betweenMaps": 120,
+        "betweenRounds": 300,
+        "readyStart": 10,
+        "forceStart": 15,
+        "timeout": 300,
+        "closeLobby": 30,
+        "abortLeniency": 15
+    },
+    "waitSong": 4974176,
+    "id": "1",
+    "private": false,
+    "numberOfRuns": 2,
+    "tournament": "PFC S4",
+    "teams": [
+        {
+            "name": "heipizhu"
+        }
+    ]
 }
