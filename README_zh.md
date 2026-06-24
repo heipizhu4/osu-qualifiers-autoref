@@ -27,6 +27,8 @@
 
 ## 配置
 在运行 osu!autoref 之前，您需要填写一些配置信息。
+这些配置也可以通过启动器launcher来进行。使用图形化配置时，可以导入example模板（文件夹中含有_example.json后缀的文件）来查看配置。
+若要手动打包启动器到单个可执行文件，请参照本文档“打包”部分
 
 ### config.json
 创建一个名为 `config.json` 的文件。您可以复制模板文件 `config.example.json`。您需要填写您的用户名、[IRC 服务器密码](https://osu.ppy.sh/p/irc)、osu! [API 密钥](https://osu.ppy.sh/p/api) 以及 [Discord Webhook 链接](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks)。
@@ -67,10 +69,32 @@
 如果此文件不存在或玩家未被列出，则不会发送特殊消息。
 
 ## 运行
-要求：安装 node.js ~~（我使用的是 node v10 版本）~~ 最新的 node.js 也可以工作，但我推荐使用 LTS 版本
+
+### 玩家 / 比赛Staff（推荐）
+你**不需要**安装 Node.js。
+
+1. 从 [GitHub Releases](https://github.com/heipizhu4/osu-qualifiers-autoref/releases)  下载最新版本。
+2. 解压缩。
+3. 双击 launcher 启动程序。
+
+launcher 内置重启功能将会在后续版本加入。
+
+### 开发者
+要求：安装 [Node.js（LTS）](https://nodejs.org/en/download)
+
 ```bash
 npm install
-npm start 或 node index
+npm start
+```
+
+如需在命令行中重启 UI：
+```bash
+npm run restart
+```
+
+仅文本版本：
+```bash
+node main.js
 ```
 
 ## 使用方法
@@ -123,7 +147,7 @@ npm start 或 node index
 ```
 如果事情变得非常糟糕，以至于您需要重启机器人，您需要填写 `RestartSettings.json`，并在**命令行**中输入：
 ```bash
-node index.js -r
+npm run restart
 ```
 请注意 `MapIndex` 从 0 开始。（也就是说，如果您想从第一轮的第二个谱面开始，那么 MapIndex=1, Round=1。）
 
@@ -150,3 +174,12 @@ node index.js -r
 ```
 #help
 ```
+### 打包
+1. 将node程序所在目录下文件放到本项目的./bin目录下（不存在需要创建）
+2. 安装python，推荐版本为3.13，并安装对应版本的Tkinter（如果python没有自动附带）
+3. 终端运行pip install pyinstaller
+4. 将启动器打包成单个可执行程序，在当前目录终端运行：
+```
+pyinstaller --onefile --noconsole --distpath ./ --name "launcher" launcher.py
+```
+5. 运行launcher

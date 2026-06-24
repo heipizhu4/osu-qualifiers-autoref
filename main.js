@@ -24,7 +24,7 @@ const pool = require('./pool.json');
 const match = require('./match.json');
 const { randomInt } = require('crypto');
 const { request } = require('./node_modules/undici/index');
-const webhook = new WebhookClient({ url: config.discord.webhookLink });
+// const webhook = new WebhookClient({ url: config.discord.webhookLink });
 const lobbydate = new Date();
 const originalWrite = process.stdout.write.bind(process.stdout);
 const client = new bancho.BanchoClient(config);
@@ -80,14 +80,16 @@ if (process.argv.length > 2) {
     for (let i = 2; i < process.argv.length; i++)
         switch (process.argv[i]) {
             case '--r':
+            case '-r':
             case '--R':
+            case '-R':
                 IsRestart = true;
                 break;
             case "--NoAuto":
                 auto = false;
                 break;
             default:
-                SendLogToRanderer(`Unknown command ${process.argv[2]}!`);
+                SendLogToRanderer(`Unknown command ${process.argv[i]}!`); 
                 process.exit(1);
         }
 }
@@ -190,14 +192,14 @@ function optionalOutput(Name, _playerEvent) {
 // populate mappool with map info
 function initPool() {
     let _Index = 0;
-  return Promise.all(pool.map(async (b) => {
-    const info = (await api.beatmaps.getByBeatmapId(b.id))[0];
-      b.name = b.code + ': ' + info.artist + ' - ' + info.title + ' [' + info.version + ']';
-      MapMap.set(b.code, b.id);
-      IndexMap.set(b.code, _Index);
-      _Index++;
-    SendLogToRanderer(`Loaded ${info.title}`);
-  }));
+    for (const b of pool) {
+        const info = (await api.beatmaps.getByBeatmapId(b.id))[0];
+        b.name = b.code + ': ' + info.artist + ' - ' + info.title + ' [' + info.version + ']';
+        MapMap.set(b.code, b.id);
+        IndexMap.set(b.code, _Index);
+        _Index++;
+        SendLogToRanderer(`Loaded ${info.title} -> ${b.name}`);
+    }
 }
 function WriteRestartFile() {
     const data = {
@@ -251,11 +253,12 @@ async function CheckMod(IfOutput,isForce) {
             if (w != null)
                 if (w.mods && w.mods.length > 0) {
                     for (const p of w.mods) {
-                        if ((p.enumValue | 1049609) != 1049609) {//mr fl fi hd nf
+                        if ((p.enumValue | 1074791433) != 1074791433) {//mr fl fi hd nf
                             if (IfOutput)
                                 channel.sendMessage(`请${w.user.username} 卸下不被允许的mod: ${p.longMod}` + (MapTimeout ? `若在30秒时间内没有卸下，将强制开始游玩且该成绩将作废。` : ``));
                             CheckPass = 0;
                         }
+                        // channel.sendMessage(`enumValue : ${p.enumValue}`); //uncomment it for test, value==1 means allowed.
                         SendLogToRanderer(`${w.user.username} 使用了mod: ${p.longMod}`);
                     }
             }
@@ -286,7 +289,7 @@ function TryNextMap() {
             } else if (runIndex < match.numberOfRuns) {
                 runIndex++;
                 mapIndex = 0; //sets the pointer to the first map of the pool and sets first to false.
-                startLobby();
+                startLobby2();
             } else {
                 closing = true;
                 channel.sendMessage(`恭喜！你已完成资格赛的全部图池，各位可以安全离开。房间将在${match.timers.closeLobby}秒后关闭。`);
@@ -920,7 +923,7 @@ async function close() {
   await client.disconnect();
     SendLogToRanderer("Closed.");
     if(IsUI)
-    SendLogToRanderer("The lobby has been closed,but uou can still view the chat log here.");
+    SendLogToRanderer("The lobby has been closed,but you can still view the chat log here.");
   //process.exit(0);
 }
 
