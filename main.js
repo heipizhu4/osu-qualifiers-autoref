@@ -193,7 +193,7 @@ async function optionalOutput(Name, _playerEvent) {
 }
 //RefName.has()
 // populate mappool with map info
-function initPool() {
+async function initPool() {
     let _Index = 0;
     for (const b of pool) {
         const info = (await api.beatmaps.getByBeatmapId(b.id))[0];
